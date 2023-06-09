@@ -2,8 +2,9 @@ import Vue from 'vue'
 import App from './App.vue'
 
 
-import {Button} from 'element-ui'
+import {Button,Carousel,CarouselItem} from 'element-ui'
 Vue.use(Button)
+Vue.use(Carousel,CarouselItem)
 
 Vue.config.productionTip = false
 
