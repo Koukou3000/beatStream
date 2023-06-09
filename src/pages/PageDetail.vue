@@ -1,13 +1,12 @@
 <template>
-  <div>
-    this i s page trend
-    
-  </div>
+    <div>
+        this is page detail
+    </div>
 </template>
 
 <script>
 export default {
-    
+
 }
 </script>
 

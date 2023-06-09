@@ -1,5 +1,5 @@
 <template>
-  
+  <div>this is page search</div>
 </template>
 
 <script>
