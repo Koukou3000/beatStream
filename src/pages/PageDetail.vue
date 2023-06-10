@@ -1,6 +1,6 @@
 <template>
     <div>
-        this is page detail
+       detail
     </div>
 </template>
 

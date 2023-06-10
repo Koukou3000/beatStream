@@ -1,5 +1,8 @@
 <template>
-  <div> this is page upload</div>
+  <div>
+    
+    upload
+  </div>
 </template>
 
 <script>

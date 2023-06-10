@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- 
-    Discover 
+    Trend
       图片Swiper -- （取自收藏量前三  图片放大从左到右 带静音按钮 -- 排名列表
       搜索框 
       按上传时间顺序排序  

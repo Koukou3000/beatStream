@@ -1,6 +1,6 @@
 <template>
   <div>
-    this i s page trend
+   trend
     
   </div>
 </template>

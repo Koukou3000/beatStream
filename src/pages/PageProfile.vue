@@ -1,5 +1,7 @@
 <template>
-  <div>this is page profile</div>
+  <div>
+    profile
+  </div>
 </template>
 
 <script>

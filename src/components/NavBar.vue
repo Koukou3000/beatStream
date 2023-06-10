@@ -5,7 +5,9 @@
       <div class="inner__left">
         <ul>
           <li>
-            <router-link to="trend" class="selected">Logo</router-link>
+            <router-link to="trend" class="selected">
+              <div class="main__logo"></div>
+            </router-link>
           </li>
           <li>
             <router-link to="trend" active-class="selected">Trend</router-link>
@@ -107,7 +109,18 @@ a:hover{
 .selected{
   background: rgb(17,17,17);
   color: #eee;
+  display: flex;
+  justify-content: center;
 }
+.main__logo{
+  display: block;
+  width: 60px;
+  height: 46px;
+  background: url(../assets/logo-ex.png) 0 -5px no-repeat;
+  background-size: cover;
+  position: absolute;
+}
+
 
 /* 搜索框 */
 .header__search{

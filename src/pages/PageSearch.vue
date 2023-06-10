@@ -1,5 +1,7 @@
 <template>
-  <div>this is page search</div>
+  <div>
+     search
+  </div>
 </template>
 
 <script>

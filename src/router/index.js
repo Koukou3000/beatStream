@@ -9,6 +9,10 @@ import PageProfile from '../pages/PageProfile'
 const router = new VueRouter({
     routes:[
         {
+            path:'',
+            redirect:'/trend'
+        },
+        {
             path:'/upload',
             component: PageUpload
         },
