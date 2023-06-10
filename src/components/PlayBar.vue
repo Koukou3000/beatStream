@@ -1,9 +1,10 @@
 <template>
   <div class="player">
     <div class="element__container">
-      <i class="el-icon-edit"></i>
-      <i class="el-icon-edit"></i>
-      <i class="el-icon-edit"></i>
+      <button>1</button>
+      <button>2</button>
+      <button>3</button>
+
     </div>
     
   </div>
@@ -24,15 +25,16 @@ body{
   position: fixed;
   bottom: 0;
   width: 100%;
-  height: 50px;
-  border-top: 1px solid #e5e5e5;
+  height: 49px;
+  border-top: 1px solid #e3e3e3;
+  background: #f2f2f2;
   display: flex;
   justify-content: center;
 }
 .element__container{
-  width:1240px;
+  width: 1240px;
   height: 100%;
-  background: #333;
-  opacity: 0.5;
+  display: flex;
+  align-items: center;
 }
 </style>
