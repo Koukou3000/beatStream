@@ -2,7 +2,7 @@
   <div class="player">
     <div class="element__container">
       <button>1</button>
-      <button>2</button>
+      <button class="playbutton"></button>
       <button>3</button>
 
     </div>
@@ -36,5 +36,15 @@ body{
   height: 100%;
   display: flex;
   align-items: center;
+}
+
+.playbutton{
+  display: block;
+  background: url(../assets/playbar/play.svg) 0 0 no-repeat;
+  background-size: cover;
+  width: 20px;
+  height: 20px;
+  border: 0;
+  cursor: pointer;
 }
 </style>
