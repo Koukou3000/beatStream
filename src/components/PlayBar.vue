@@ -19,17 +19,19 @@
           <div class="timeline__background"></div>
         </div>
         <div class="progress__end">
-          <span v-if="timeType" @click="timeType=!timeType">3:22</span>
-          <span v-else @click="timeType=!timeType">-1:04</span>
+          <div v-if="timeType" @click="timeType=!timeType">3:22</div>
+          <div v-else @click="timeType=!timeType">-1:04</div>
         </div>
       </div>
 
       <!-- 音量条 -->
-      <button class="icon volume__state" v-if="!muted" 
-        @mouseover="showVolumeBar=true" 
-        @click="muted=!muted">
-      </button>
-      <button class="icon muted__state" v-else @click="muted=!muted"></button>
+      <button class="icon volume__state" v-show="!muted" @click="muted=!muted"
+        @mouseover="showVolumeBar=true"
+        @mouseout="showVolumeBar=false"></button>
+      <button class="icon muted__state" v-show="muted" @click="muted=!muted"
+        @mouseover="showVolumeBar=true"
+        @mouseout="showVolumeBar=false"></button>
+      <div class="volume__ctrl" v-show="showVolumeBar"></div>
 
       <!-- 歌曲信息&列表入口 -->
       <div class="track__container">
@@ -38,10 +40,10 @@
           <div class="artist">uncalc</div>
           <div class="track__title">samidare</div>
         </div>
-        <div class="icon playlist" v-if="!showPlaylist" @click="showPlaylist=true"></div>
-        <div class="icon playlist-active" v-else @click="showPlaylist=false"></div>
+        <div class="icon playlist" v-show="!showPlaylist" @click="showPlaylist=true"></div>
+        <div class="icon playlist-active" v-show="showPlaylist" @click="showPlaylist=false"></div>
       </div>
-      
+      <div class="track__ctrl"></div>
     
     </div>
     
@@ -192,6 +194,7 @@ body{
   color: #ff5500;
 }
 .progress__end{
+  width: 35px;
   cursor: pointer;
 }
 /* 音量相关 */
@@ -205,8 +208,32 @@ body{
   background: url(../assets/playbar/volume-muted.svg) 0 0 no-repeat;
   background-size: cover;
 }
+.volume__ctrl{
+  position: absolute;
+  width: 33px;
+  height: 120px;
+  background: rgb(242,242,242);
+  bottom: 42px;
+  z-index: 199;
+  left: 830px;
+  transition: .3s;
+  box-shadow: 0px 5px 5px 0px grey;
+}
+.volume__ctrl::after{
+  content: "";
+  width: 15px;
+  height: 15px;
+  background: rgb(242,242,242);
+  position: absolute;
+  bottom: -2px;
+  left: 9px;
+  transform: rotate(45deg);
+  
+}
 
-/* 播放信息相关 */
+
+
+/* 播放列表 */
 .track__container{
   display: flex;
   align-items: center;
