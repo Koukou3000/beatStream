@@ -1,6 +1,10 @@
 <template>
   <div class="player">
-    <div class="element__container"></div>
+    <div class="element__container">
+      <i class="el-icon-edit"></i>
+      <i class="el-icon-edit"></i>
+      <i class="el-icon-edit"></i>
+    </div>
     
   </div>
 </template>

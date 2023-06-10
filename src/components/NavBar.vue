@@ -148,7 +148,7 @@ a:hover{
 }
 .search__btn{
   cursor: pointer;
-  background: url(../assets/search-icon.svg) 0 0 no-repeat;
+  background: url(../assets/navbar/search-icon.svg) 0 0 no-repeat;
   border: 0;
   width: 15px;
   height: 15px;
@@ -186,7 +186,7 @@ a:hover{
   display: block;
   width: 20px;
   height: 20px;
-  background: url(../assets/arrow-down.svg) 0 0 no-repeat;
+  background: url(../assets/navbar/arrow-down.svg) 0 0 no-repeat;
   background-size: cover;
 }
 
@@ -227,14 +227,14 @@ a:hover{
   position: absolute;
   width: 15px;
   height: 15px;
-  background: url(../assets/profile.svg) 0 0 no-repeat;
+  background: url(../assets/navbar/profile.svg) 0 0 no-repeat;
   background-size: cover;
 }
 .icon__like{
   position: absolute;
   width: 15px;
   height: 15px;
-  background: url(../assets/like.svg) 0 0 no-repeat;
+  background: url(../assets/navbar/like.svg) 0 0 no-repeat;
   background-size: cover;
 }
 </style>
