@@ -26,23 +26,24 @@
 
       <div class="inner__right">
         <ul>
-          <li>
-            <router-link to="upload" active-class="selected">Upload</router-link>
-          </li>
-          <li class="user__info" @click="dropDown=!dropDown" :class="{selected: dropDown}">
-            <span class="avatar"></span>
-            <span class="arrow_down"></span>
-          </li>
-          <ul class="user__menu" v-show="dropDown">
-            <li @click="dropDown=false">
-              <span class="icon__profile"></span>
-              <router-link to="user" class="menu__link">Profile</router-link>
+            <li>
+              <router-link to="upload" active-class="selected">Upload</router-link>
             </li>
-            <li @click="dropDown=false">
-              <span class="icon__like"></span>
-              <router-link to="likes" class="menu__link">Likes</router-link>
+            <li class="user__info" @click="dropDown=!dropDown" :class="{selected: dropDown}">
+              <span class="avatar"></span>
+              <span class="arrow_down"></span>
             </li>
-          </ul>
+            <!-- 用户菜单 -->
+            <ul class="user__menu" v-show="dropDown">
+              <li @click="dropDown=false">
+                <span class="icon__profile"></span>
+                <router-link to="user" class="menu__link">Profile</router-link>
+              </li>
+              <li @click="dropDown=false">
+                <span class="icon__like"></span>
+                <router-link to="likes" class="menu__link">Likes</router-link>
+              </li>
+            </ul>
         </ul>
       </div>
      
@@ -163,6 +164,7 @@ a:hover{
   position: absolute;
   right: 0;
   display: flex;
+  justify-content: right;
   width: 50px;
 }
 
@@ -195,10 +197,11 @@ a:hover{
   position: absolute;
   top: 46px;
   display: block;
-  left: 105px;
+  right: 0;
   border: 1px solid #ccc;
   width: 133px;
-   
+  z-index: 2;
+  transform: translateX(70px);
 }
 .user__menu>li{
   background: white;

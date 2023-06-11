@@ -56,7 +56,11 @@ body{
   font: 12px Lucida Grande,Lucida Sans Unicode,Lucida Sans,Garuda,Verdana,Tahoma,sans-serif;
 }
 .container{
-  text-align: center;
+  
+    width: 1240px;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
   font-size: 14px;
 }
 

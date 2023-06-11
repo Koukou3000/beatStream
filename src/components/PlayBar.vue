@@ -11,9 +11,9 @@
    
       <!-- 进度条 -->
       <div class="progressBar__container">
-        <div class="progress__current">0:26</div>
+        <div class="progress__current">{{currentTime}}</div>
         <div class="progress__judge" @mouseover="showDot" @mouseout="hideDot">
-          <div class="timeline__bar" style="width: 56%;">
+          <div class="timeline__bar" v-if="audio" :style="{width: this.audio.currentTime*100 / this.audio.duration+'%'}">
             <div class="timeline__dot" v-show="onProgressBar"></div>
           </div>
           <div class="timeline__background"></div>
@@ -87,9 +87,69 @@ export default {
       // ---
       openPlaylist: false,
       showPlaylist: false, // 显示播放列表
+      audio: null,
+    }
+  },
+  watch:{
+    'audio':{
+      deep:true,
+      handler(newVal,oldVal){ 
+        console.log('oldVal',oldVal)
+        console.log('newVal',newVal)
+      }
+    }
+      
+  },
+  computed:{
+    progressPecent(){  
+      return this.audio.currentTime*100/this.audio.duration
+    },
+    currentTime(){
+      if(this.audio){
+        let minute = this.audio.currentTime/60
+        let second = this.audio.currentTime%60
+        if(second<10)
+          second = '0'+second
+        return minute+":"+second
+      }
+      else return "0:00"
     }
   },
   methods:{
+    playTrack(){
+      console.log('开始播放')
+      this.paused=false
+      // 如果为空 则赋值
+      if(this.audio==null){
+        this.audio = new Audio('http://47.115.222.108/music/collapse-as-snowslide.mp3')
+        this.audio.play()
+      }
+      else{
+        // 获取一些信息API
+        this.audio.play()
+      }
+      
+    },
+    pauseTrack(){
+      console.log('暂停播放')
+      this.paused=true
+      this.audio.pause()
+    },
+    stepPrev(){
+      console.log('开始播放上一首')
+    },
+    stepNext(){
+      console.log('开始播放下一首')
+    },
+    loopCurrentTrack(){
+      console.log('循环当前曲目')
+    },
+    showDot(){
+      this.onProgressBar = true
+    },
+    hideDot(){
+      this.onProgressBar = false
+    },
     // 显示音量条
     chVolume(){
       clearInterval(this.volumeBarTimer)
@@ -107,29 +167,10 @@ export default {
         }, 0);
       }
     },
-    playTrack(){
-      console.log('开始播放音乐')
-      this.paused=false
-    },
-    pauseTrack(){
-      console.log('暂停播放音乐')
-      this.paused=true
-    },
-    stepPrev(){
-      console.log('开始播放上一首')
-    },
-    stepNext(){
-      console.log('开始播放下一首')
-    },
-    loopCurrentTrack(){
-      console.log('循环当前曲目')
-    },
-    showDot(){
-      this.onProgressBar = true
-    },
-    hideDot(){
-      this.onProgressBar = false
-    },
+    
+  },
+  mounted(){
+    console.log(this)
   }
 }
 </script>
