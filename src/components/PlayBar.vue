@@ -11,16 +11,16 @@
    
       <!-- 进度条 -->
       <div class="progressBar__container">
-        <div class="progress__current">{{currentTime}}</div>
-        <div class="progress__judge" @mouseover="showDot" @mouseout="hideDot">
-          <div class="timeline__bar" v-if="audio" :style="{width: this.audio.currentTime*100 / this.audio.duration+'%'}">
+        <div class="progress__current">{{currentTimeSeconds | seconds2Format}}</div>
+        <div class="progress__judge" @mouseover="this.onProgressBar=true" @mouseout="this.onProgressBar=false">
+          <div class="timeline__bar" v-if="audio" :style="{width: progressPercent+'%'}">
             <div class="timeline__dot" v-show="onProgressBar"></div>
           </div>
           <div class="timeline__background"></div>
         </div>
         <div class="progress__end">
-          <div v-if="timeType" @click="timeType=!timeType">3:22</div>
-          <div v-else          @click="timeType=!timeType">-1:04</div>
+          <div v-if="timeType" @click="timeType=!timeType">{{durationSeconds | seconds2Format}}</div>
+          <div v-else          @click="timeType=!timeType">-{{durationSeconds-currentTimeSeconds | seconds2Format}}</div>
         </div>
       </div>
 
@@ -78,44 +78,35 @@ export default {
       paused: true, 
       muted: false, 
       volume: 0.7, 
-      timeType: false, // 进度条结束时间样式
-      onProgressBar: false, // 光标处于进度条判定区上
-      // ---
+      // --- 进度条
+      onProgressBar: false, // 光标在时间轴上
+      currentTimeSeconds: '114', // 当前时间
+      durationSeconds: '514', // 结束时间
+      timeType: false, // 结束时间样式  （总时长 | 剩余时长）
+      progressPercent: 0, // 百分比(70/100)
+      // --- 音量
       volumeBarTimer: null, // 保证动画和判定区正常工作的定时器
       openvolumeBar: false, // 计算音量控制条判定区
       showVolumeBar: false, // 显示音量进度条
-      // ---
+      // --- 列表
       openPlaylist: false,
       showPlaylist: false, // 显示播放列表
       audio: null,
-    }
-  },
-  watch:{
-    'audio':{
-      deep:true,
-      handler(newVal,oldVal){ 
-        console.log('oldVal',oldVal)
-        console.log('newVal',newVal)
-      }
-    }
-      
-  },
-  computed:{
-    progressPecent(){  
-      return this.audio.currentTime*100/this.audio.duration
-    },
-    currentTime(){
-      if(this.audio){
-        let minute = this.audio.currentTime/60
-        let second = this.audio.currentTime%60
-        if(second<10)
-          second = '0'+second
-        return minute+":"+second
-      }
-      else return "0:00"
+
     }
   },
   methods:{
+    updateProgressBar(){
+      if(this.audio){
+        this.currentTimeSeconds =  this.audio.currentTime
+        this.durationSeconds = this.audio.duration
+        this.progressPercent = this.currentTimeSeconds*100/this.durationSeconds
+      }
+      else{
+        this.progressPercent = 0
+        this.currentTimeSeconds = 0
+      }
+    },
     playTrack(){
       console.log('开始播放')
       this.paused=false
@@ -123,12 +114,12 @@ export default {
       if(this.audio==null){
         this.audio = new Audio('http://47.115.222.108/music/collapse-as-snowslide.mp3')
         this.audio.play()
+        this.audio.addEventListener('timeupdate',this.updateProgressBar)
       }
       else{
         // 获取一些信息API
         this.audio.play()
       }
-      
     },
     pauseTrack(){
       console.log('暂停播放')
@@ -143,12 +134,6 @@ export default {
     },
     loopCurrentTrack(){
       console.log('循环当前曲目')
-    },
-    showDot(){
-      this.onProgressBar = true
-    },
-    hideDot(){
-      this.onProgressBar = false
     },
     // 显示音量条
     chVolume(){
@@ -169,8 +154,17 @@ export default {
     },
     
   },
-  mounted(){
-    console.log(this)
+  filters:{
+    seconds2Format(sec){
+      if (sec>0){
+        let minutes = Math.floor(sec/60)
+        let seconds = Math.floor(sec%60)
+        if(seconds<10)
+          seconds='0'+seconds
+        return minutes + ":" + seconds
+      }
+      return '0:00'
+    }
   }
 }
 </script>
@@ -271,7 +265,7 @@ body{
   height: 8px;
   background: #ff5500;
   z-index: 99;
-  transform: translateY(-50%);
+  transform: translate(4px, -50%);
   border-radius: 50%;
 }
 .progress__current{
