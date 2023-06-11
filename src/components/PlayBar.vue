@@ -15,7 +15,9 @@
         <div class="progress__current">{{currentTimeSeconds | seconds2Format}}</div>
         <div class="progress__judge" @mouseover="onProgressBar=true" @mouseout="onProgressBar=false">
           <div class="timeline__bar" v-if="audio" :style="{width: progressPercent+'%'}">
-            <div class="timeline__dot" v-show="onProgressBar"></div>
+            <transition name="dotFade">
+              <div class="timeline__dot" v-show="onProgressBar"></div>
+            </transition>
           </div>
           <div class="timeline__background"></div>
         </div>
@@ -28,7 +30,7 @@
       
 
       <!-- 喇叭光标 -->
-      <div class="volume__judge" @mouseover="chVolume" @mouseout="finVolume" @click="muted=!muted">
+      <div class="volume__judge" @mouseover="chVolume" @mouseout="finVolume" @click="chMuted">
         <button class="icon volume__state" v-show="!muted"></button>
         <button class="icon muted__state" v-show="muted"></button>
       </div>
@@ -37,7 +39,7 @@
         <transition name="transVolume">
           <div class="volume__content" v-show="showVolumeBar">
             <div class="volume__groove">
-              <div class="volume__level">
+              <div class="volume__level" :style="{height: volumePercent+'%'}">
               <div class="volume__dot"></div>
             </div>
             
@@ -47,7 +49,7 @@
         </transition>
       </div>
 
-      <!-- 歌曲信息&列表入口 -->
+      <!-- 歌曲信息 & 列表 -->
       <div class="track__container">
         <div class="poster__image"></div>
         <div>
@@ -57,6 +59,7 @@
         <div class="icon playlist" v-show="!showPlaylist" @click="showPlaylist=true"></div>
         <div class="icon playlist-active" v-show="showPlaylist" @click="showPlaylist=false"></div>
       </div>
+
       <div class="track__panel" v-show="showPlaylist" @click="showPlaylist=false">
         <div class="panel__top" >
           Next up | clear | close
@@ -78,18 +81,19 @@ export default {
     return{
       audio: null,
       paused: true, 
-      volume: 0.7, 
       muted: false, 
       // --- 进度条
       onProgressBar: false, // 光标在时间轴上
       currentTimeSeconds: '114', // 当前时间
       durationSeconds: '514', // 结束时间
       timeType: false, // 结束时间样式  （总时长 | 剩余时长）
-      progressPercent: 0, // 百分比(70/100)
+      progressPercent: 0, 
       // --- 音量
-      volumeBarTimer: null, // 保证动画和判定区正常工作的定时器
+      volumeBarTimer: null, // 控制判定区与音量条动画的定时器
       openvolumeBar: false, // 计算音量控制条判定区
       showVolumeBar: false, // 显示音量进度条
+      volume: 0.3,          // 记录静音前的音量
+      volumePercent: 30,    
       // --- 列表
       openPlaylist: false, // 计算播放列表定位
       showPlaylist: false, // 显示播放列表
@@ -110,17 +114,33 @@ export default {
     },
     playTrack(){
       this.paused=false
-      // 如果为空 则赋值
-      if(this.audio==null){
+      // this.audio.volume = this.volume
+      if(!this.audio){
         this.audio = new Audio('http://47.115.222.108/music/collapse-as-snowslide.mp3')
         this.audio.addEventListener('timeupdate',this.updateProgressBar)
       }
-        this.audio.play()
-        
+      this.audio.volume = this.volumePercent/100
+      this.audio.play() 
     },
     pauseTrack(){
       this.paused=true
-      this.audio.pause()
+      this.audio.pause()    
+    },
+    chMuted(){
+      this.muted = !this.muted
+      if(this.audio){
+
+        if(this.muted){
+          this.audio.volume = 0
+          this.volumePercent = 0
+        }
+        else{
+          this.audio.volume = this.volume
+          this.volumePercent = this.volume*100
+        }
+      }
+
+
       
     },
     stepPrev(){
@@ -132,6 +152,7 @@ export default {
     loopCurrentTrack(){
       console.log('循环当前曲目')
     },
+    
     // 显示音量条
     chVolume(){
       clearInterval(this.volumeBarTimer)
@@ -148,8 +169,7 @@ export default {
           }, 100); // 延迟时间与动画时间相同
         }, 0);
       }
-    },
-    
+    }, 
   },
   filters:{
     seconds2Format(sec){
@@ -268,6 +288,16 @@ button:focus{
   transform: translate(4px, -50%);
   border-radius: 50%;
 }
+@keyframes fade{
+  from{opacity: 0;}
+  to{opacity: 1;}
+}
+.dotFade-enter-active{
+  animation: fade .2s ;
+}
+.dotFade-leave-active{
+  animation: fade reverse .2s;
+}
 .progress__current{
   color: #ff5500;
 }
@@ -352,6 +382,7 @@ button:focus{
 }
 /* 音量条滑槽 */
 .volume__groove{
+  position: relative;
   width: 2px;
   height: 80%;
   background: #ccc;
@@ -361,9 +392,9 @@ button:focus{
   position: absolute;
   width: 2px;
   background: #ff5500;;
-  bottom: 10%;
+  bottom: 0;
   z-index: 3;
-  height: 20%;
+  height: 30%;
 }
 .volume__dot{
   position: absolute;
