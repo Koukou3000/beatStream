@@ -2,6 +2,7 @@
   <div class="player">
     <div class="element__container">
       <!-- 播放列表操作按钮 -->
+
       <button class="icon prev__btn" @click="stepPrev"></button>
       <button class="icon play__btn" @click="playTrack" v-if="paused"></button>
       <button class="icon pause__btn" @click="pauseTrack" v-else></button>
