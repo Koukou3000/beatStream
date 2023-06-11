@@ -20,21 +20,22 @@
         </div>
         <div class="progress__end">
           <div v-if="timeType" @click="timeType=!timeType">3:22</div>
-          <div v-else @click="timeType=!timeType">-1:04</div>
+          <div v-else          @click="timeType=!timeType">-1:04</div>
         </div>
       </div>
 
       
-      <button class="icon volume__state" v-show="!muted" @click="muted=!muted"
-        @mouseover="showVolumeBar=true"
-        @mouseout="showVolumeBar=false"></button>
-      <button class="icon muted__state" v-show="muted" @click="muted=!muted"
-        @mouseover="showVolumeBar=true"
-        @mouseout="showVolumeBar=false"></button>
+
       <!-- 音量条 -->
-      <div class="volume__pos">
-        <transition appear name="fill__up">
-          <div class="volume__content" v-show="showVolumeBar"></div>
+      <div class="volume__judge" @mouseover="chVolume" @mouseout="finVolume" @click="muted=!muted">
+        <button class="icon volume__state" v-show="!muted"></button>
+        <button class="icon muted__state" v-show="muted"></button>
+      </div>
+      <div class="volume__pos" @mouseover="chVolume" @mouseout="finVolume">
+        <transition name="transVolume">
+          <div class="volume__content" v-show="showVolumeBar">
+           
+          </div>
         </transition>
       </div>
 
@@ -56,18 +57,34 @@
 </template>
 
 <script>
+var volumeBarTimer = null
 export default {
   data(){
     return{
       paused: true, 
-      timeType: false, 
-      muted: false,
-      onProgressBar: false,
-      showVolumeBar: false,
+      muted: false, 
+      timeType: false, // 进度条时间样式
+      onProgressBar: false, // 光标处于进度条判定区上
+      volume: 0.7, 
+      showVolumeBar: false, // 显示音量进度条
       showPlaylist: false,
     }
   },
   methods:{
+    // 显示音量
+    chVolume(){
+      clearInterval(volumeBarTimer)
+      this.showVolumeBar = true
+    },
+    // 隐藏音量
+    finVolume(){
+      if(this.showVolumeBar){
+        volumeBarTimer = setInterval(() => {
+          this.showVolumeBar = false
+        }, 500);
+        
+      }
+    },
     playTrack(){
       console.log('开始播放音乐')
       this.paused=false
@@ -203,41 +220,76 @@ body{
   width: 35px;
   cursor: pointer;
 }
-/* 音量相关 */
+/* 音量控制判定 */
+.volume__judge{
+  margin: 0 15px;
+  padding: 0 5px;
+  width: 30px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
 .volume__state{
-  margin: 25px;
+  position: absolute;
   background: url(../assets/playbar/volume.svg) 0 0 no-repeat;
   background-size: cover;
 }
 .muted__state{
-  margin: 25px;
+  position: absolute;
   background: url(../assets/playbar/volume-muted.svg) 0 0 no-repeat;
   background-size: cover;
 }
+
+/* 音量条显示定位 */
 .volume__pos{
   position: absolute;
   width: 33px;
   height: 120px;
   bottom: 42px;
   z-index: 199;
-  left: 831px;
+  left: 830px; 
 }
+/* 音量条阴影 */
 .volume__content{
   position: absolute;
   width: 100%;
-  background: rgb(242,242,242);
-  bottom: 0;
-  border: 1px solid transparent;
-  box-shadow: 0 0 1px 1px grey;
-  transition: .2s;
-}
-.fill__up-enter{
-  height: 0;
-}
-.fill__up-enter-to{
   height: 100%;
+  transform-style: preserve-3d;
+  bottom: 0;
+  background: #f2f2f2;
+  box-shadow: 0 0 3px 1px #ccc;
+  border: 1px solid #ccc;
+} 
+.volume__content::after{
+  content: '';
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  bottom: 0;
+  left: 50%;
+  background: #f2f2f2;
+  transform: translate(-50%,5px) rotate(45deg);
+  box-shadow: 0 2px 3px 1px #ccc;
+  z-index: 1;
 }
-
+.volume__content::before{
+  content: '';
+  position: absolute;
+  background: rgb(242, 242,242);
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+}
+@keyframes fill__up{
+  from{height: 0%;}
+  to{height: 100%;}
+}
+.transVolume-enter-active{
+  animation: fill__up .1s ease-out;
+}
+.trans-volume-leave-active{
+  animation: fill__up reverse .1s ease-out;
+}
 
 /* 播放列表 */
 .track__container{
