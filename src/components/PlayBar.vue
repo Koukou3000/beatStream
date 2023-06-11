@@ -31,11 +31,17 @@
         <button class="icon volume__state" v-show="!muted"></button>
         <button class="icon muted__state" v-show="muted"></button>
       </div>
-      <!-- 立刻出现定位=》随后开始出现content和动画 -->
+      <!-- 立刻定位=> 随后出现进度条和动画 -->
       <div class="volume__pos" @mouseover="chVolume" @mouseout="finVolume" v-show="openvolumeBar">
         <transition name="transVolume">
           <div class="volume__content" v-show="showVolumeBar">
-            <div>123</div>
+            <div class="volume__groove">
+              <div class="volume__level">
+              <div class="volume__dot"></div>
+            </div>
+            
+            </div>
+            
           </div>
         </transition>
       </div>
@@ -50,7 +56,15 @@
         <div class="icon playlist" v-show="!showPlaylist" @click="showPlaylist=true"></div>
         <div class="icon playlist-active" v-show="showPlaylist" @click="showPlaylist=false"></div>
       </div>
-      <div class="track__ctrl"></div>
+      <div class="track__panel" v-show="showPlaylist" @click="showPlaylist=false">
+        <div class="panel__top" >
+          Next up | clear | close
+        </div>
+        <div> track 1</div>
+        <div> track 1</div>
+        <div> track 1</div>
+        <div> track 1</div>
+      </div>
     
     </div>
     
@@ -66,10 +80,12 @@ export default {
       volume: 0.7, 
       timeType: false, // 进度条结束时间样式
       onProgressBar: false, // 光标处于进度条判定区上
-      
+      // ---
       volumeBarTimer: null, // 保证动画和判定区正常工作的定时器
       openvolumeBar: false, // 计算音量控制条判定区
       showVolumeBar: false, // 显示音量进度条
+      // ---
+      openPlaylist: false,
       showPlaylist: false, // 显示播放列表
     }
   },
@@ -232,6 +248,7 @@ body{
   height: 100%;
   display: flex;
   align-items: center;
+  cursor: pointer;
 }
 .volume__state{
   position: absolute;
@@ -247,11 +264,12 @@ body{
 /* 音量条显示定位 */
 .volume__pos{
   position: absolute;
-  width: 33px;
+  width: 32px;
   height: 120px;
   bottom: 42px;
   z-index: 199;
   left: 830px; 
+  cursor: pointer;
 }
 /* 音量条阴影 */
 .volume__content{
@@ -263,6 +281,9 @@ body{
   background: #f2f2f2;
   box-shadow: 0 0 3px 1px #ccc;
   border: 1px solid #ccc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 } 
 .volume__content::after{
   content: '';
@@ -294,6 +315,32 @@ body{
 .transVolume-leave-active{
   animation: fill__up reverse .1s ease-out;
 }
+/* 音量条滑槽 */
+.volume__groove{
+  width: 2px;
+  height: 80%;
+  background: #ccc;
+  z-index: 2;
+}
+.volume__level{
+  position: absolute;
+  width: 2px;
+  background: #ff5500;;
+  bottom: 10%;
+  z-index: 3;
+  height: 20%;
+}
+.volume__dot{
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: #ff5500;
+  border-radius: 50%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+
 
 /* 播放列表 */
 .track__container{
@@ -338,4 +385,16 @@ body{
   background: url(../assets/playbar/playlist-active.svg) 0 0 no-repeat;
   background-size: cover;
 }
+/* 列表操作面板 */
+.track__panel{
+  width: 480px;
+  height: 650px;
+  background: #fff;
+  box-shadow: 0 0 4px 1px #ccc;
+  position: absolute;
+  bottom: 55px;
+  right: 0;
+}
+
+
 </style>
