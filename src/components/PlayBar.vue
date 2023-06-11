@@ -24,14 +24,19 @@
         </div>
       </div>
 
-      <!-- 音量条 -->
+      
       <button class="icon volume__state" v-show="!muted" @click="muted=!muted"
         @mouseover="showVolumeBar=true"
         @mouseout="showVolumeBar=false"></button>
       <button class="icon muted__state" v-show="muted" @click="muted=!muted"
         @mouseover="showVolumeBar=true"
         @mouseout="showVolumeBar=false"></button>
-      <div class="volume__ctrl" v-show="showVolumeBar"></div>
+      <!-- 音量条 -->
+      <div class="volume__pos">
+        <transition appear name="fill__up">
+          <div class="volume__content" v-show="showVolumeBar"></div>
+        </transition>
+      </div>
 
       <!-- 歌曲信息&列表入口 -->
       <div class="track__container">
@@ -54,8 +59,8 @@
 export default {
   data(){
     return{
-      paused: true,
-      timeType: false,
+      paused: true, 
+      timeType: false, 
       muted: false,
       onProgressBar: false,
       showVolumeBar: false,
@@ -98,6 +103,7 @@ body{
   color: #333;
 }
 .player{
+  user-select: none;
   position: fixed;
   bottom: 0;
   width: 100%;
@@ -115,7 +121,7 @@ body{
   position: relative;
 }
 
-/* 操作图标 */
+/* 操作图标 换成src*/
 .icon{
   display: block;
   width: 24px;
@@ -208,29 +214,29 @@ body{
   background: url(../assets/playbar/volume-muted.svg) 0 0 no-repeat;
   background-size: cover;
 }
-.volume__ctrl{
+.volume__pos{
   position: absolute;
   width: 33px;
   height: 120px;
-  background: rgb(242,242,242);
   bottom: 42px;
   z-index: 199;
-  left: 830px;
-  transition: .3s;
-  box-shadow: 0px 5px 5px 0px grey;
+  left: 831px;
 }
-.volume__ctrl::after{
-  content: "";
-  width: 15px;
-  height: 15px;
-  background: rgb(242,242,242);
+.volume__content{
   position: absolute;
-  bottom: -2px;
-  left: 9px;
-  transform: rotate(45deg);
-  
+  width: 100%;
+  background: rgb(242,242,242);
+  bottom: 0;
+  border: 1px solid transparent;
+  box-shadow: 0 0 1px 1px grey;
+  transition: .2s;
 }
-
+.fill__up-enter{
+  height: 0;
+}
+.fill__up-enter-to{
+  height: 100%;
+}
 
 
 /* 播放列表 */
