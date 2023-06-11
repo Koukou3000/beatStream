@@ -30,7 +30,7 @@
       
 
       <!-- 喇叭光标 -->
-      <div class="volume__judge" @mouseover="chVolume" @mouseout="finVolume" @click="chMuted">
+      <div class="volume__judge" @mouseover="chVolume" @mouseout="finVolume" @click="toggleMuted">
         <button class="icon volume__state" v-show="!muted"></button>
         <button class="icon muted__state" v-show="muted"></button>
       </div>
@@ -84,10 +84,10 @@ export default {
       muted: false, 
       // --- 进度条
       onProgressBar: false, // 光标在时间轴上
-      currentTimeSeconds: '114', // 当前时间
-      durationSeconds: '514', // 结束时间
+      currentTimeSeconds: '0', // 当前时间
+      durationSeconds: '114', // 结束时间
       timeType: false, // 结束时间样式  （总时长 | 剩余时长）
-      progressPercent: 0, 
+
       // --- 音量
       volumeBarTimer: null, // 控制判定区与音量条动画的定时器
       openvolumeBar: false, // 计算音量控制条判定区
@@ -100,16 +100,16 @@ export default {
       playlist: []
     }
   },
+  computed:{
+    progressPercent(){
+      return this.currentTimeSeconds*100 / this.durationSeconds
+    }
+  },
   methods:{
     updateProgressBar(){
       if(this.audio){
         this.currentTimeSeconds =  this.audio.currentTime
         this.durationSeconds = this.audio.duration
-        this.progressPercent = this.currentTimeSeconds*100/this.durationSeconds
-      }
-      else{
-        this.progressPercent = 0
-        this.currentTimeSeconds = 0
       }
     },
     playTrack(){
@@ -126,7 +126,7 @@ export default {
       this.paused=true
       this.audio.pause()    
     },
-    chMuted(){
+    toggleMuted(){
       this.muted = !this.muted
       if(this.audio){
 
