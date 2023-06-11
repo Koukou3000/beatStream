@@ -12,7 +12,7 @@
       <!-- 进度条 -->
       <div class="progressBar__container">
         <div class="progress__current">{{currentTimeSeconds | seconds2Format}}</div>
-        <div class="progress__judge" @mouseover="this.onProgressBar=true" @mouseout="this.onProgressBar=false">
+        <div class="progress__judge" @mouseover="onProgressBar=true" @mouseout="onProgressBar=false">
           <div class="timeline__bar" v-if="audio" :style="{width: progressPercent+'%'}">
             <div class="timeline__dot" v-show="onProgressBar"></div>
           </div>
@@ -50,8 +50,8 @@
       <div class="track__container">
         <div class="poster__image"></div>
         <div>
-          <div class="artist">uncalc</div>
-          <div class="track__title">samidare</div>
+          <div class="artist">yomoha</div>
+          <div class="track__title">collapse-as-snowslide</div>
         </div>
         <div class="icon playlist" v-show="!showPlaylist" @click="showPlaylist=true"></div>
         <div class="icon playlist-active" v-show="showPlaylist" @click="showPlaylist=false"></div>
@@ -75,9 +75,10 @@
 export default {
   data(){
     return{
+      audio: null,
       paused: true, 
-      muted: false, 
       volume: 0.7, 
+      muted: false, 
       // --- 进度条
       onProgressBar: false, // 光标在时间轴上
       currentTimeSeconds: '114', // 当前时间
@@ -89,10 +90,9 @@ export default {
       openvolumeBar: false, // 计算音量控制条判定区
       showVolumeBar: false, // 显示音量进度条
       // --- 列表
-      openPlaylist: false,
+      openPlaylist: false, // 计算播放列表定位
       showPlaylist: false, // 显示播放列表
-      audio: null,
-
+      playlist: []
     }
   },
   methods:{
@@ -108,21 +108,15 @@ export default {
       }
     },
     playTrack(){
-      console.log('开始播放')
       this.paused=false
       // 如果为空 则赋值
       if(this.audio==null){
         this.audio = new Audio('http://47.115.222.108/music/collapse-as-snowslide.mp3')
-        this.audio.play()
         this.audio.addEventListener('timeupdate',this.updateProgressBar)
       }
-      else{
-        // 获取一些信息API
         this.audio.play()
-      }
     },
     pauseTrack(){
-      console.log('暂停播放')
       this.paused=true
       this.audio.pause()
     },
