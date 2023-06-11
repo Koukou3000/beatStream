@@ -26,14 +26,17 @@
 
       
 
-      <!-- 音量条 -->
+      <!-- 喇叭光标 -->
       <div class="volume__judge" @mouseover="chVolume" @mouseout="finVolume" @click="muted=!muted">
         <button class="icon volume__state" v-show="!muted"></button>
         <button class="icon muted__state" v-show="muted"></button>
       </div>
-      <div class="volume__pos" @mouseover="chVolume" @mouseout="finVolume">
+      <!-- 立刻出现定位=》随后开始出现content和动画 -->
+      <div class="volume__pos" @mouseover="chVolume" @mouseout="finVolume" v-show="openvolumeBar">
         <transition name="transVolume">
-          <div class="volume__content" v-show="showVolumeBar"></div>
+          <div class="volume__content" v-show="showVolumeBar">
+            <div>123</div>
+          </div>
         </transition>
       </div>
 
@@ -55,32 +58,37 @@
 </template>
 
 <script>
-var volumeBarTimer = null
 export default {
   data(){
     return{
       paused: true, 
       muted: false, 
-      timeType: false, // 进度条时间样式
-      onProgressBar: false, // 光标处于进度条判定区上
       volume: 0.7, 
+      timeType: false, // 进度条结束时间样式
+      onProgressBar: false, // 光标处于进度条判定区上
+      
+      volumeBarTimer: null, // 保证动画和判定区正常工作的定时器
+      openvolumeBar: false, // 计算音量控制条判定区
       showVolumeBar: false, // 显示音量进度条
-      showPlaylist: false,
+      showPlaylist: false, // 显示播放列表
     }
   },
   methods:{
-    // 显示音量
+    // 显示音量条
     chVolume(){
-      clearInterval(volumeBarTimer)
+      clearInterval(this.volumeBarTimer)
+      this.openvolumeBar = true
       this.showVolumeBar = true
     },
-    // 隐藏音量
+    // 隐藏音量条
     finVolume(){
       if(this.showVolumeBar){
-        volumeBarTimer = setTimeout(() => {
+        this.volumeBarTimer = setTimeout(() => {
           this.showVolumeBar = false
-        }, 100);
-        
+          setTimeout(() => {
+            this.openvolumeBar = false
+          }, 100); // 延迟时间与动画时间相同
+        }, 0);
       }
     },
     playTrack(){
@@ -106,8 +114,6 @@ export default {
     hideDot(){
       this.onProgressBar = false
     },
-    
-  
   }
 }
 </script>
