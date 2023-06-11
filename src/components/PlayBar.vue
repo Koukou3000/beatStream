@@ -116,10 +116,12 @@ export default {
         this.audio.addEventListener('timeupdate',this.updateProgressBar)
       }
         this.audio.play()
+        
     },
     pauseTrack(){
       this.paused=true
       this.audio.pause()
+      
     },
     stepPrev(){
       console.log('开始播放上一首')
@@ -196,6 +198,9 @@ body{
   border: 0;
   cursor: pointer;
   margin:  0 7px;
+}
+button:focus{
+  outline: none;
 }
 .pause__btn{
   background: url(../assets/playbar/pause.svg) 0 0 no-repeat;
