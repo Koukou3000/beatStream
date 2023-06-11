@@ -33,9 +33,7 @@
       </div>
       <div class="volume__pos" @mouseover="chVolume" @mouseout="finVolume">
         <transition name="transVolume">
-          <div class="volume__content" v-show="showVolumeBar">
-           
-          </div>
+          <div class="volume__content" v-show="showVolumeBar"></div>
         </transition>
       </div>
 
@@ -79,9 +77,9 @@ export default {
     // 隐藏音量
     finVolume(){
       if(this.showVolumeBar){
-        volumeBarTimer = setInterval(() => {
+        volumeBarTimer = setTimeout(() => {
           this.showVolumeBar = false
-        }, 500);
+        }, 100);
         
       }
     },
@@ -287,7 +285,7 @@ body{
 .transVolume-enter-active{
   animation: fill__up .1s ease-out;
 }
-.trans-volume-leave-active{
+.transVolume-leave-active{
   animation: fill__up reverse .1s ease-out;
 }
 
