@@ -34,7 +34,7 @@
       </div>
       <!-- 立刻定位=> 随后出现进度条和动画 -->
       <div class="volume__pos" v-show="openVolumeJudgeArea"
-        @mouseover="chVolume" @mouseout="finVolume" @mousedown="chVolume('press')">
+        @mouseover="chVolume" @mouseout="finVolume" @mousedown="chVolume">
         <!-- 
           播放进度条 - 松手时反馈
           1. 点击触发移动，监听x轴移动
@@ -119,6 +119,7 @@ export default {
   },
   methods:{
     updateProgressBar(){
+      //更新播放状态（进度条、音量等
       if(this.audio){ 
         this.currentTimeSeconds =  this.audio.currentTime
         this.durationSeconds = this.audio.duration
@@ -159,24 +160,23 @@ export default {
     loopCurrentTrack(){
       console.log('循环当前曲目')
     },
-    chVolume(ctrl){
+    chVolume(e){
       // 保证音量条不会隐藏
       clearInterval(this.volumeBarTimer) 
       this.openVolumeJudgeArea = true
       this.showVolumeBar = true
       // 按下时开始调节音量
-      console.log(ctrl)
-      if(ctrl == 'press'){ 
+      if(e.type == 'mousedown'){ 
         this.volumeChanging = true
+        this.volumeControlDown(e)
         addEventListener('mousemove', this.volumeControlMove)
         addEventListener('mouseup', this.volumeControlUp)
       }
     },
-    volumeControlMove(e){ 
-      // 移动时处理音量条变化 
-      clearInterval(this.volumeBarTimer)      
+    volumeControlDown(e){
       this.muted = false
       let a = e.clientY - this.$refs.volume__groove.getBoundingClientRect().top - this.$refs.volume__groove.getBoundingClientRect().height
+      // *取模
       if(a < 0 && a >-100){
         a = -a  
       } 
@@ -185,10 +185,15 @@ export default {
       } 
       else if(a > 0){
         a = 0
-        this.muted = true
+        this.muted = true 
       } 
       this.volumePercent = a
-      this.volume = this.volumePercent/100
+      this.volume = this.volumePercent/100 //percent audio.volume 同时为零时，仍然可以复原音量 (volume ~ tmp)
+    },
+    volumeControlMove(e){ 
+      // 移动时处理音量条变化 
+      clearInterval(this.volumeBarTimer)      
+      this.volumeControlDown(e)
     },
     volumeControlUp(e){
       // 鼠标抬起，去掉监听器，隐藏音量条

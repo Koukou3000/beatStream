@@ -19,7 +19,7 @@
    -->
     <NavBar/>
     <div class="container">
-      接下来： 处理拖拽、点击音量条|进度条  以及歌曲列表 歌曲信息上传
+      接下来： 处理拖拽、点击进度条  以及 歌曲列表 歌曲信息上传
       <router-view></router-view>
     </div>
     <PlayBar/>
