@@ -48,7 +48,7 @@
          -->
         <transition name="transVolume">
           <div class="volume__content" v-show="showVolumeBar">
-            <div class="volume__groove" ref="volume__groove">
+            <div class="volume__groove">
               <div class="volume__level" :style="{height: volumePercent+'%'}">
                 <div class="volume__dot"></div>
               </div>
@@ -445,7 +445,7 @@ button:focus{
   background: #ff5500;
   border-radius: 50%;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-50%) translateY(-4px);
 }
 
 
