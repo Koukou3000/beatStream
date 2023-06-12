@@ -35,9 +35,15 @@
       <!-- 立刻定位=> 随后出现进度条和动画 -->
       <div class="volume__pos" v-show="openvolumeBar" @mouseover="chVolume" @mouseout="finVolume" >
         <!-- 
-          1. 点击 触发移动事件监听，监听光标的y轴移动、
+          播放进度条 - 松手时反馈
+          1. 点击触发移动，监听x轴移动
+          2. 实时反馈移动到的时间点
+          3. 松手时将audio调整到对应时间点 再play
+
+          音量进度条 - 直接反馈 
+          1. 点击触发移动事件监听，监听光标的y轴移动
           2. 将y轴移动直接反馈给volumePercent
-          
+          3. 抬起左键，结束事件监听
          -->
         <transition name="transVolume">
           <div class="volume__content" v-show="showVolumeBar">
