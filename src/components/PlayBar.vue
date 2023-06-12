@@ -1,8 +1,8 @@
 <template>
   <div class="player">
     <div class="element__container">
-      <!-- 播放列表操作按钮 -->
 
+      <!-- 播放操作按钮 -->
       <button class="icon prev__btn" @click="stepPrev"></button>
       <button class="icon play__btn" @click="playTrack" v-if="paused"></button>
       <button class="icon pause__btn" @click="pauseTrack" v-else></button>
@@ -27,29 +27,30 @@
         </div>
       </div>
 
-      
-
       <!-- 喇叭光标 -->
       <div class="volume__judge" @mouseover="chVolume" @mouseout="finVolume" @click="toggleMuted">
         <button class="icon volume__state" v-show="!muted"></button>
         <button class="icon muted__state" v-show="muted"></button>
       </div>
       <!-- 立刻定位=> 随后出现进度条和动画 -->
-      <div class="volume__pos" @mouseover="chVolume" @mouseout="finVolume" v-show="openvolumeBar">
+      <div class="volume__pos" v-show="openvolumeBar" @mouseover="chVolume" @mouseout="finVolume" >
+        <!-- 
+          1. 点击 触发移动事件监听，监听光标的y轴移动、
+          2. 将y轴移动直接反馈给volumePercent
+          
+         -->
         <transition name="transVolume">
           <div class="volume__content" v-show="showVolumeBar">
             <div class="volume__groove">
               <div class="volume__level" :style="{height: volumePercent+'%'}">
-              <div class="volume__dot"></div>
-            </div>
-            
-            </div>
-            
+                <div class="volume__dot"></div>
+              </div>
+            </div>    
           </div>
         </transition>
       </div>
 
-      <!-- 歌曲信息 & 列表 -->
+      <!-- 歌曲信息   -->
       <div class="track__container">
         <div class="poster__image"></div>
         <div>
@@ -59,7 +60,7 @@
         <div class="icon playlist" v-show="!showPlaylist" @click="showPlaylist=true"></div>
         <div class="icon playlist-active" v-show="showPlaylist" @click="showPlaylist=false"></div>
       </div>
-
+      <!-- 列表 -->
       <div class="track__panel" v-show="showPlaylist" @click="showPlaylist=false">
         <div class="panel__top" >
           Next up | clear | close
@@ -93,7 +94,8 @@ export default {
       openvolumeBar: false, // 计算音量控制条判定区
       showVolumeBar: false, // 显示音量进度条
       volume: 0.3,          // 记录静音前的音量
-      volumePercent: 30,    
+      volumePercent: 30,    // 在playtrack和updateProgressBar中都更新到audio.volume上，同步视觉和听觉
+      volumeDragTimer: null, 
       // --- 列表
       openPlaylist: false, // 计算播放列表定位
       showPlaylist: false, // 显示播放列表
@@ -110,6 +112,7 @@ export default {
       if(this.audio){
         this.currentTimeSeconds =  this.audio.currentTime
         this.durationSeconds = this.audio.duration
+        // this.audio.volume = this.volumePercent/100
       }
     },
     playTrack(){
@@ -142,6 +145,11 @@ export default {
 
 
       
+    },
+    dragVolume(){
+      this.volumeDragTimer = setInterval(() => {
+        console.log('鼠标按下')
+      }, 100);
     },
     stepPrev(){
       console.log('开始播放上一首')
