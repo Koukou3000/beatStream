@@ -17,7 +17,6 @@
     底部全局播放器 （需要多标签页共享播放状态： 考虑localStorage/ Broadcast Channel
       常规按钮 + 播放列表Nextup + 图片 
    -->
- 
     <NavBar/>
     <div class="container">
       接下来： 处理拖拽、点击音量条|进度条  以及歌曲列表 歌曲信息上传

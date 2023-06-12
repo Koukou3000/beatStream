@@ -48,7 +48,7 @@
          -->
         <transition name="transVolume">
           <div class="volume__content" v-show="showVolumeBar">
-            <div class="volume__groove">
+            <div class="volume__groove" ref="volume__groove">
               <div class="volume__level" :style="{height: volumePercent+'%'}">
                 <div class="volume__dot"></div>
               </div>
@@ -120,7 +120,7 @@ export default {
       if(this.audio){
         this.currentTimeSeconds =  this.audio.currentTime
         this.durationSeconds = this.audio.duration
-        // this.audio.volume = this.volumePercent/100 // 播放过程中实时调整音量
+        this.audio.volume = this.volumePercent/100 // 播放过程中实时调整音量
       }
     },
     playTrack(){
@@ -171,9 +171,21 @@ export default {
       }
     },
     volumeControlMove(e){ 
-      // 鼠标按下，移动时处理音量条变化 ? 卡住了
-      clearInterval(this.volumeBarTimer) 
-      console.log('x:',e.clientX,' y:',e.clientY)
+      // 移动时处理音量条变化 
+      clearInterval(this.volumeBarTimer)      
+      this.muted = false
+
+      // 记录groove条底部y轴坐标，使用鼠
+      this.volumePercent -= e.movementY
+      
+      if(this.volumePercent >= 100) {
+        this.volumePercent = 100
+      }
+      else if(this.volumePercent <=0 ){
+        this.volumePercent = 0
+        this.muted = true
+      }
+      this.volume = this.volumePercent/100
     },
     volumeControlUp(e){
       // 鼠标抬起，去掉监听器，隐藏音量条
@@ -185,10 +197,8 @@ export default {
       if(this.volumeChanging) //调节音量中，不隐藏
         return 
       else if(e.type == 'mouseup' && e.target.className.substring(0,6) == 'volume') // 鼠标单击音量条，不隐藏
-        return 
-      
+        return       
       // 移开后开始计时，随后隐藏
-      
       else if(this.showVolumeBar){
         this.volumeBarTimer = setTimeout(() => {
           this.showVolumeBar = false
@@ -362,7 +372,7 @@ button:focus{
 .volume__pos{
   position: absolute;
   width: 32px;
-  height: 120px;
+  height: 125px;
   bottom: 42px;
   z-index: 199;
   left: 830px; 
