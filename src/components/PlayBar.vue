@@ -44,11 +44,13 @@
           音量进度条 - 直接反馈 
           1. 点击触发移动事件监听，监听光标的y轴移动 v
           2. 将y轴移动直接反馈给volumePercent
+              *mousedown时就直接反馈了，后面的mousemove判定为movementY
           3. 抬起左键，结束事件监听 v
          -->
         <transition name="transVolume">
           <div class="volume__content" v-show="showVolumeBar">
-            <div class="volume__groove">
+            <!-- <div class="volume__cloak" ref="volume__cloak"></div> -->
+            <div class="volume__groove" ref="volume__groove">
               <div class="volume__level" :style="{height: volumePercent+'%'}">
                 <div class="volume__dot"></div>
               </div>
@@ -117,7 +119,7 @@ export default {
   },
   methods:{
     updateProgressBar(){
-      if(this.audio){
+      if(this.audio){ 
         this.currentTimeSeconds =  this.audio.currentTime
         this.durationSeconds = this.audio.duration
         this.audio.volume = this.volumePercent/100 // 播放过程中实时调整音量
@@ -125,10 +127,9 @@ export default {
     },
     playTrack(){
       this.paused=false
-      // this.audio.volume = this.volume
       if(!this.audio){
         this.audio = new Audio('http://47.115.222.108/music/collapse-as-snowslide.mp3')
-        this.audio.addEventListener('timeupdate',this.updateProgressBar)
+        this.audio.addEventListener('timeupdate', this.updateProgressBar)
       }
       this.audio.volume = this.volumePercent/100 // 初次播放时调整音量
       this.audio.play() 
@@ -139,7 +140,7 @@ export default {
     },
     toggleMuted(){
       this.muted = !this.muted
-      this.muted ? this.volumePercent= 0 : this.volumePercent=this.volume*100 // 即使没有音乐载入，音量条也要可以调整
+      this.muted ? this.volumePercent= 0 : this.volumePercent=this.volume*100 // 即使没有音乐载入，音量条也要可以调整z
       if(this.audio){
         if(this.muted){
           this.audio.volume = 0
@@ -164,6 +165,7 @@ export default {
       this.openVolumeJudgeArea = true
       this.showVolumeBar = true
       // 按下时开始调节音量
+      console.log(ctrl)
       if(ctrl == 'press'){ 
         this.volumeChanging = true
         addEventListener('mousemove', this.volumeControlMove)
@@ -174,17 +176,18 @@ export default {
       // 移动时处理音量条变化 
       clearInterval(this.volumeBarTimer)      
       this.muted = false
-
-      // 记录groove条底部y轴坐标，使用鼠
-      this.volumePercent -= e.movementY
-      
-      if(this.volumePercent >= 100) {
-        this.volumePercent = 100
-      }
-      else if(this.volumePercent <=0 ){
-        this.volumePercent = 0
+      let a = e.clientY - this.$refs.volume__groove.getBoundingClientRect().top - this.$refs.volume__groove.getBoundingClientRect().height
+      if(a < 0 && a >-100){
+        a = -a  
+      } 
+      else if(a <= -100){
+        a = 100
+      } 
+      else if(a > 0){
+        a = 0
         this.muted = true
-      }
+      } 
+      this.volumePercent = a
       this.volume = this.volumePercent/100
     },
     volumeControlUp(e){
@@ -209,6 +212,7 @@ export default {
         }, 0);
       }
     }, 
+    
     
    
   },
