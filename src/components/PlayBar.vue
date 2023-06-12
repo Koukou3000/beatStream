@@ -28,12 +28,12 @@
       </div>
 
       <!-- 喇叭光标 -->
-      <div class="volume__judge" @mouseover="chVolume" @mouseout="finVolume" @click="toggleMuted">
+      <div class="volume__judge" @click="toggleMuted" @mouseover="chVolume" @mouseout="finVolume" >
         <button class="icon volume__state" v-show="!muted"></button>
         <button class="icon muted__state" v-show="muted"></button>
       </div>
       <!-- 立刻定位=> 随后出现进度条和动画 -->
-      <div class="volume__pos" v-show="openvolumeBar" @mouseover="chVolume" @mouseout="finVolume" >
+      <div class="volume__pos" v-show="openvolumeBar" @mouseover="chVolume" @mouseout="finVolume" @mousedown="chVolume('press')">
         <!-- 
           播放进度条 - 松手时反馈
           1. 点击触发移动，监听x轴移动
@@ -89,6 +89,7 @@ export default {
       audio: null,
       paused: true, 
       muted: false, 
+    
       // --- 进度条
       onProgressBar: false, // 光标在时间轴上
       currentTimeSeconds: '0', // 当前时间
@@ -101,7 +102,6 @@ export default {
       showVolumeBar: false, // 显示音量进度条
       volume: 0.3,          // 记录静音前的音量
       volumePercent: 30,    // 在playtrack和updateProgressBar中都更新到audio.volume上，同步视觉和听觉
-      volumeDragTimer: null, 
       // --- 列表
       openPlaylist: false, // 计算播放列表定位
       showPlaylist: false, // 显示播放列表
@@ -118,7 +118,7 @@ export default {
       if(this.audio){
         this.currentTimeSeconds =  this.audio.currentTime
         this.durationSeconds = this.audio.duration
-        // this.audio.volume = this.volumePercent/100
+        // this.audio.volume = this.volumePercent/100 // 播放过程中实时调整音量
       }
     },
     playTrack(){
@@ -128,7 +128,7 @@ export default {
         this.audio = new Audio('http://47.115.222.108/music/collapse-as-snowslide.mp3')
         this.audio.addEventListener('timeupdate',this.updateProgressBar)
       }
-      this.audio.volume = this.volumePercent/100
+      this.audio.volume = this.volumePercent/100 // 初次播放时调整音量
       this.audio.play() 
     },
     pauseTrack(){
@@ -137,25 +137,15 @@ export default {
     },
     toggleMuted(){
       this.muted = !this.muted
+      this.muted ? this.volumePercent= 0 : this.volumePercent=this.volume*100 // 即使没有音乐载入，音量条也要可以调整
       if(this.audio){
-
         if(this.muted){
           this.audio.volume = 0
-          this.volumePercent = 0
         }
         else{
           this.audio.volume = this.volume
-          this.volumePercent = this.volume*100
         }
       }
-
-
-      
-    },
-    dragVolume(){
-      this.volumeDragTimer = setInterval(() => {
-        console.log('鼠标按下')
-      }, 100);
     },
     stepPrev(){
       console.log('开始播放上一首')
@@ -166,16 +156,27 @@ export default {
     loopCurrentTrack(){
       console.log('循环当前曲目')
     },
-    
-    // 显示音量条
-    chVolume(){
-      clearInterval(this.volumeBarTimer)
+    chVolume(ctrl){
+      clearInterval(this.volumeBarTimer) 
       this.openvolumeBar = true
-      this.showVolumeBar = true
+      this.showVolumeBar = true   
+      if(ctrl == 'press'){
+        // console.log('按下鼠标')
+        var handler = function(e){
+          clearInterval(this.volumeBarTimer) 
+          console.log(e.clientY)
+        }
+        window.addEventListener('mousemove', handler)
+        addEventListener('mouseup',function(){
+          console.log('松开了鼠标')
+          window.removeEventListener('mousemove',handler)
+        })
+      }
     },
-    // 隐藏音量条
     finVolume(){
-      if(this.showVolumeBar){
+      if(this.mouseMoveListener)  //调节音量中，不做处理
+        return
+      else if(this.showVolumeBar){
         this.volumeBarTimer = setTimeout(() => {
           this.showVolumeBar = false
           setTimeout(() => {
