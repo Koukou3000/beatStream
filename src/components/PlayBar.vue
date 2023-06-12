@@ -33,7 +33,8 @@
         <button class="icon muted__state" v-show="muted"></button>
       </div>
       <!-- 立刻定位=> 随后出现进度条和动画 -->
-      <div class="volume__pos" v-show="openVolumeJudgeArea" @mouseover="chVolume" @mouseout="finVolume" @mousedown="chVolume('press')">
+      <div class="volume__pos" v-show="openVolumeJudgeArea"
+        @mouseover="chVolume" @mouseout="finVolume" @mousedown="chVolume('press')">
         <!-- 
           播放进度条 - 松手时反馈
           1. 点击触发移动，监听x轴移动
@@ -41,9 +42,9 @@
           3. 松手时将audio调整到对应时间点 再play
 
           音量进度条 - 直接反馈 
-          1. 点击触发移动事件监听，监听光标的y轴移动
+          1. 点击触发移动事件监听，监听光标的y轴移动 v
           2. 将y轴移动直接反馈给volumePercent
-          3. 抬起左键，结束事件监听
+          3. 抬起左键，结束事件监听 v
          -->
         <transition name="transVolume">
           <div class="volume__content" v-show="showVolumeBar">
@@ -169,24 +170,26 @@ export default {
         addEventListener('mouseup', this.volumeControlUp)
       }
     },
-    volumeControlMove(mouseEvent){ 
-      // 鼠标按下，移动时处理音量条变化
+    volumeControlMove(e){ 
+      // 鼠标按下，移动时处理音量条变化 ? 卡住了
       clearInterval(this.volumeBarTimer) 
-      console.log(mouseEvent)
-      
+      console.log('x:',e.clientX,' y:',e.clientY)
     },
-    volumeControlUp(){
+    volumeControlUp(e){
       // 鼠标抬起，去掉监听器，隐藏音量条
       this.volumeChanging = false
       removeEventListener('mousemove',this.volumeControlMove)
-      this.finVolume()
+      this.finVolume(e) 
     },
-    finVolume(){
-      //调节音量中，不隐藏
-      if(this.volumeChanging) return 
+    finVolume(e){
+      if(this.volumeChanging) //调节音量中，不隐藏
+        return 
+      else if(e.type == 'mouseup' && e.target.className.substring(0,6) == 'volume') // 鼠标单击音量条，不隐藏
+        return 
+      
       // 移开后开始计时，随后隐藏
-      else if(this.showVolumeBar)
-      {
+      
+      else if(this.showVolumeBar){
         this.volumeBarTimer = setTimeout(() => {
           this.showVolumeBar = false
           setTimeout(() => {
