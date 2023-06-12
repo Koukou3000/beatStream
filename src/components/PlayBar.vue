@@ -161,26 +161,29 @@ export default {
       // 保证音量条不会隐藏
       clearInterval(this.volumeBarTimer) 
       this.openVolumeJudgeArea = true
-      this.showVolumeBar = true   
+      this.showVolumeBar = true
       // 按下时开始调节音量
       if(ctrl == 'press'){ 
         this.volumeChanging = true
-        let handler = function(e){
-          clearInterval(this.volumeBarTimer) 
-          console.log(e.clientY)
-        }
-        window.addEventListener('mousemove', handler)
-        addEventListener('mouseup',()=>{
-          this.volumeChanging = false
-          window.removeEventListener('mousemove',handler)
-          this.finVolume()
-        })
+        addEventListener('mousemove', this.volumeControlMove)
+        addEventListener('mouseup', this.volumeControlUp)
       }
+    },
+    volumeControlMove(mouseEvent){ 
+      // 鼠标按下，移动时处理音量条变化
+      clearInterval(this.volumeBarTimer) 
+      console.log(mouseEvent)
+      
+    },
+    volumeControlUp(){
+      // 鼠标抬起，去掉监听器，隐藏音量条
+      this.volumeChanging = false
+      removeEventListener('mousemove',this.volumeControlMove)
+      this.finVolume()
     },
     finVolume(){
       //调节音量中，不隐藏
-      if(this.volumeChanging) 
-        return 
+      if(this.volumeChanging) return 
       // 移开后开始计时，随后隐藏
       else if(this.showVolumeBar)
       {
@@ -188,11 +191,15 @@ export default {
           this.showVolumeBar = false
           setTimeout(() => {
             this.openVolumeJudgeArea = false
-          }, 100); // 延迟时间与动画时间相同
+            removeEventListener('mouseup', this.volumeControlUp)
+          }, 100); // 先启动关闭动画，延迟后关闭定位区（延迟时间与动画时间相同
         }, 0);
       }
     }, 
+    
+   
   },
+
   filters:{
     seconds2Format(sec){
       if (sec>0){
