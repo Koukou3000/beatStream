@@ -33,7 +33,7 @@
         <button class="icon muted__state" v-show="muted"></button>
       </div>
       <!-- 立刻定位=> 随后出现进度条和动画 -->
-      <div class="volume__pos" v-show="openvolumeBar" @mouseover="chVolume" @mouseout="finVolume" @mousedown="chVolume('press')">
+      <div class="volume__pos" v-show="openVolumeJudgeArea" @mouseover="chVolume" @mouseout="finVolume" @mousedown="chVolume('press')">
         <!-- 
           播放进度条 - 松手时反馈
           1. 点击触发移动，监听x轴移动
@@ -89,7 +89,7 @@ export default {
       audio: null,
       paused: true, 
       muted: false, 
-    
+
       // --- 进度条
       onProgressBar: false, // 光标在时间轴上
       currentTimeSeconds: '0', // 当前时间
@@ -98,10 +98,11 @@ export default {
 
       // --- 音量
       volumeBarTimer: null, // 控制判定区与音量条动画的定时器
-      openvolumeBar: false, // 计算音量控制条判定区
-      showVolumeBar: false, // 显示音量进度条
-      volume: 0.3,          // 记录静音前的音量
-      volumePercent: 30,    // 在playtrack和updateProgressBar中都更新到audio.volume上，同步视觉和听觉
+      openVolumeJudgeArea: false, // 计算音量控制条判定区
+      showVolumeBar: false,       // 显示音量进度条
+      volume: 0.3,            // 记录静音前的音量
+      volumePercent: 30,      // 在playtrack和updateProgressBar中都更新到audio.volume上，同步视觉和听觉
+      volumeChanging: false, 
       // --- 列表
       openPlaylist: false, // 计算播放列表定位
       showPlaylist: false, // 显示播放列表
@@ -157,30 +158,36 @@ export default {
       console.log('循环当前曲目')
     },
     chVolume(ctrl){
+      // 保证音量条不会隐藏
       clearInterval(this.volumeBarTimer) 
-      this.openvolumeBar = true
+      this.openVolumeJudgeArea = true
       this.showVolumeBar = true   
-      if(ctrl == 'press'){
-        // console.log('按下鼠标')
-        var handler = function(e){
+      // 按下时开始调节音量
+      if(ctrl == 'press'){ 
+        this.volumeChanging = true
+        let handler = function(e){
           clearInterval(this.volumeBarTimer) 
           console.log(e.clientY)
         }
         window.addEventListener('mousemove', handler)
-        addEventListener('mouseup',function(){
-          console.log('松开了鼠标')
+        addEventListener('mouseup',()=>{
+          this.volumeChanging = false
           window.removeEventListener('mousemove',handler)
+          this.finVolume()
         })
       }
     },
     finVolume(){
-      if(this.mouseMoveListener)  //调节音量中，不做处理
-        return
-      else if(this.showVolumeBar){
+      //调节音量中，不隐藏
+      if(this.volumeChanging) 
+        return 
+      // 移开后开始计时，随后隐藏
+      else if(this.showVolumeBar)
+      {
         this.volumeBarTimer = setTimeout(() => {
           this.showVolumeBar = false
           setTimeout(() => {
-            this.openvolumeBar = false
+            this.openVolumeJudgeArea = false
           }, 100); // 延迟时间与动画时间相同
         }, 0);
       }
