@@ -3,7 +3,7 @@
     <NavBar/>
     <div class="container">
     <br>
-    Upload 以及一些别的
+    Upload  上传当然也是保存到本地而已，编辑几个字符串
       Track:{
         releaseTime发布时间,
         title标题,
@@ -18,7 +18,7 @@
       
     <hr>
     底部全局播放器 （需要多标签页共享播放状态： 考虑localStorage/ Broadcast Channel
-      v常规按钮 
+      按钮  -- 图标改一下打开页面就下载----------------------
       歌曲信息跳转 detail
       播放列表Nextup 
       Playlist:[{
