@@ -10,13 +10,22 @@
       <button class="icon loop__btn" @click="loopCurrentTrack"></button>
       
    
-      <!-- 进度条 -->
+      <!-- AUDIOTIME - 进度条 -->
       <div class="progressBar__container">
         <div class="progress__current">{{currentTimeSeconds | seconds2Format}}</div>
-        <div class="progress__judge" @mouseover="onProgressBar=true" @mouseout="onProgressBar=false">
+        <div class="progress__judge" ref="progress__judge" @mousedown="chAudioTime"
+          @mouseover="chAudioTime" @mouseout="finAudioTime">
+           <!-- 
+              播放进度条 - 松手时反馈
+              1. 按下开始记录移动，每次移动反馈位置和时间，监听x轴移动 v
+              2. 实时反馈移动到的时间点
+              3. 松手时将audio调整到对应时间点 再play 
+          -->
           <div class="timeline__bar" v-if="audio" :style="{width: progressPercent+'%'}">
             <transition name="dotFade">
-              <div class="timeline__dot" v-show="onProgressBar"></div>
+              <div class="timeline__dot" v-show="onProgressBar">
+                 <div class="timeline__target" v-show="changingTime">{{jumpToSeconds | seconds2Format}}</div>
+              </div>
             </transition>
           </div>
           <div class="timeline__background"></div>
@@ -27,29 +36,22 @@
         </div>
       </div>
 
-      <!-- 喇叭光标 -->
+      <!-- VOLUME - 喇叭光标 -->
       <div class="volume__judge" @click="toggleMuted" @mouseover="chVolume" @mouseout="finVolume" >
         <button class="icon volume__state" v-show="!muted"></button>
         <button class="icon muted__state" v-show="muted"></button>
       </div>
-      <!-- 立刻定位=> 随后出现进度条和动画 -->
+      <!-- VOLUME - 音量进度条 - 立即定位=> 随后出现进度条和动画 -->
       <div class="volume__pos" v-show="openVolumeJudgeArea"
         @mouseover="chVolume" @mouseout="finVolume" @mousedown="chVolume">
         <!-- 
-          播放进度条 - 松手时反馈
-          1. 点击触发移动，监听x轴移动
-          2. 实时反馈移动到的时间点
-          3. 松手时将audio调整到对应时间点 再play
-
           音量进度条 - 直接反馈 
-          1. 点击触发移动事件监听，监听光标的y轴移动 v
-          2. 将y轴移动直接反馈给volumePercent
-              *mousedown时就直接反馈了，后面的mousemove判定为movementY
+          1. 按下触发第一次事件监听，之后每次移动都调用事件监听 v
+          2. 将y轴移动直接反馈给volumePercent v
           3. 抬起左键，结束事件监听 v
          -->
         <transition name="transVolume">
           <div class="volume__content" v-show="showVolumeBar">
-            <!-- <div class="volume__cloak" ref="volume__cloak"></div> -->
             <div class="volume__groove" ref="volume__groove">
               <div class="volume__level" :style="{height: volumePercent+'%'}">
                 <div class="volume__dot"></div>
@@ -91,21 +93,25 @@ export default {
     return{
       audio: null,
       paused: true, 
-      muted: false, 
+      muted: false,  
 
       // --- 进度条
-      onProgressBar: false, // 光标在时间轴上
-      currentTimeSeconds: '0', // 当前时间
-      durationSeconds: '114', // 结束时间
-      timeType: false, // 结束时间样式  （总时长 | 剩余时长）
+      timeType: false,          // 结束时间样式  （总时长 | 剩余时长）
+      onProgressBar: false,     // 光标在时间轴上
+      progressBarTimer: null,
+      currentTimeSeconds: '0',  // 当前时间
+      durationSeconds: '74',    // 结束时间
+      changingTime: false,      // 调节进度条，控制动画效果正常进行
+      jumpToSeconds: '514',     // 跳转到...
 
       // --- 音量
-      volumeBarTimer: null, // 控制判定区与音量条动画的定时器
+      volumeBarTimer: null,       // 控制判定区与音量条动画的定时器
       openVolumeJudgeArea: false, // 计算音量控制条判定区
       showVolumeBar: false,       // 显示音量进度条
-      volume: 0.3,            // 记录静音前的音量
-      volumePercent: 30,      // 在playtrack和updateProgressBar中都更新到audio.volume上，同步视觉和听觉
-      volumeChanging: false, 
+      volume: 0.3,                // 记录静音前的音量
+      volumePercent: 30,          // 在playtrack()和updateProgressBar()中都更新到audio.volume上，同步视觉和听觉
+      changingVolume: false,      // 调节进度条，控制动画效果正常进行
+
       // --- 列表
       openPlaylist: false, // 计算播放列表定位
       showPlaylist: false, // 显示播放列表
@@ -114,14 +120,16 @@ export default {
   },
   computed:{
     progressPercent(){
-      return this.currentTimeSeconds*100 / this.durationSeconds
+        return this.currentTimeSeconds*100 / this.durationSeconds
     }
   },
   methods:{
     updateProgressBar(){
       //更新播放状态（进度条、音量等
       if(this.audio){ 
-        this.currentTimeSeconds =  this.audio.currentTime
+
+        if(!this.changingTime) // 修改进度条时不刷新进度条
+          this.currentTimeSeconds =  this.audio.currentTime
         this.durationSeconds = this.audio.duration
         this.audio.volume = this.volumePercent/100 // 播放过程中实时调整音量
       }
@@ -139,6 +147,17 @@ export default {
       this.paused=true
       this.audio.pause()    
     },
+    
+    stepPrev(){
+      console.log('开始播放上一首')
+    },
+    stepNext(){
+      console.log('开始播放下一首')
+    },
+    loopCurrentTrack(){
+      console.log('循环当前曲目')
+    },
+    
     toggleMuted(){
       this.muted = !this.muted
       this.muted ? this.volumePercent= 0 : this.volumePercent=this.volume*100 // 即使没有音乐载入，音量条也要可以调整z
@@ -151,29 +170,20 @@ export default {
         }
       }
     },
-    stepPrev(){
-      console.log('开始播放上一首')
-    },
-    stepNext(){
-      console.log('开始播放下一首')
-    },
-    loopCurrentTrack(){
-      console.log('循环当前曲目')
-    },
     chVolume(e){
       // 保证音量条不会隐藏
-      clearInterval(this.volumeBarTimer) 
+      clearTimeout(this.volumeBarTimer) 
       this.openVolumeJudgeArea = true
       this.showVolumeBar = true
       // 按下时开始调节音量
       if(e.type == 'mousedown'){ 
-        this.volumeChanging = true
-        this.volumeControlDown(e)
-        addEventListener('mousemove', this.volumeControlMove)
+        this.changingVolume = true
+        this.volumeControlCalc(e)
+        addEventListener('mousemove', this.volumeControlCalc)
         addEventListener('mouseup', this.volumeControlUp)
       }
     },
-    volumeControlDown(e){
+    volumeControlCalc(e){
       this.muted = false
       let a = e.clientY - this.$refs.volume__groove.getBoundingClientRect().top - this.$refs.volume__groove.getBoundingClientRect().height
       // *取模
@@ -190,20 +200,14 @@ export default {
       this.volumePercent = a
       this.volume = this.volumePercent/100 //percent audio.volume 同时为零时，仍然可以复原音量 (volume ~ tmp)
     },
-    volumeControlMove(e){ 
-      // 移动时处理音量条变化 
-      clearInterval(this.volumeBarTimer)      
-      this.volumeControlDown(e)
-    },
     volumeControlUp(e){
       // 鼠标抬起，去掉监听器，隐藏音量条
-      this.volumeChanging = false
-      removeEventListener('mousemove',this.volumeControlMove)
+      this.changingVolume = false
+      removeEventListener('mousemove',this.volumeControlCalc)
       this.finVolume(e) 
     },
     finVolume(e){
-      if(this.volumeChanging) //调节音量中，不隐藏
-        return 
+      if(this.changingVolume) return 
       else if(e.type == 'mouseup' && e.target.className.substring(0,6) == 'volume') // 鼠标单击音量条，不隐藏
         return       
       // 移开后开始计时，随后隐藏
@@ -217,9 +221,50 @@ export default {
         }, 0);
       }
     }, 
-    
-    
-   
+    chAudioTime(e){
+      clearInterval(this.progressBarTimer) // 进度条的点
+      this.onProgressBar=true
+      if(!this.audio) return // 没有音乐载入 控制进度条非法
+      else if(e.type == 'mousedown'){
+        this.changingTime = true
+        this.progressBarMoveDisplay(e)
+        addEventListener('mousemove',this.progressBarMoveDisplay)
+        addEventListener('mouseup',this.progressBarUp)
+      }
+    },
+    progressBarMoveDisplay(e){
+      // 移动时的效果显示
+      let groove = this.$refs.progress__judge.getBoundingClientRect().width
+      let dot = e.clientX - this.$refs.progress__judge.getBoundingClientRect().left 
+      if(dot<=0) 
+        dot = 0
+      else if(dot > groove) 
+        dot = groove
+      let percent = dot/groove
+      this.currentTimeSeconds = percent*this.durationSeconds
+      this.jumpToSeconds = Math.floor(percent * this.durationSeconds)
+    },
+    progressBarUp(e){
+      this.changingTime = false
+      removeEventListener('mousemove', this.progressBarMoveDisplay)
+      this.progressBarMoveDisplay(e)
+      this.audio.currentTime = this.currentTimeSeconds
+      this.finAudioTime(e)
+    },
+    finAudioTime(e){
+      if(this.changingTime) return
+      else if(e.type == 'mouseup'){
+        // 鼠标单击进度条，不隐藏
+        if(e.target.className.substring(0,8) == 'progress' 
+        || e.target.className.substring(0,8) == 'timeline')
+          return
+      }    
+      //移开后开始计时并隐藏
+      this.progressBarTimer = setTimeout(() => {
+        this.onProgressBar = false
+        removeEventListener('mouseup',this.progressBarUp)
+      },100)
+    }
   },
 
   filters:{
@@ -339,6 +384,19 @@ button:focus{
   transform: translate(4px, -50%);
   border-radius: 50%;
 }
+.timeline__target{
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0 4px;
+  border-radius: 4px;
+  color: #f2f2f2;
+  border: #e3e3e3;
+  background: #333;
+  font-size: 16px;
+  font-weight: bold;
+}
 @keyframes fade{
   from{opacity: 0;}
   to{opacity: 1;}
@@ -356,6 +414,9 @@ button:focus{
   width: 35px;
   cursor: pointer;
 }
+
+
+
 /* 音量控制判定 */
 .volume__judge{
   margin: 0 15px;
