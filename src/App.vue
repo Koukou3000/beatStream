@@ -1,29 +1,52 @@
 <template>
   <div>
-    <!-- 
-    Trend
-      图片Swiper -- （取自收藏量前三  图片放大从左到右 带静音按钮 -- 排名列表
-      搜索框 
-      按上传时间顺序排序  
-      加入nextUP
-
-    TrackDetail
-      歌曲详情
-      歌词滚动条
-      preview 片段
-      评论 - 时间戳
-      webAudio  
-
-    底部全局播放器 （需要多标签页共享播放状态： 考虑localStorage/ Broadcast Channel
-      常规按钮 + 播放列表Nextup + 图片 
-   -->
     <NavBar/>
     <div class="container">
-      接下来： 处理拖拽、点击进度条  以及 歌曲列表 歌曲信息上传
+    <br>
+    Upload 以及一些别的
+      Track:{
+        releaseTime发布时间,
+        title标题,
+        audio存储地址,
+        poster存储地址,
+        preview__start开始时间,
+        comments:[{
+          at时间戳,
+          content评论内容,
+        }]
+      }
+      
+    <hr>
+    底部全局播放器 （需要多标签页共享播放状态： 考虑localStorage/ Broadcast Channel
+      v常规按钮 
+      歌曲信息跳转 detail
+      播放列表Nextup 
+      Playlist:[{
+        Track1,Track2,Track3....
+      }]
+
+    <hr> 
+    Trend 
+      图片Swiper -- （排名列表 前三 - 图片放大从左到右 带静音按钮 -- 
+      按上传时间顺序排序的
+        track列表（歌曲信息  加入播放列表  播放时仅替换当前曲目）
+        playlist（播放时替换整个player 播放列表）（推荐的
+      
+    <hr>
+    Search 
+      返回全部列表中的一部分（页面跳转传值
+    
+    <hr>
+    TrackDetail
+      歌词滚动条
+      webAudio  加个频谱?
+
+    <hr>
+    profile likes 不做了
       <router-view></router-view>
     </div>
     <PlayBar/>
-  
+
 </div>
 </template>
 
@@ -51,7 +74,7 @@ body{
 }
 .container{
   
-    width: 1240px;
+  width: 1240px;
   position: absolute;
   left: 50%;
   transform: translateX(-50%);

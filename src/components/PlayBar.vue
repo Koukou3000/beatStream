@@ -74,12 +74,14 @@
       <!-- 列表 -->
       <div class="track__panel" v-show="showPlaylist" @click="showPlaylist=false">
         <div class="panel__top" >
+          
           Next up | clear | close
         </div>
         <div> track 1</div>
         <div> track 1</div>
         <div> track 1</div>
         <div> track 1</div>
+        <div>高度实时计算 整个document高度的50%？</div>
       </div>
     
     </div>
