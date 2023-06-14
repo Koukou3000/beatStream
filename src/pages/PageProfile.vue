@@ -1,6 +1,6 @@
 <template>
   <div>
-    profile
+    profile likes 不做了
   </div>
 </template>
 

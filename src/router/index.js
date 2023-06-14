@@ -13,24 +13,10 @@ const router = new VueRouter({
             redirect:'/trend'
         },
         {
-            path:'/upload',
-            component: PageUpload,
-            meta:{
-                title: '上传'
-            }
-        },
-        {
             path:'/trend',
             component: PageTrend,
             meta:{
                 title: '发现 BeatStream 的热门趋势'
-            }
-        },
-        {
-            path:'/detail',
-            component: PageDetail,
-            meta:{
-                title: 'Streaming xxx'
             }
         },
         {   
@@ -41,12 +27,30 @@ const router = new VueRouter({
             }
         },
         {
+            path:'/detail',
+            component: PageDetail,
+            meta:{
+                title: 'Streaming xxx'
+            }
+        },
+        {
+            path:'/upload',
+            component: PageUpload,
+            meta:{
+                title: '上传'
+            }
+        },
+        {
             path:'/user',
             component: PageProfile,
             meta:{
                 title: '个人资料'
             }
         },
+        {
+            path:'/likes',
+            redirect:'/user'    
+        }
         
     ]
 })

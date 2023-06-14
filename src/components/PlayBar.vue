@@ -139,7 +139,8 @@ export default {
     playTrack(){
       this.paused=false
       if(!this.audio){
-        this.audio = new Audio('http://47.115.222.108/music/collapse-as-snowslide.mp3')
+        console.log('新建一次')
+        this.audio = new Audio('http://47.115.222.108/music/Cortado.mp3')
         this.audio.addEventListener('timeupdate', this.updateProgressBar)
       }
       this.audio.volume = this.volumePercent/100 // 初次播放时调整音量
