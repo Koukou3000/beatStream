@@ -15,12 +15,15 @@
         }]
       }
       上传成功后，加入到本地存储中
+      <div style="color:red">{{track.trackname}}</div>
   </div>
 </template>
 
 <script>
 export default {
-
+  computed:{
+    track(){return this.$store.state.track}
+  },
 }
 </script>
 

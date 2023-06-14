@@ -5,23 +5,23 @@
     
     <hr> 
     Trend 
-      图片Swiper -- （排名列表 前三 - 图片放大从左到右 带静音按钮 -- 
+      图片Swiper -- （图片放大 keyframe循环8字 带静音按钮 -- 默认静音）
       按上传时间顺序排序的:
         track列表（歌曲信息  加入播放列表  播放时仅替换当前曲目）
         playlist（播放时替换整个player 播放列表）（推荐的
     <br>
     Search 
-      返回全部列表中的一部分（页面跳转传值
+      返回全部列表中的一部分（emit?
 
     <br> 
-    底部全局播放器 （需要多标签页共享播放状态： 考虑localStorage/ Broadcast Channel
-      按钮  -- 图标改一下打开页面就下载----------------------
+    PlayBar 
+      按钮 -- 图标打开页面提前下载完 ----------------------
       歌曲信息跳转 detail
       播放列表Nextup 
 
     <hr>
     TrackDetail
-      歌词滚动条
+      歌词滚动
       webAudio  加个频谱?
 
       <router-view></router-view>
