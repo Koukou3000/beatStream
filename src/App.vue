@@ -3,6 +3,7 @@
     <NavBar/>
     
     <div class="container">
+      <router-view></router-view>
     
       <br>
       PlayBar 
@@ -15,7 +16,7 @@
         歌词滚动
         webAudio  加个频谱?
 
-      <router-view></router-view>
+      关于音乐格式的优化，看一下其他音频网站 qq netease dizzylab
     </div>
     <PlayBar/>
 
@@ -42,6 +43,7 @@ export default {
 body{
   margin: 0 auto;
   font: 12px Lucida Grande,Lucida Sans Unicode,Lucida Sans,Garuda,Verdana,Tahoma,sans-serif;
+  background: #f2f2f2;
 }
 .container{
   

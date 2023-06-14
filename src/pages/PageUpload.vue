@@ -16,9 +16,22 @@
       然后就可以开始完善我这个playbar的nextup，调顺序，单曲循环，前后调整，由playbar自己维护这个nextup列表。
       看看lrc文件做歌词滚动，再看看webAudio做频谱图。
      -->
-    <hr>
+    <ul class="guide__container">
+      <li class="selected">Track</li>
+      <li>Playlist</li>
+      <li>Edit</li>
+    </ul>
+    <div class="upload__form">
+      <input type="text"><br>
+      <input type="text"><br>
+      <input type="text"><br>
+      <input type="text"><br>
+      <button @click="doaction">doaction</button>
+
+    </div>
+
+    <div style="display:none;">
      Upload   -- 维护一个track列表
-      
       添加一个track对象到state中
       添加一个trackList到state中
 
@@ -32,11 +45,33 @@
           at时间戳,
           content评论内容,
         }]
-      }
+      } 
+    </div>
+    {{track.trackname}} 
+        computed:{
+        personAbout(){
+            return this.$store.state.personAbout
+        },
+        countAbout(){
+            return this.$store.state.countAbout
+        },
+        // ...mapState(['personAbout','countAbout']),     
+        len1(){
+            return this.$store.getters['personAbout/len'] //getters.personAbout/len 
+        }
+        // ...mapGetters({len1:'personAbout/len'}) 
+    },
+    methods: {
+        add(){
+            this.$store.dispatch('countAbout/add',3)
+        },
+        addMu(){
+            this.$store.commit('countAbout/ADD',114)
+        }
 
-      
-      <div style="color:red;">{{track.trackname}}</div>
+    },
 
+     
   </div>
 </template>
 
@@ -47,12 +82,54 @@ export default {
       return this.$store.state.track
     }
   },
+  methods:{
+    
+  },
   mounted(){
     console.log(this.track.trackList)
   }
 }
 </script>
 
-<style>
+<style scoped>
+.guide__container{
+  width: 100%;
+  height: 49px;
+  background: #fff;
+  border: 1px solid #f2f2f2;
+  display: flex;
+  align-items: center;
+  flex-direction: row-reverse;
+}
+ul{
+  margin: 0;
+  padding: 0;
+}
+li{
+  position: relative;
+  display: inline-block;
+  list-style-type: none;
+  margin: 0 20px;
+  height: 100%;
+  line-height: 49px;
+  cursor: pointer;
+}
+.selected{
+  color: #ff5500;
+}
+.selected::before{
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 1px;
+  bottom: 0;
+  background: #ff5500;
+}
+.upload__form{
+  width: 100%;
+  height: 700px;
+  background: #fff;
+}
+
 
 </style>
