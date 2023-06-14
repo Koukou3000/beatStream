@@ -1,6 +1,7 @@
 <template>
     <div>
-        detail
+        detail 带上歌曲的id之类
+        和playbar通信
     </div>
 </template>
 

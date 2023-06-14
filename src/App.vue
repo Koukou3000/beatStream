@@ -3,21 +3,14 @@
     <NavBar/>
     <div class="container">
     
-    <hr> 
-    Trend 
-      图片Swiper -- （图片放大 keyframe循环8字 带静音按钮 -- 默认静音）
-      按上传时间顺序排序的:
-        track列表（歌曲信息  加入播放列表  播放时仅替换当前曲目）
-        playlist（播放时替换整个player 播放列表）（推荐的
-    <br>
-    Search 
-      返回全部列表中的一部分（emit?
+    
+    
 
-    <br> 
+    <br>
     PlayBar 
       按钮 -- 图标打开页面提前下载完 ----------------------
       歌曲信息跳转 detail
-      播放列表Nextup 
+      自己维护播放列表Nextup
 
     <hr>
     TrackDetail
@@ -42,20 +35,6 @@ import PlayBar from './components/PlayBar.vue'
 export default {
   name: 'App',
   components:{NavBar, PlayBar},
-  data(){
-    return{
-      playlist:[] // vuex
-    }
-  },
-  mounted(){
-    var a = {
-      title: 'cortado',
-      img: 'sss.com/213sadadwqe',
-      audio: 'http://47.115.222.108/music/Cortado.mp3'
-    }
-      localStorage.setItem('track1',JSON.stringify(a))
-  }
-
 }
 
 

@@ -1,5 +1,6 @@
 <template>
   <div>
+    <hr>
      Upload   -- 维护一个track列表
       
       本地添加一个track对象
@@ -22,8 +23,13 @@
 <script>
 export default {
   computed:{
-    track(){return this.$store.state.track}
+    track(){
+      return this.$store.state.track
+    }
   },
+  mounted(){
+    console.log(this.track.trackList)
+  }
 }
 </script>
 
