@@ -27,7 +27,7 @@ const router = new VueRouter({
             }
         },
         {
-            path:'/detail',
+            path:'/detail/:id',
             component: PageDetail,
             meta:{
                 title: 'Streaming xxx'
