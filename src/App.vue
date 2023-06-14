@@ -1,21 +1,19 @@
 <template>
   <div>
     <NavBar/>
+    
     <div class="container">
     
-    
-    
+      <br>
+      PlayBar 
+        按钮图标  -- 打开页面提前下载完 
+        歌曲信息跳转 -- 点击读取id作为参数跳转 detail
+        需要组件自己维护播放列表Nextup
 
-    <br>
-    PlayBar 
-      按钮 -- 图标打开页面提前下载完 ----------------------
-      歌曲信息跳转 detail
-      自己维护播放列表Nextup
-
-    <hr>
-    TrackDetail
-      歌词滚动
-      webAudio  加个频谱?
+      <br>
+      TrackDetail
+        歌词滚动
+        webAudio  加个频谱?
 
       <router-view></router-view>
     </div>

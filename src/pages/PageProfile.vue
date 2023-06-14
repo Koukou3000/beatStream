@@ -1,6 +1,6 @@
 <template>
   <div>
-    profile likes 不做了
+    profile likes 不做了 改成elementui的弹窗
   </div>
 </template>
 
