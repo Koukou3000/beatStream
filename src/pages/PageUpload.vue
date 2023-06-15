@@ -7,21 +7,27 @@
     <div class="workbench__bg">
 
       <div class="upload__box" v-show="manualModel==1">
-         <button @click="uploadSingle">uploadSingle</button>
+        上传前会获取state.tracks.length,作为新tid
+        <br>
+        <br>
+        选择的文件名：【本地】<br>
+        poster   |   标题 ：<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;         |   种类：<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;         |   自定义标签：<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;         |   描述：<br>
+        preview片段<br>
+        ||||||||||||||||||||||||||||||<br>
+         <!-- <button @click="uploadSingle">uploadSingle</button> -->
       </div>
       <div class="edit__box" v-show="manualModel==2">
-
+        出全部歌曲，一页18个，点击后读入信息到表单，修改后走流程一样，只是有了id
       </div>
       
+      <div>
+        
+        
+      </div>
      
-      <br>
-      选择的文件名：【本地】<br>
-      poster   |   标题 ：<br>
-      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;         |   种类：<br>
-      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;         |   自定义标签：<br>
-      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;         |   描述：<br>
-      preview片段<br>
-      ||||||||||||||||||||||||||||||<br>
     </div>
 
 
@@ -109,7 +115,7 @@ li{
   position: absolute;
   width: 100%;
   height: 1px;
-  bottom: 0;
+  bottom: -1px;
   background: #ff5500;
 }
 
@@ -121,6 +127,23 @@ li{
   display: flex;
   justify-content: center;
 }
-
+.upload__box{
+  position: relative;
+  margin-top: 50px;
+  width: 800px;
+  height: 500px;
+  background: #fff;
+  box-shadow: 0 0 4px 4px rgb(242,242,242);
+  padding: 20px;
+}
+.upload__box::before{
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 5px;
+  top: 0;
+  left: 0;
+  background: rgb(253,117,34);
+}
 
 </style>
