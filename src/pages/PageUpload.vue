@@ -5,42 +5,49 @@
       <li @click="changeModel(2)" ref="tab2">Edit</li>
     </ul>
 
-
+    <!-- 导航下方白色背景 -->
     <div class="workbench__bg">
       
+
       <div class="upload__box" v-show="manualModel==1">
-        <div class="box__header">
-          <span class="box__tab">填写歌曲信息</span>
-        </div>
-        <div class="box__content">
-          
-          <div class="content__left">
-            <img src="" alt="" class="preview__img"/>
-          </div>
-          <div class="content__right">
-            上传前会获取state.tracks.length,作为新tid
-            <br>
+            <!-- tab可以有多个，所以save按钮放在content外 -->
+            <div class="box__header">
+              <span class="box__tab">填写歌曲信息</span>
+            </div>
             
-            选择的文件名：【本地】<br>
-              |   标题 ：<br>
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;         |   种类：<br>
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;         |   自定义标签：<br>
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;         |   描述：<br>
-            preview片段<br>
-            ||||||||||||||||||||||||||||||<br>
-            <!-- <button @click="uploadSingle">uploadSingle</button> -->
-
-          </div>
-         
-
+            <div class="box__content">
+              <div class="content__left">
+                <img src="https://i0.hdslb.com/bfs/archive/624efa0ad1f6460771cefcc46f16a904ea169b9d.jpg@336w_190h_!web-video-rcmd-cover.avif"
+                alt="" class="preview__img"/>
+              </div>
+              <div class="content__right">
+                上传前会获取state.tracks.length,作为新tid<br>
+                
+                标题*<br>
+                <input type="text"/><br>
+                种类<br>
+                <select name="" id=""></select><br>
+                自定义标签<br>
+                <input type="text"/><br>
+                描述<br>
+                <textarea name="" id="" cols="30" rows="10"></textarea><br>
+                preview片段<br>
+                ||||||||||||||||||||||||||||||<br>
+                <!-- <button @click="uploadSingle">uploadSingle</button> -->
+              </div>
+            </div>
+          
+            <div class="box__footer">
+              <button class="cancel_Btn">Cancel</button>
+              <button class="save__Btn">Save</button>
+            </div>
         </div>
-        
+
       </div>
       <div class="edit__box" v-show="manualModel==2">
         出全部歌曲，一页18个，点击后读入信息到表单，修改后走流程一样，只是有了id
       </div>
 
-    </div>
   </div>
 </template>
 
@@ -136,13 +143,15 @@ li{
   display: flex;
   justify-content: center;
 }
+
+
+
 .upload__box{
   position: relative;
   margin: 50px 0;
-  width: 66%;
+  width: 60%;
   background: #fff;
   box-shadow: 0 0 4px 4px rgb(242,242,242);
-  padding: 25px;
 }
 .upload__box::before{
   content: '';
@@ -155,6 +164,7 @@ li{
 }
 .box__header{
   border-bottom: 1px solid #f2f2f2;
+  margin: 25px 25px 0 25px;
 }
 .box__tab{
   border-bottom: 1px solid #ff5500;
@@ -164,25 +174,68 @@ li{
 
 /* 表单内容 */
 .box__content{
-  padding: 25px 0;
+  margin: 25px;
   display: flex;
   justify-content: space-between;
 }
 .content__left{
   position: relative;
-  width: 30%;
-  height: 0;
-  padding-top: 30%;
+  width: 35%;
 }
 .preview__img{
   position: absolute;
   width: 100%;
-  height: 100%;
+  height: 0;
+  padding-top: 100%;
   top: 0;
+  background-image: linear-gradient(135deg,#846170,#70929c)
 }
 .content__right{
-  width: 70%;
-  padding: 0 15px;
+  width: 63%;
+}
+input, textarea{
+  width: 99%;
+  border: 1px solid #ccc;
+  resize: none;
+}
+input:focus{
+  outline: none;
+}
+textarea:focus{
+  outline: none;
+}
+
+
+/* 保存/取消按钮 */
+.box__footer{
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  text-align: right;
+  border-top: 1px solid #f2f2f2;
+  padding: 20px 25px;
+  box-sizing: border-box;
+}
+.box__footer > button{
+  cursor: pointer;
+  border-radius: 3px;
+  border: none;
+  padding: 4px 10px;
+  margin-left: 5px;
+  transition: .3s;
+}
+.save__Btn{
+  color: #fff;
+  background: #ff5500;
+}
+.save__Btn:hover{
+  background: #ff8800;
+}
+.cancel_Btn{
+  background: #fff;
+}
+.cancel_Btn:hover{
+  background: #f2f2f2;
 }
 
 </style>
