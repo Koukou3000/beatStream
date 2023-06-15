@@ -8,7 +8,7 @@
     <!-- 导航下方白色背景 -->
     <div class="workbench__bg">
       
-
+      <!-- 上传内容 -->
       <div class="upload__box" v-show="manualModel==1">
             <!-- tab可以有多个，所以save按钮放在content外 -->
             <div class="box__header">
@@ -43,11 +43,16 @@
             </div>
         </div>
 
-      </div>
+      
+
+
+      <!-- 修改内容 -->
       <div class="edit__box" v-show="manualModel==2">
         出全部歌曲，一页18个，点击后读入信息到表单，修改后走流程一样，只是有了id
       </div>
 
+
+    </div>
   </div>
 </template>
 
@@ -188,7 +193,7 @@ li{
   height: 0;
   padding-top: 100%;
   top: 0;
-  background-image: linear-gradient(135deg,#846170,#70929c)
+  background-image: linear-gradient(135deg,#e6846e,#70929c);
 }
 .content__right{
   width: 63%;
@@ -237,5 +242,6 @@ textarea:focus{
 .cancel_Btn:hover{
   background: #f2f2f2;
 }
+
 
 </style>
