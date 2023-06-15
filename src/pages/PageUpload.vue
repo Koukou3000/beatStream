@@ -1,15 +1,15 @@
 <template>
   <div>
     <ul class="route__container">
-      <li @click="changeModel(1)" ref="tab1" class="selected">Upload</li>
-      <li @click="changeModel(2)" ref="tab2">Edit</li>
+      <li @click="changeMode(1)" ref="tab1" class="selected">Upload</li>
+      <li @click="changeMode(2)" ref="tab2">Edit</li>
     </ul>
 
     <!-- 导航下方白色背景 -->
     <div class="workbench__bg">
       
       <!-- 上传内容 -->
-      <div class="upload__box" v-show="manualModel==1">
+      <div class="upload__box" v-show="manualMode==1">
             <!-- tab可以有多个，所以save按钮放在content外 -->
             <div class="box__header">
               <span class="box__tab">填写歌曲信息</span>
@@ -33,7 +33,15 @@
                 <textarea name="" id="" cols="30" rows="10"></textarea><br>
                 preview片段<br>
                 ||||||||||||||||||||||||||||||<br>
-                <!-- <button @click="uploadSingle">uploadSingle</button> -->
+                
+                 releaseTime发布时间,
+                    title标题,
+                    audio存储地址,
+                    poster存储地址,
+                    preview__start开始时间,
+                    comments:[{at时间戳,content评论内容}]
+                    
+                    
               </div>
             </div>
           
@@ -47,7 +55,7 @@
 
 
       <!-- 修改内容 -->
-      <div class="edit__box" v-show="manualModel==2">
+      <div class="edit__box" v-show="manualMode==2">
         出全部歌曲，一页18个，点击后读入信息到表单，修改后走流程一样，只是有了id
       </div>
 
@@ -60,7 +68,7 @@
 export default {
   data(){
     return{
-      manualModel: 1,
+      manualMode: 1,
     }
   },
   computed:{
@@ -69,8 +77,8 @@ export default {
     }
   },
   methods:{
-    changeModel(type){
-      this.manualModel = type
+    changeMode(type){
+      this.manualMode = type
       switch(type){
         case 1:
           this.$refs.tab1.className = 'selected';
@@ -95,12 +103,8 @@ export default {
             }
       this.$store.dispatch('track/uploadSingle', track)
       // 根据返回值弹窗
-    },
-    uploadPlaylist(){
-      // 收集个数 & 每个track的信息
-      // 上传成
-    
     }
+    
   },
 }
 </script>
