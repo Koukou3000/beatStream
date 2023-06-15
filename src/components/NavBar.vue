@@ -5,12 +5,12 @@
       <div class="inner__left">
         <ul>
           <li>
-            <router-link to="trend" class="selected">
+            <router-link to="/trend" class="selected">
               <div class="main__logo"></div>
             </router-link>
           </li>
           <li>
-            <router-link to="trend" active-class="selected">Trend</router-link>
+            <router-link to="/trend" active-class="selected">Trend</router-link>
           </li>         
         </ul>
       </div>
@@ -27,10 +27,10 @@
       <div class="inner__right">
         <ul>
             <li>
-              <router-link to="about" active-class="selected">About</router-link>
+              <router-link to="/about" active-class="selected">About</router-link>
             </li>
             <li>
-              <router-link to="upload" active-class="selected">Upload</router-link>
+              <router-link to="/upload" active-class="selected">Upload</router-link>
             </li>
             <li class="user__info" @click="dropDown=!dropDown" :class="{selected: dropDown}">
               <span class="avatar"></span>
