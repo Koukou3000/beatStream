@@ -27,6 +27,9 @@
       <div class="inner__right">
         <ul>
             <li>
+              <router-link to="about" active-class="selected">About</router-link>
+            </li>
+            <li>
               <router-link to="upload" active-class="selected">Upload</router-link>
             </li>
             <li class="user__info" @click="dropDown=!dropDown" :class="{selected: dropDown}">

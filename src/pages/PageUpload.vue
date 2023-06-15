@@ -16,18 +16,12 @@
       然后就可以开始完善我这个playbar的nextup，调顺序，单曲循环，前后调整，由playbar自己维护这个nextup列表。
       看看lrc文件做歌词滚动，再看看webAudio做频谱图。
      -->
-    <ul class="guide__container">
-      <li class="selected">Track</li>
-      <li>Playlist</li>
+    <ul class="route__container">
+      <li class="selected">Upload</li>
       <li>Edit</li>
     </ul>
     <div class="upload__form">
-      <input type="text"><br>
-      <input type="text"><br>
-      <input type="text"><br>
-      <input type="text"><br>
-      <button @click="doaction">doaction</button>
-
+      <button @click="uploadSingle">uploadSingle</button>
     </div>
 
     <div style="display:none;">
@@ -47,59 +41,48 @@
         }]
       } 
     </div>
-    {{track.trackname}} 
-        computed:{
-        personAbout(){
-            return this.$store.state.personAbout
-        },
-        countAbout(){
-            return this.$store.state.countAbout
-        },
-        // ...mapState(['personAbout','countAbout']),     
-        len1(){
-            return this.$store.getters['personAbout/len'] //getters.personAbout/len 
-        }
-        // ...mapGetters({len1:'personAbout/len'}) 
-    },
-    methods: {
-        add(){
-            this.$store.dispatch('countAbout/add',3)
-        },
-        addMu(){
-            this.$store.commit('countAbout/ADD',114)
-        }
-
-    },
-
-     
+    <br>
+    选择的文件名：【本地】<br>
+    poster   |   标题 ：<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;         |   种类：<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;         |   自定义标签：<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;         |   描述：<br>
+    preview片段<br>
+    ||||||||||||||||||||||||||||||<br>
   </div>
 </template>
 
 <script>
 export default {
   computed:{
-    track(){
+    track(){      
       return this.$store.state.track
     }
   },
   methods:{
-    
+    uploadSingle(){
+      var track = {
+                id: 1,
+                title: 'Frankenstein Complex',
+                artist: 'scene From gore girls',
+                audio_url: 'http://sfgg.work/album/1/1',
+                img_url: 'http://sfgg.work/album/poster'
+            }
+      this.$store.dispatch('track/uploadSingle', track)
+    },
   },
-  mounted(){
-    console.log(this.track.trackList)
-  }
 }
 </script>
 
 <style scoped>
-.guide__container{
+.route__container{
   width: 100%;
   height: 49px;
   background: #fff;
   border: 1px solid #f2f2f2;
   display: flex;
   align-items: center;
-  flex-direction: row-reverse;
+  /* flex-direction: row-reverse; */
 }
 ul{
   margin: 0;

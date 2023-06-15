@@ -1,14 +1,19 @@
 export default {
     namespaced: 'track',
-    
     actions:{
-
+        uploadSingle(context, track){
+            // 检查track是否合法
+            // 实际修改值
+            context.commit('UPLOAD_SINGLE',track)
+        }
     },
     mutations:{
-
+        UPLOAD_SINGLE(context, track){
+            context.trackList.unshift(track)
+            console.log('添加成功',context.trackList)
+        }
     },
     state:{
-        trackname:'来自track.js',
         trackList:[
             {
                 id: 1,
