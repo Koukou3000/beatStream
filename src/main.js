@@ -9,11 +9,13 @@ Vue.use(VueRouter)
 import store from './store'
 Vue.use(store)
 
-// import {Button,Carousel,CarouselItem} from 'element-ui'
-// Vue.use(Button,Carousel,CarouselItem)
+
+import {Message} from 'element-ui'
+Vue.prototype.$message = Message //挂载到原型对象上 类似bus
+
 Vue.config.productionTip = false
 new Vue({
-  render: h => h(App),
   router,
   store,
+  render: h => h(App),
 }).$mount('#app')//el:'#app'

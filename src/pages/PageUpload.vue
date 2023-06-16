@@ -10,68 +10,72 @@
       
       <!-- 上传内容 -->
       <div class="upload__box" v-show="manualMode==1">
-            <!-- tab可以有多个，所以save按钮放在content外 -->
+            <!-- 可以有多个tab，故save按钮放在upload__box下 -->
             <div class="box__header">
               <span class="box__tab">填写歌曲信息</span>
-            </div>
-            
+            </div>   
             <div class="box__content">
               <div class="content__left">
-                <img src="" alt="" class="preview__img"/>
-                图片地址
-                <input type="" placeholder="url"/>
-              </div>
-              <div class="content__right">
-                上传前会获取state.tracks.length,作为新tid<br>
                 
+                <div class="preview__img"></div>
+                <div class="preview__img" style="{'background-image': url(`${tmp_track.img_url}`)}"/>
+                
+                
+                图片地址
+                <input placeholder="url" v-model="tmp_track.img_url"/>
+              </div>
+              
+              <div class="content__right">
                 标题*<br>
-                <input type="text" placeholder="歌曲显示的标题"/><br>
+                <input type="text" placeholder="歌曲显示的标题" v-model="tmp_track.title" /><br>
                 自定义标签<br>
-                <input type="text" placeholder="以'#'分割"/><br>
+                <input type="text" placeholder="以'#'分割" v-model="tmp_track.tags"/><br>
                 描述<br>
-                <textarea name="" id="" rows="6" placeholder="介绍歌曲内容"></textarea><br>
-                音频地址<br>
-                <input type="" placeholder="url"/>
-
+                <textarea name="" id="" rows="6" placeholder="介绍歌曲内容" v-model="tmp_track.description"></textarea><br>
+                音频地址（盗链）<br>
+                <input type="" placeholder="url" v-model="tmp_track.audio_url"/>
                 <div>
-
-                  preview片段<br>
+                preview片段<br>
                 ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||<br>
-                 releaseTime发布时间,
-                    title标题,
-                    audio存储地址,
-                    poster存储地址,
-                    preview__start开始时间,
-                    comments:[{at时间戳,content评论内容}] 
                 </div>
    
               </div>
             </div>
-          
             <div class="box__footer">
-              <button class="cancel_Btn">取消</button>
-              <button class="save__Btn">提交</button>
+              <button class="cancel_Btn" @click="clearForm">清空已输入</button>
+              <button class="save__Btn" @click="uploadSingle">提交</button>
             </div>
         </div>
 
-      
-
-
       <!-- 修改内容 -->
       <div class="edit__box" v-show="manualMode==2">
-        出全部歌曲，一页18个，点击后读入信息到表单，修改后走流程一样，只是有了id
+        出全部歌曲，一页18个，点击后读入信息到表单，修改后走流程一样，只是有了id      
       </div>
-
 
     </div>
   </div>
 </template>
 
 <script>
+
+
 export default {
   data(){
     return{
-      manualMode: 1,
+      manualMode: 1, // 上传1 /编辑2
+
+      // 暂存数据
+      tmp_track:{
+        tid: '',
+        title: '',
+        artist: '',
+        audio_url: '',
+        img_url: 'http://p1.music.126.net/lidxk8tH41sbY9a6evzEWw==/919191720844478.jpg?param=177y177',
+        releast_time: '',
+        preview_start: 0, // 秒为单位，显示成 [分钟:秒]                
+        tags:'',
+        description: ''
+      },
     }
   },
   computed:{
@@ -96,19 +100,30 @@ export default {
       }
     },
     uploadSingle(){
-      // 获取表单信息
-      var track = {
-                id: 1,
-                title: 'Frankenstein Complex',
-                artist: 'scene From gore girls',
-                audio_url: 'http://sfgg.work/album/1/1',
-                img_url: 'http://sfgg.work/album/poster'
-            }
-      this.$store.dispatch('track/uploadSingle', track)
-      // 根据返回值弹窗
-    } 
-    
+      //检查表单输入
+
+      if(this.tmp_track.title.trim().length == 0){
+        this.$message('输入为空！');
+      }
+      else{
+        var track = this.tmp_track
+        this.$store.commit('track/UPLOAD_SINGLE', track)
+      }
+    },
+    clearForm(){
+      this.tmp_track = {
+        tid: -1,
+        title: '',
+        artist: '',
+        audio_url: '',
+        img_url: '',
+        releast_time: '',
+        preview_start: 0, // 秒为单位，显示成 [分钟:秒]     
+      }
+    }
   },
+
+  
 }
 </script>
 
@@ -156,7 +171,7 @@ li{
 }
 
 
-
+/* 上传 */
 .upload__box{
   position: relative;
   margin: 50px 0;
@@ -193,13 +208,16 @@ li{
   position: relative;
   width: 35%;
 }
+/* 预览图片 */
 .preview__img{
   width: 100%;
   height: 0;
   padding-top: 100%;
   top: 0;
   background-image: linear-gradient(135deg,#e6846e,#70929c);
+  background-size: cover;
 }
+
 .content__right{
   width: 63%;
 }
