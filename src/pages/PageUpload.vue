@@ -65,20 +65,18 @@
         <!-- {{tracksCurrentPage}} -->
       
           <div class="track__container">
-            <div class="track"></div>
-            <div class="track"></div>
-            
-            <div class="track"></div>
-            
+            <div class="track" v-for="(item,index) in tracksCurrentPage" :key="item.tid" >
+              
+              <div :class="'track__img artwork__placeholder__'+index" :style="{'background-image':'url('+item.img_url+')'}"></div>
+        
+              
+              <div class="track__textInfo">
+                <div class="track__title">{{item.title}}</div>
+                <div class="track__artist">{{item.artist}}</div>
+              </div>
 
-          
-            <div class="track"></div>
-            <div class="track"></div>
-            <div class="track"></div>
-            <div class="track"></div>
-            
-            <div class="track"></div>
-            <div class="track"></div>
+            </div>
+
           </div>
 
        <div style="color:#ff5500">  
@@ -220,6 +218,9 @@ export default {
     },
   
   },
+  mounted(){
+    console.log(this.track.trackList)
+  }
 }
 </script>
 
@@ -421,10 +422,59 @@ textarea:focus{
   flex-wrap: wrap;
 }
 .track{
+  position: relative;
   width: 200px;
   height: 200px;
-  border: 1px solid #111;
   padding: 0 0 50px 0;
   margin: 0 30px 30px 0;
+  cursor: pointer;
 }
+
+.track__textInfo{
+  position: absolute;
+  bottom: 0;
+  height: 50px;
+  width: 100%;
+}
+.track__artist{
+  color: grey;
+  font-size: 12px;
+}
+.track__img{
+  width: 100%;
+  height: 0;
+  padding-top: 100%;
+  background-size: cover;
+}
+.artwork__placeholder__0{
+  background-image: linear-gradient(135deg,#846170,#70929c)
+}
+.artwork__placeholder__1{
+  background-image: linear-gradient(135deg,#846170,#e6846e)
+}
+.artwork__placeholder__2{
+  background-image: linear-gradient(135deg,#846170,#8e8485)
+}
+.artwork__placeholder__3{
+  background-image: linear-gradient(135deg,#70929c,#846170)
+}
+.artwork__placeholder__4{
+  background-image: linear-gradient(135deg,#70929c,#e6846e)
+}
+.artwork__placeholder__5{
+  background-image: linear-gradient(135deg,#70929c,#8e8485)
+}
+.artwork__placeholder__6{
+  background-image: linear-gradient(135deg,#e6846e,#846170)
+}
+.artwork__placeholder__7{
+  background-image: linear-gradient(135deg,#e6846e,#70929c)
+}
+.artwork__placeholder__8{
+  background-image: linear-gradient(135deg,#e6846e,#8e8485)
+}
+.artwork__placeholder__9{
+  background-image: linear-gradient(135deg,#8e8485,#846170)
+}
+
 </style>
