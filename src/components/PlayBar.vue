@@ -145,7 +145,7 @@ export default {
       this.paused=false
       if(!this.audio){
         console.log('新建一次')
-        this.audio = new Audio('http://47.115.222.108/music/Cortado.mp3')
+        this.audio = new Audio('https://m801.music.126.net/20230617032013/33d1c93f4a37f90a0a69e589bbbf98cb/jdyyaac/obj/w5rDlsOJwrLDjj7CmsOj/7736722776/55e9/dfb4/acbf/63beaae24f24c53a3432049cc25947d1.m4a')
         this.audio.addEventListener('timeupdate', this.updateProgressBar)
       }
       this.audio.volume = this.volumePercent/100 // 初次播放时调整音量

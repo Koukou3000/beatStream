@@ -1,18 +1,22 @@
 <template>
   <div>
     <ul class="route__container">
-      <li @click="changeMode(1)" ref="tab1" class="selected">Upload</li>
-      <li @click="changeMode(2)" ref="tab2">Edit</li>
+      <li @click="changeMode('upload')" ref="tab1" class="selected">Upload</li>
+      <li @click="changeMode('edit')" ref="tab2">Edit</li>
     </ul>
 
     <!-- 导航下方白色背景 -->
     <div class="workbench__bg">
       
       <!-- 上传内容 -->
-      <div class="upload__box" v-show="manualMode==1">
+      <div class="upload__box" v-show="manualMode=='upload'">
+          <div class="banner__edit" v-if="isEdit"></div>
+          <div class="banner__upload" v-else></div>  
+
             <!-- 可以有多个tab，故save按钮放在upload__box下 -->
             <div class="box__header">
               <span class="box__tab">填写歌曲信息</span>
+              <span class="new__hint" v-show="!isEdit">New!</span>
             </div>   
             <div class="box__content">
 
@@ -56,7 +60,7 @@
         </div>
 
       <!-- 修改内容 -->
-      <div class="edit__box" v-show="manualMode==2">
+      <div class="edit__box" v-show="manualMode=='edit'">
         出全部歌曲，一页18个，点击后读入信息到表单，修改后走流程一样，只是有了id    
         {{track.trackList}}
       </div>
@@ -71,7 +75,8 @@
 export default {
   data(){
     return{
-      manualMode: 1, // 上传1 /编辑2
+      manualMode: 'upload', // upload / edit
+      isEdit: false, // 本次操作是否为修改旧歌曲
 
       // 暂存数据
       tmp_track:{
@@ -85,6 +90,8 @@ export default {
         tags:'',
         description: ''
       },
+
+      page: 1, // 用于edit页
     }
   },
   computed:{
@@ -92,15 +99,27 @@ export default {
       return this.$store.state.track
     }
   },
+  watch:{
+    manualMode(newVal){
+      // if(newVal == 'upload'){
+      //   保持旧的内容不变即可
+      // }
+      if(newVal == 'edit'){
+        
+        // this.getBunchOfTrack() // 读取页数 从state拉数据，刷新页面
+      }
+      
+    }
+  },
   methods:{
     changeMode(type){
       this.manualMode = type
       switch(type){
-        case 1:
+        case 'upload':
           this.$refs.tab1.className = 'selected';
           this.$refs.tab2.className = '';
           break;
-        case 2:
+        case 'edit':
           this.$refs.tab1.className = '';
           this.$refs.tab2.className = 'selected';
           break;        
@@ -132,6 +151,7 @@ export default {
         releast_time: '',
         preview_start: 0, // 秒为单位，显示成 [分钟:秒]     
       }
+      this.isEdit = false // 如果有旧歌曲编辑，点击按钮会变成上传歌曲的情况
     },
     uploadSingle(){
       //检查表单输入
@@ -146,12 +166,24 @@ export default {
       else{
         var track = this.tmp_track
         this.$store.commit('track/UPLOAD_SINGLE', track)
+        this.clearForm()
       }
     },
+    getBunchOfTrack(){
+      // 每页十个
+      // 拿到trackList总页数
+      // this.track.trackList.length / 10 floor 
+      
+      // console.log(this.track.trackList.slice((page-1)*10, 20))
+    },
+    modifySingle(e){
+      console.log(e)
+      // 当点击某一首歌曲，读取点击的那个 :key=tid
+      // 读取trackList (index)，切换模式upload
+    },
+   
   },
-  mounted(){
-    console.log(this)
-  }
+
 }
 </script>
 
@@ -207,14 +239,29 @@ li{
   background: #fff;
   box-shadow: 0 0 4px 4px rgb(242,242,242);
 }
-.upload__box::before{
-  content: '';
+.new__hint{
   position: absolute;
+  border: 1px solid #ff5500;
+  color: #ff5500;
+  padding: 0 5px;
+  user-select: none;
+  margin: 5px 0 0 5px;
+}
+.banner__upload{
+  position: absolute;
+  display: block;
+  top: 0;
   width: 100%;
   height: 5px;
-  top: 0;
-  left: 0;
   background: rgb(253,117,34);
+}
+.banner_edit{
+  position: absolute;
+  display: block;
+  top: 0;
+  width: 100%;
+  height: 5px;
+  background: rgb(29,120,201);
 }
 .box__header{
   border-bottom: 1px solid #f2f2f2;
@@ -321,5 +368,12 @@ textarea:focus{
   background: #f2f2f2;
 }
 
-
+/* 编辑歌曲信息 */
+.edit__box{
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+  margin: 40px 50px;
+  width: 1140px;
+}
 </style>
