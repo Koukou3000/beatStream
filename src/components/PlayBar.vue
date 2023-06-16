@@ -130,11 +130,16 @@ export default {
       //更新播放状态（进度条、音量等
       if(this.audio){ 
 
-        if(!this.changingTime) // 修改进度条时不刷新进度条
+        if(!this.changingTime) // 拖动进度条时不实时刷新进度条
           this.currentTimeSeconds =  this.audio.currentTime
         this.durationSeconds = this.audio.duration
         this.audio.volume = this.volumePercent/100 // 播放过程中实时调整音量
+        if(this.audio.currentTime == this.audio.duration){
+          this.pauseTrack()
+          this.stepNext()
+        }
       }
+
     },
     playTrack(){
       this.paused=false
@@ -156,6 +161,8 @@ export default {
     },
     stepNext(){
       console.log('开始播放下一首')
+      console.log('读取下一首歌曲 替换audio')
+      console.log('playTrack')
     },
     loopCurrentTrack(){
       console.log('循环当前曲目')
