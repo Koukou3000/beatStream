@@ -1,7 +1,6 @@
 export default {
     namespaced: 'track',
     actions:{
-        
     },
     mutations:{
         UPLOAD_SINGLE(context, track){
@@ -10,11 +9,9 @@ export default {
         }
     },
     getters:{
-        getTracks(page){
+        getTracks(context){
             // 默认一页10个
-            console.log('getter this',this)
-            page = 0
-            console.log('this.state.track',this.state.track.trackList.slice(page,10))
+            return context.trackList.slice(0,10)
         }
     },
     state:{
