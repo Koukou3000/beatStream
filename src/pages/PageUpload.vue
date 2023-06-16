@@ -15,14 +15,9 @@
               <span class="box__tab">填写歌曲信息</span>
             </div>   
             <div class="box__content">
-              <div class="content__left">
-                
-                <div class="preview__img"></div>
-                <div class="preview__img" style="{'background-image': url(`${tmp_track.img_url}`)}"/>
-                
-                
-                图片地址
-                <input placeholder="url" v-model="tmp_track.img_url"/>
+              <div class="content__left">             
+                <div class="preview__img" :style="{'background-image': 'url('+tmp_track.img_url+')'}"/>
+                图片地址<input placeholder="url" v-model="tmp_track.img_url"/>
               </div>
               
               <div class="content__right">
