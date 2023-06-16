@@ -62,7 +62,15 @@
       <!-- 修改内容 -->
       <div class="edit__box" v-show="manualMode=='edit'">
         出全部歌曲，一页18个，点击后读入信息到表单，修改后走流程一样，只是有了id    
-        {{track.trackList}}
+        {{tracksCurrentPage}}
+       
+
+       <div style="color:#ff5500">  
+        图片
+        标题
+        艺术家
+        </div>
+        <div style="color:red;">页脚跳页</div>
       </div>
 
     </div>
@@ -92,6 +100,8 @@ export default {
       },
 
       page: 1, // 用于edit页
+      pagesCount: 1, // 总页数
+      tracksCurrentPage:[] // 这一页的歌曲列表
     }
   },
   computed:{
@@ -105,8 +115,7 @@ export default {
       //   保持旧的内容不变即可
       // }
       if(newVal == 'edit'){
-        
-        // this.getBunchOfTrack() // 读取页数 从state拉数据，刷新页面
+        this.getBunchOfTrack() // 读取页数 从state拉数据
       }
       
     }
@@ -169,21 +178,32 @@ export default {
         this.clearForm()
       }
     },
+
+    // 总页数计算
+    calcPagesCount(){
+      let length = this.track.trackList.length
+      let consult = Math.floor(length / 10) //商
+      let remain = length % 10 //余
+      if(remain > 0)
+        this.pagesCount = consult + 1
+      else
+        this.pagesCount = consult
+      // 每页十个，计算trackList总页数
+    },
     getBunchOfTrack(){
-      // 每页十个
-      // 拿到trackList总页数
-      // this.track.trackList.length / 10 floor 
-      
-      // console.log(this.track.trackList.slice((page-1)*10, 20))
+      this.calcPagesCount() // 渲染页面前需要获取总页数
+      // 通过当前的页数拉取state中数据
+      let from = (this.page-1)*10
+      this.tracksCurrentPage = this.track.trackList.slice(from, from+10)
+      // 渲染到页面上 （放入tracksCurrentPage
     },
     modifySingle(e){
       console.log(e)
       // 当点击某一首歌曲，读取点击的那个 :key=tid
       // 读取trackList (index)，切换模式upload
     },
-   
+  
   },
-
 }
 </script>
 
