@@ -61,9 +61,25 @@
 
       <!-- 修改内容 -->
       <div class="edit__box" v-show="manualMode=='edit'">
-        出全部歌曲，一页18个，点击后读入信息到表单，修改后走流程一样，只是有了id    
-        {{tracksCurrentPage}}
-       
+        <div style="color:red;font-weight:bold;">选择需要编辑的歌曲</div>
+        <!-- {{tracksCurrentPage}} -->
+      
+          <div class="track__container">
+            <div class="track"></div>
+            <div class="track"></div>
+            
+            <div class="track"></div>
+            
+
+          
+            <div class="track"></div>
+            <div class="track"></div>
+            <div class="track"></div>
+            <div class="track"></div>
+            
+            <div class="track"></div>
+            <div class="track"></div>
+          </div>
 
        <div style="color:#ff5500">  
         图片
@@ -391,9 +407,24 @@ textarea:focus{
 /* 编辑歌曲信息 */
 .edit__box{
   position: relative;
-  overflow: hidden;
   box-sizing: border-box;
-  margin: 40px 50px;
-  width: 1140px;
+  width: 100%;
+  margin: 30px 25px 30px 55px;
+}
+.track__position{
+  background: #f2f2f2;
+}
+.track__container{
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+.track{
+  width: 200px;
+  height: 200px;
+  border: 1px solid #111;
+  padding: 0 0 50px 0;
+  margin: 0 30px 30px 0;
 }
 </style>
