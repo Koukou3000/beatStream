@@ -1,90 +1,84 @@
 <template>
   <div>
     <ul class="route__container">
-      <li @click="changeMode('upload')" ref="tab1" class="selected">Upload</li>
-      <li @click="changeMode('edit')" ref="tab2">Edit</li>
+      <li @click="switchTab('upload')" ref="tab1" class="selected">Upload</li>
+      <li @click="switchTab('edit')" ref="tab2">Edit</li>
     </ul>
 
     <!-- 导航下方白色背景 -->
     <div class="workbench__bg">
-      
-      <!-- 上传内容 -->
+
+
+
+
       <div class="upload__box" v-show="manualMode=='upload'">
           <div class="banner__edit" v-if="isEdit"></div>
           <div class="banner__upload" v-else></div>  
 
-            <!-- 可以有多个tab，故save按钮放在upload__box下 -->
-            <div class="box__header">
-              <span class="box__tab">填写歌曲信息</span>
-              <span class="new__hint" v-show="!isEdit">New!</span>
-            </div>   
-            <div class="box__content">
-
-              <div class="content__left">  
-
-                <div class="preview__img" v-if="!tmp_track.img_url"></div>           
-                <div class="preview__img" v-else :style="{'background-image': 'url('+tmp_track.img_url+')'}"/>
-                <div class="input__field" @click="inputFocus(5)">
-                  <span>封面图片</span>
-                  <input placeholder="url地址" v-model="tmp_track.img_url" ref="inputImgURL"/>
-                </div>
-              </div>
-              <div class="content__right">
-                
-                <div class="input__field" @click="inputFocus(1)">
-                  <span class="required__mark">标题</span>
-                  <input type="text" placeholder="歌曲显示的标题" v-model="tmp_track.title" ref="inputTitle"/>
-                </div>
-                <div class="input__field" @click="inputFocus(2)">
-                  <span>自定义标签</span>
-                  <input type="text" placeholder="以'#'分割" v-model="tmp_track.tags" ref="inputTags"/>
-                </div>
-                <div class="input__field" @click="inputFocus(3)">
-                  <span>描述</span>
-                  <textarea rows="6" placeholder="歌曲介绍" v-model="tmp_track.description" ref="inputDescription"></textarea>
-                </div>
-                <div class="input__field" @click="inputFocus(4)">
-                  <span class="required__mark">音频</span>
-                  <input type="" placeholder="url地址" v-model="tmp_track.audio_url" ref="inputAudioURL"/>  
-                  <div v-if="tmp_track.audio_url">
-                  preview片段<br>
-                  ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-                </div>
-                </div> 
+          <div class="box__header">
+            <span class="box__tab">填写歌曲信息</span>
+            <span class="new__hint" v-if="!isEdit">New!</span>
+          </div>   
+          <div class="box__content">
+            <div class="content__left">  
+              <div class="preview__img" v-if="!tmp_track.img_url"></div>           
+              <div class="preview__img" v-else :style="{'background-image': 'url('+tmp_track.img_url+')'}"/>
+              <div class="input__field" @click="inputFocus(5)">
+                <span>封面图片</span>
+                <input placeholder="url地址" v-model="tmp_track.img_url" ref="inputImgURL"/>
               </div>
             </div>
-            <div class="box__footer">
-              <button class="cancel_Btn" @click="clearForm">清空已输入</button>
-              <button class="save__Btn" @click="uploadSingle">提交</button>
+            <div class="content__right">    
+              <div class="input__field" @click="inputFocus(1)">
+                <span class="required__mark">标题</span>
+                <input type="text" placeholder="歌曲显示的标题" v-model="tmp_track.title" ref="inputTitle"/>
+              </div>
+              <div class="input__field" @click="inputFocus(2)">
+                <span>自定义标签</span>
+                <input type="text" placeholder="以'#'分割" v-model="tmp_track.tags" ref="inputTags"/>
+              </div>
+              <div class="input__field" @click="inputFocus(3)">
+                <span>描述</span>
+                <textarea rows="6" placeholder="歌曲介绍" v-model="tmp_track.description" ref="inputDescription"></textarea>
+              </div>
+              <div class="input__field" @click="inputFocus(4)">
+                <span class="required__mark">音频</span>
+                <input type="" placeholder="url地址" v-model="tmp_track.audio_url" ref="inputAudioURL"/>  
+                <div v-if="tmp_track.audio_url">
+                preview片段<br>
+                ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+              </div>
+              </div> 
             </div>
-        </div>
+          </div>
+          <div class="box__footer">
+            <button class="cancel_Btn" @click="clearForm">清空已输入</button>
+            <button class="save__Btn" @click="uploadSingle">提交</button>
+          </div>
+      </div>
+
 
       <!-- 修改内容 -->
       <div class="edit__box" v-show="manualMode=='edit'">
         <div style="color:red;font-weight:bold;">选择需要编辑的歌曲</div>
-        <!-- {{tracksCurrentPage}} -->
-      
           <div class="track__container">
-            <div class="track" v-for="(item,index) in tracksCurrentPage" :key="item.tid" >
-              
+            
+            <div class="track" v-for="(item,index) in tracksCurrentPage" :key="item.tid" @click="modifySingle(item)">
               <div :class="'track__img artwork__placeholder__'+index" :style="{'background-image':'url('+item.img_url+')'}"></div>
-        
-              
               <div class="track__textInfo">
                 <div class="track__title">{{item.title}}</div>
                 <div class="track__artist">{{item.artist}}</div>
               </div>
-
             </div>
 
           </div>
 
-       <div style="color:#ff5500">  
-        图片
-        标题
-        艺术家
-        </div>
-        <div style="color:red;">页脚跳页</div>
+        <div style="color:#ff5500">  
+          图片
+          标题
+          艺术家
+          </div>
+          <div style="color:red;">页脚跳页</div>
       </div>
 
     </div>
@@ -135,7 +129,7 @@ export default {
     }
   },
   methods:{
-    changeMode(type){
+    switchTab(type){
       this.manualMode = type
       switch(type){
         case 'upload':
@@ -211,16 +205,16 @@ export default {
       this.tracksCurrentPage = this.track.trackList.slice(from, from+10)
       // 渲染到页面上 （放入tracksCurrentPage
     },
-    modifySingle(e){
-      console.log(e)
+    modifySingle(item){
       // 当点击某一首歌曲，读取点击的那个 :key=tid
-      // 读取trackList (index)，切换模式upload
+      // 读取trackList (index)，切换标签 upload
+      this.tmp_track = item
+      this.isEdit = true
+      this.switchTab('upload')
     },
   
   },
-  mounted(){
-    console.log(this.track.trackList)
-  }
+
 }
 </script>
 
@@ -292,13 +286,13 @@ li{
   height: 5px;
   background: rgb(253,117,34);
 }
-.banner_edit{
+.banner__edit{
   position: absolute;
   display: block;
   top: 0;
   width: 100%;
-  height: 5px;
-  background: rgb(29,120,201);
+  height: 5px; 
+  background: linear-gradient(to right,rgb(253,117,34), rgb(29,120,201));
 }
 .box__header{
   border-bottom: 1px solid #f2f2f2;
