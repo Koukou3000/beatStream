@@ -17,37 +17,40 @@
             
             <div class="box__content">
               <div class="content__left">
-                <img src="https://i0.hdslb.com/bfs/archive/624efa0ad1f6460771cefcc46f16a904ea169b9d.jpg@336w_190h_!web-video-rcmd-cover.avif"
-                alt="" class="preview__img"/>
+                <img src="" alt="" class="preview__img"/>
+                图片地址
+                <input type="" placeholder="url"/>
               </div>
               <div class="content__right">
                 上传前会获取state.tracks.length,作为新tid<br>
                 
                 标题*<br>
-                <input type="text"/><br>
-                种类<br>
-                <select name="" id=""></select><br>
+                <input type="text" placeholder="歌曲显示的标题"/><br>
                 自定义标签<br>
-                <input type="text"/><br>
+                <input type="text" placeholder="以'#'分割"/><br>
                 描述<br>
-                <textarea name="" id="" cols="30" rows="10"></textarea><br>
-                preview片段<br>
-                ||||||||||||||||||||||||||||||<br>
-                
+                <textarea name="" id="" rows="6" placeholder="介绍歌曲内容"></textarea><br>
+                音频地址<br>
+                <input type="" placeholder="url"/>
+
+                <div>
+
+                  preview片段<br>
+                ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||<br>
                  releaseTime发布时间,
                     title标题,
                     audio存储地址,
                     poster存储地址,
                     preview__start开始时间,
-                    comments:[{at时间戳,content评论内容}]
-                    
-                    
+                    comments:[{at时间戳,content评论内容}] 
+                </div>
+   
               </div>
             </div>
           
             <div class="box__footer">
-              <button class="cancel_Btn">Cancel</button>
-              <button class="save__Btn">Save</button>
+              <button class="cancel_Btn">取消</button>
+              <button class="save__Btn">提交</button>
             </div>
         </div>
 
@@ -103,7 +106,7 @@ export default {
             }
       this.$store.dispatch('track/uploadSingle', track)
       // 根据返回值弹窗
-    }
+    } 
     
   },
 }
@@ -147,7 +150,6 @@ li{
 /* 工作区背景 */
 .workbench__bg{
   width: 100%;
-  height: 700px;
   background: #fff;
   display: flex;
   justify-content: center;
@@ -192,7 +194,6 @@ li{
   width: 35%;
 }
 .preview__img{
-  position: absolute;
   width: 100%;
   height: 0;
   padding-top: 100%;
@@ -203,9 +204,12 @@ li{
   width: 63%;
 }
 input, textarea{
-  width: 99%;
+  width: 100%;
   border: 1px solid #ccc;
   resize: none;
+  font: 13px Lucida Grande,Lucida Sans Unicode,Lucida Sans,Garuda,Verdana,Tahoma,sans-serif;
+  padding: 2px 6px;
+      box-sizing: border-box;
 }
 input:focus{
   outline: none;
@@ -217,8 +221,6 @@ textarea:focus{
 
 /* 保存/取消按钮 */
 .box__footer{
-  position: absolute;
-  bottom: 0;
   width: 100%;
   text-align: right;
   border-top: 1px solid #f2f2f2;
