@@ -38,13 +38,14 @@
             </li>
             <!-- 用户菜单 -->
             <ul class="user__menu" v-show="dropDown">
-              <li @click="dropDown=false">
+              <li @click="notify('Profile');dropDown=false">
                 <span class="icon__profile"></span>
-                <router-link to="user" class="menu__link">Profile</router-link>
+                <a class="menu__link">Profile</a>
+                
               </li>
-              <li @click="dropDown=false">
+              <li @click="notify('Likes');dropDown=false">
                 <span class="icon__like"></span>
-                <router-link to="likes" class="menu__link">Likes</router-link>
+                <a class="menu__link">Likes</a>
               </li>
             </ul>
         </ul>
@@ -64,7 +65,12 @@ export default {
     }
   },
   methods:{
-
+    notify(str){
+      this.$notify.info({
+        title: str+' 并不存在',
+        message: '这个部分还没开始做。',
+        })
+    }
   }
 }
 </script>

@@ -4,7 +4,7 @@ import PageUpload from '../pages/PageUpload'
 import PageTrend from '../pages/PageTrend'
 import PageDetail from '../pages/PageDetail'
 import PageSearch from '../pages/PageSearch'
-import PageProfile from '../pages/PageProfile'
+
 
 const router = new VueRouter({
     routes:[
@@ -40,17 +40,7 @@ const router = new VueRouter({
                 title: '上传'
             }
         },
-        {
-            path:'/user',
-            component: PageProfile,
-            meta:{
-                title: '个人资料'
-            }
-        },
-        {
-            path:'/likes',
-            redirect:'/user'    
-        }
+       
         
     ]
 })

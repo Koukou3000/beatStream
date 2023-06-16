@@ -135,12 +135,13 @@ export default {
     },
     uploadSingle(){
       //检查表单输入
-      if(this.tmp_track.title.trim().length == 0){
-        this.$message({
-          message:'输入为空！',
-          type: 'error',
-          offset: 420
-        });
+      if(this.tmp_track.title.trim().length == 0 
+        || this.tmp_track.audio_url.trim().length == 0){
+        this.$notify({
+          title: '错误',
+          message: '必填项输入为空',
+          type: 'error'
+          })
       }
       else{
         var track = this.tmp_track

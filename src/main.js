@@ -10,8 +10,9 @@ import store from './store'
 Vue.use(store)
 
 
-import {Message} from 'element-ui'
-Vue.prototype.$message = Message //挂载到原型对象上 类似bus
+import { Notification } from 'element-ui';
+
+Vue.prototype.$notify = Notification //挂载到原型对象上 类似bus
 
 Vue.config.productionTip = false
 new Vue({
