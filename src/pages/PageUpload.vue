@@ -15,25 +15,38 @@
               <span class="box__tab">填写歌曲信息</span>
             </div>   
             <div class="box__content">
-              <div class="content__left">             
-                <div class="preview__img" :style="{'background-image': 'url('+tmp_track.img_url+')'}"/>
-                图片地址<input placeholder="url" v-model="tmp_track.img_url"/>
-              </div>
-              
-              <div class="content__right">
-                标题*<br>
-                <input type="text" placeholder="歌曲显示的标题" v-model="tmp_track.title" /><br>
-                自定义标签<br>
-                <input type="text" placeholder="以'#'分割" v-model="tmp_track.tags"/><br>
-                描述<br>
-                <textarea name="" id="" rows="6" placeholder="介绍歌曲内容" v-model="tmp_track.description"></textarea><br>
-                音频地址（盗链）<br>
-                <input type="" placeholder="url" v-model="tmp_track.audio_url"/>
-                <div>
-                preview片段<br>
-                ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||<br>
+
+              <div class="content__left">  
+
+                <div class="preview__img" v-if="!tmp_track.img_url"></div>           
+                <div class="preview__img" v-else :style="{'background-image': 'url('+tmp_track.img_url+')'}"/>
+                <div class="input__field" @click="inputFocus(5)">
+                  <span>封面图片</span>
+                  <input placeholder="url地址" v-model="tmp_track.img_url" ref="inputImgURL"/>
                 </div>
-   
+              </div>
+              <div class="content__right">
+                
+                <div class="input__field" @click="inputFocus(1)">
+                  <span class="required__mark">标题</span>
+                  <input type="text" placeholder="歌曲显示的标题" v-model="tmp_track.title" ref="inputTitle"/>
+                </div>
+                <div class="input__field" @click="inputFocus(2)">
+                  <span>自定义标签</span>
+                  <input type="text" placeholder="以'#'分割" v-model="tmp_track.tags" ref="inputTags"/>
+                </div>
+                <div class="input__field" @click="inputFocus(3)">
+                  <span>描述</span>
+                  <textarea rows="6" placeholder="歌曲介绍" v-model="tmp_track.description" ref="inputDescription"></textarea>
+                </div>
+                <div class="input__field" @click="inputFocus(4)">
+                  <span class="required__mark">音频</span>
+                  <input type="" placeholder="url地址" v-model="tmp_track.audio_url" ref="inputAudioURL"/>  
+                  <div v-if="tmp_track.audio_url">
+                  preview片段<br>
+                  ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+                </div>
+                </div> 
               </div>
             </div>
             <div class="box__footer">
@@ -44,7 +57,8 @@
 
       <!-- 修改内容 -->
       <div class="edit__box" v-show="manualMode==2">
-        出全部歌曲，一页18个，点击后读入信息到表单，修改后走流程一样，只是有了id      
+        出全部歌曲，一页18个，点击后读入信息到表单，修改后走流程一样，只是有了id    
+        {{track.trackList}}
       </div>
 
     </div>
@@ -65,7 +79,7 @@ export default {
         title: '',
         artist: '',
         audio_url: '',
-        img_url: 'http://p1.music.126.net/lidxk8tH41sbY9a6evzEWw==/919191720844478.jpg?param=177y177',
+        img_url: '',
         releast_time: '',
         preview_start: 0, // 秒为单位，显示成 [分钟:秒]                
         tags:'',
@@ -94,15 +108,18 @@ export default {
           break;
       }
     },
-    uploadSingle(){
-      //检查表单输入
-
-      if(this.tmp_track.title.trim().length == 0){
-        this.$message('输入为空！');
-      }
-      else{
-        var track = this.tmp_track
-        this.$store.commit('track/UPLOAD_SINGLE', track)
+    inputFocus(item){
+      switch(item){
+        case 1: this.$refs.inputTitle.focus();break;
+        case 2: this.$refs.inputTags.focus();break;
+        case 3: this.$refs.inputDescription.focus();break;
+        case 4: this.$refs.inputAudioURL.setSelectionRange(0,this.tmp_track.audio_url.length);
+                this.$refs.inputAudioURL.focus();
+                break;
+        case 5: this.$refs.inputImgURL.setSelectionRange(0,this.tmp_track.img_url.length);
+                this.$refs.inputImgURL.focus();
+                break;
+        default:break;
       }
     },
     clearForm(){
@@ -115,7 +132,21 @@ export default {
         releast_time: '',
         preview_start: 0, // 秒为单位，显示成 [分钟:秒]     
       }
-    }
+    },
+    uploadSingle(){
+      //检查表单输入
+      if(this.tmp_track.title.trim().length == 0){
+        this.$message({
+          message:'输入为空！',
+          type: 'error',
+          offset: 420
+        });
+      }
+      else{
+        var track = this.tmp_track
+        this.$store.commit('track/UPLOAD_SINGLE', track)
+      }
+    },
   },
 
   
@@ -203,7 +234,6 @@ li{
   position: relative;
   width: 35%;
 }
-/* 预览图片 */
 .preview__img{
   width: 100%;
   height: 0;
@@ -213,8 +243,22 @@ li{
   background-size: cover;
 }
 
+
 .content__right{
   width: 63%;
+}
+.input__field{
+  cursor: pointer;  
+  margin-bottom: 10px;
+}
+.input__field span{
+  user-select: none;
+}
+.input__field>:nth-child(2){
+   transition: .3s;
+}
+.input__field:hover>:nth-child(2){
+  background: #f2f2f2;
 }
 input, textarea{
   width: 100%;
@@ -222,13 +266,26 @@ input, textarea{
   resize: none;
   font: 13px Lucida Grande,Lucida Sans Unicode,Lucida Sans,Garuda,Verdana,Tahoma,sans-serif;
   padding: 2px 6px;
-      box-sizing: border-box;
+  box-sizing: border-box;
+  cursor: pointer;
+  border-radius: 4px;
 }
 input:focus{
   outline: none;
 }
 textarea:focus{
   outline: none;
+}
+.required__mark{
+  position: relative;
+}
+.required__mark::before{
+  content: '*';
+  position: absolute;
+  top: -10px;
+  right: -15px;
+  color: red;
+  font-size: 30px;
 }
 
 
