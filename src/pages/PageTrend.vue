@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <hr>
+  <div class="background test" style="background-image: url(https://cametek.jp/heartofandroid/images/main01.jpg?crc=70312063)">
+    
     Trend 【要可以和playbar通信】
       图片Swiper -- （图片放大 keyframe循环8字 带静音按钮 -- 默认静音）
 

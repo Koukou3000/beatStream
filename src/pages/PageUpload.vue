@@ -525,11 +525,11 @@ textarea:focus{
   line-height: 40px;
 }
 .track__page li:hover{
-  background: #fb8e58;
+  background: #f70;
   color: #f2f2f2;
 }
 .page__selected{
-  background: #fb8e58;
+  background: #f70;
   color: #f2f2f2;
 }
 
