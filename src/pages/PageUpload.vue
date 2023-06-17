@@ -60,25 +60,36 @@
 
       <!-- 修改内容 -->
       <div class="edit__box" v-show="manualMode=='edit'">
-        <div style="color:red;font-weight:bold;">选择需要编辑的歌曲</div>
-          <div class="track__container">
-            
-            <div class="track" v-for="(item,index) in tracksCurrentPage" :key="item.tid" @click="modifySingle(item)">
-              <div :class="'track__img artwork__placeholder__'+index" :style="{'background-image':'url('+item.img_url+')'}"></div>
-              <div class="track__textInfo">
-                <div class="track__title">{{item.title}}</div>
-                <div class="track__artist">{{item.artist}}</div>
-              </div>
+        <div class="edit__header">选择编辑对象</div>
+        <div class="track__container">
+          
+          <div class="track" v-for="(item,index) in tracksCurrentPage" :key="item.tid" @click="modifySingle(item)">
+            <div :class="'track__img artwork__placeholder__'+index" :style="{'background-image':'url('+item.img_url+')'}"></div>
+            <div class="track__textInfo">
+              <div class="track__title">{{item.title}}</div>
+              <div class="track__artist">{{item.artist}}</div>
             </div>
-
           </div>
 
-        <div style="color:#ff5500">  
-          图片
-          标题
-          艺术家
-          </div>
-          <div style="color:red;">页脚跳页</div>
+        </div>
+        <div class="edit__footer"></div>
+        <div class="track__page">
+          <ul>
+            <li>prev</li>
+            <li>Next</li>
+            <!-- <li class="page__selected">1</li>
+            <li>2</li>
+            <li>3</li>
+            <li>...</li>
+            
+            <li>98</li>
+            <li>99</li>
+            共99页
+            <div>
+              跳转至第<input type="number" style="width: 80px"/>页  
+            </div>  -->
+          </ul>
+        </div>
       </div>
 
     </div>
@@ -404,9 +415,17 @@ textarea:focus{
   position: relative;
   box-sizing: border-box;
   width: 100%;
-  margin: 30px 25px 30px 55px;
+  margin: 25px;
 }
-.track__position{
+.edit__header{
+  font-size: 26px;
+}
+.edit__header span{
+  border-bottom: 1px solid #f2f2f2;
+}
+.edit__footer{
+  width: 100%;
+  height: 1px;
   background: #f2f2f2;
 }
 .track__container{
@@ -414,6 +433,7 @@ textarea:focus{
   display: flex;
   justify-content: flex-start;
   flex-wrap: wrap;
+  margin: 30px 25px 0 35px;
 }
 .track{
   position: relative;
@@ -422,6 +442,11 @@ textarea:focus{
   padding: 0 0 50px 0;
   margin: 0 30px 30px 0;
   cursor: pointer;
+  transition: .3s;
+}
+.track:hover{
+  box-shadow: 0 0 4px 3px #ccc;
+  color: #ff5500;
 }
 
 .track__textInfo{
@@ -429,7 +454,12 @@ textarea:focus{
   bottom: 0;
   height: 50px;
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+   padding-left: 5px;
 }
+
 .track__artist{
   color: grey;
   font-size: 12px;
@@ -471,4 +501,27 @@ textarea:focus{
   background-image: linear-gradient(135deg,#8e8485,#846170)
 }
 
+/* 分页 */
+.track__page{
+  width: 100%;
+}
+.track__page ul{
+  display: flex;
+  justify-content: space-between;
+}
+.track__page li{
+  width: 50px;
+  font-size: 15px;
+  text-align: center;
+  margin: 0 2px;
+  transition: .3s;
+}
+.track__page li:hover{
+  background: #ff5500;
+  color: #f2f2f2;
+} 
+.page__selected{
+  background: #ff5500;
+  color: #f2f2f2;
+}
 </style>
