@@ -74,21 +74,11 @@
         </div>
         <div class="edit__footer"></div>
         <div class="track__page">
-          <ul>
-            <li>prev</li>
-            <li>Next</li>
-            <!-- <li class="page__selected">1</li>
-            <li>2</li>
-            <li>3</li>
-            <li>...</li>
             
-            <li>98</li>
-            <li>99</li>
-            共99页
-            <div>
-              跳转至第<input type="number" style="width: 80px"/>页  
-            </div>  -->
-          </ul>
+            <div class="prevPageBtn">prev</div>
+            <div class="nextPageBtn">Next</div>
+            
+            prev，前两页，当前页【标记】，Next，跳转到___页 Go
         </div>
       </div>
 
@@ -214,6 +204,7 @@ export default {
       // 通过当前的页数拉取state中数据
       let from = (this.page-1)*10
       this.tracksCurrentPage = this.track.trackList.slice(from, from+10)
+      // 获取到了图片地址数组，下载
       // 渲染到页面上 （放入tracksCurrentPage
     },
     modifySingle(item){
@@ -495,33 +486,42 @@ textarea:focus{
   background-image: linear-gradient(135deg,#e6846e,#70929c)
 }
 .artwork__placeholder__8{
-  background-image: linear-gradient(135deg,#e6846e,#8e8485)
+  
+  background-image: linear-gradient(135deg,#e6846e,#8e8485);
 }
 .artwork__placeholder__9{
-  background-image: linear-gradient(135deg,#8e8485,#846170)
+  background-image: linear-gradient(135deg,#8e8485,#846170);
 }
 
 /* 分页 */
 .track__page{
+  position: relative;
   width: 100%;
+
 }
-.track__page ul{
-  display: flex;
-  justify-content: space-between;
-}
-.track__page li{
-  width: 50px;
-  font-size: 15px;
-  text-align: center;
-  margin: 0 2px;
-  transition: .3s;
-}
-.track__page li:hover{
-  background: #ff5500;
-  color: #f2f2f2;
-} 
+
 .page__selected{
   background: #ff5500;
   color: #f2f2f2;
 }
+.prevPageBtn{
+  width: 50px;
+  cursor: pointer;
+  position: absolute;
+  left: 0;
+}
+.prevPageBtn:hover{
+  color: #ff8800;
+}
+.nextPageBtn{
+  width: 50px;
+  cursor: pointer;
+  position: absolute;
+  right: 0;
+}
+.nextPageBtn:hover{
+  color: #ff8800;
+}
+
+
 </style>
