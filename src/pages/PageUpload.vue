@@ -74,11 +74,14 @@
         </div>
         <div class="edit__footer"></div>
         <div class="track__page">
-            
-            <div class="prevPageBtn">prev</div>
-            <div class="nextPageBtn">Next</div>
-            
-            prev，前两页，当前页【标记】，Next，跳转到___页 Go
+            <ul>
+              <li v-if="page>1" @click="page--">Prev</li>
+              <template v-for="p in pageRange">
+                <li v-if="p!=page" :key="p" @click="page=p" >{{p}}</li>
+                <li v-else          :key="p" @click="page=p" class="page__selected">{{p}}</li>
+              </template>
+              <li v-if="pagesCount!=page" @click="page++">Next</li>
+            </ul>
         </div>
       </div>
 
@@ -110,7 +113,8 @@ export default {
 
       page: 1, // 用于edit页
       pagesCount: 1, // 总页数
-      tracksCurrentPage:[] // 这一页的歌曲列表
+      tracksCurrentPage:[], // 这一页的歌曲列表
+      pageRange: []
     }
   },
   computed:{
@@ -125,8 +129,11 @@ export default {
       // }
       if(newVal == 'edit'){
         this.getBunchOfTrack() // 读取页数 从state拉数据
-      }
-      
+      } 
+    },
+    page(newPage){
+      this.page = newPage
+      this.getBunchOfTrack()
     }
   },
   methods:{
@@ -179,7 +186,7 @@ export default {
           title: '错误',
           message: '必填项输入为空',
           type: 'error'
-          })
+        })
       }
       else{
         var track = this.tmp_track
@@ -190,6 +197,7 @@ export default {
 
     // 总页数计算
     calcPagesCount(){
+      // 每页十个，计算trackList总页数
       let length = this.track.trackList.length
       let consult = Math.floor(length / 10) //商
       let remain = length % 10 //余
@@ -197,15 +205,24 @@ export default {
         this.pagesCount = consult + 1
       else
         this.pagesCount = consult
-      // 每页十个，计算trackList总页数
     },
     getBunchOfTrack(){
+      console.log('getbunch')
       this.calcPagesCount() // 渲染页面前需要获取总页数
       // 通过当前的页数拉取state中数据
       let from = (this.page-1)*10
-      this.tracksCurrentPage = this.track.trackList.slice(from, from+10)
-      // 获取到了图片地址数组，下载
-      // 渲染到页面上 （放入tracksCurrentPage
+      this.tracksCurrentPage = this.track.trackList.slice(from, from+10)// 渲染到页面上 （放入tracksCurrentPage
+      
+      // 刷新页脚
+      this.pageRange = []
+      let p = this.page
+      let offset = -5 //  1 = 6+(-5) ;  10 = 6+(+4)
+      for(let i=0; i<9; i++){
+        if(p+offset>=1    &&   p+offset<=this.pagesCount){
+          this.pageRange.push(p+offset)
+        }
+        offset++
+      }
     },
     modifySingle(item){
       // 当点击某一首歌曲，读取点击的那个 :key=tid
@@ -214,7 +231,7 @@ export default {
       this.isEdit = true
       this.switchTab('upload')
     },
-  
+
   },
 
 }
@@ -497,31 +514,26 @@ textarea:focus{
 .track__page{
   position: relative;
   width: 100%;
-
+  display: flex;
+  flex-direction: row;
 }
-
+.track__page li{
+  height: 40px;
+  width: 40px;
+  user-select: none;
+  text-align: center;
+  margin: 0 5px;
+  line-height: 40px;
+}
+.track__page li:hover{
+  background: #ff5500;
+  color: #f2f2f2;
+}
 .page__selected{
   background: #ff5500;
   color: #f2f2f2;
 }
-.prevPageBtn{
-  width: 50px;
-  cursor: pointer;
-  position: absolute;
-  left: 0;
-}
-.prevPageBtn:hover{
-  color: #ff8800;
-}
-.nextPageBtn{
-  width: 50px;
-  cursor: pointer;
-  position: absolute;
-  right: 0;
-}
-.nextPageBtn:hover{
-  color: #ff8800;
-}
+
 
 
 </style>
