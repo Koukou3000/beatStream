@@ -75,12 +75,12 @@
         <div class="edit__footer"></div>
         <div class="track__page">
             <ul>
-              <li v-if="page>1" @click="page--">Prev</li>
+              <li v-if="page>1" @click="page--">上一页</li>
               <template v-for="p in pageRange">
                 <li v-if="p!=page" :key="p" @click="page=p" >{{p}}</li>
                 <li v-else          :key="p" @click="page=p" class="page__selected">{{p}}</li>
               </template>
-              <li v-if="pagesCount!=page" @click="page++">Next</li>
+              <li v-if="pagesCount!=page" @click="page++">下一页</li>
             </ul>
         </div>
       </div>
@@ -518,19 +518,18 @@ textarea:focus{
   flex-direction: row;
 }
 .track__page li{
-  height: 40px;
-  width: 40px;
   user-select: none;
   text-align: center;
   margin: 0 5px;
+  padding: 0 10px;
   line-height: 40px;
 }
 .track__page li:hover{
-  background: #ff5500;
+  background: #fb8e58;
   color: #f2f2f2;
 }
 .page__selected{
-  background: #ff5500;
+  background: #fb8e58;
   color: #f2f2f2;
 }
 
