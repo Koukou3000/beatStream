@@ -49,7 +49,6 @@ body{
   background: #f2f2f2;
 }
 .container{
-  
   width: 1240px;
   position: absolute;
   left: 50%;

@@ -1,7 +1,6 @@
 <template>
   <header>
     <div class="header__inner">
-
       <div class="inner__left">
         <ul>
           <li>

@@ -145,7 +145,7 @@ export default {
       this.paused=false
       if(!this.audio){
         console.log('新建一次')
-        this.audio = new Audio('https://m701.music.126.net/20230617211354/8fe08b98e48adb77e71c8238faeb622c/jdyyaac/obj/w5rDlsOJwrLDjj7CmsOj/14286755376/c8b8/31d0/a56c/e1674ade455e9e673e4954328b9ddd61.m4a')
+        this.audio = new Audio('http://47.115.222.108/music/collapse-as-snowslide.mp3')
         this.audio.addEventListener('timeupdate', this.updateProgressBar)
       }
       this.audio.volume = this.volumePercent/100 // 初次播放时调整音量
