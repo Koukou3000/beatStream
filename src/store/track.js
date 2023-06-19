@@ -7,35 +7,42 @@ export default {
             context.trackList.push(track)
         }
     },
+    getters:{
+        getTop3Tracks(track){
+            return track.trackList.slice(0,3)
+        }
+    },
     state:{
         trackList:[
             {
                 tid: 1,
                 title: 'Alone Intelligence',
                 artist: 'Camellia',
-                audio_url: 'https://m801.music.126.net/20230617032013/33d1c93f4a37f90a0a69e589bbbf98cb/jdyyaac/obj/w5rDlsOJwrLDjj7CmsOj/7736722776/55e9/dfb4/acbf/63beaae24f24c53a3432049cc25947d1.m4a',
+                audio_url: 'https://m801.music.126.net/20230620034100/1e9ae369c460d72b7d4f814d345c5b86/jdyyaac/obj/w5rDlsOJwrLDjj7CmsOj/7736722776/55e9/dfb4/acbf/63beaae24f24c53a3432049cc25947d1.m4a',
                 img_url: 'https://cametek.jp/heartofandroid/assets/jacket_full.jpg',
                 releast_time: '2018/1/26',
                 preview_start: 0, 
             },
             {
                 tid: 2,
-                title: 'Amasia',
-                artist: 'aran',
-                audio_url: 'https://m801.music.126.net/20230617054826/9b8b3de64166acb66225bdce7bf225bd/jdyyaac/obj/w5rDlsOJwrLDjj7CmsOj/23889436932/2f38/e0c3/ad92/ad029e84b764a740a02d21328847809c.m4a',
-                img_url: 'http://p2.music.126.net/x8rRRNzzRxEZHTAhO6ia1A==/109951168252956758.jpg?param=177y177',
-                releast_time: '2022/10/30',
-                preview_start: 0, 
-            },
-            {
-                tid: 3,
-                title: "Angel's Ladder",
-                artist: 'xi',
-                audio_url: 'https://m801.music.126.net/20230617055023/68d8affcadb7d00216619b9fee282ba9/jdyyaac/obj/w5rDlsOJwrLDjj7CmsOj/13599119751/dbc3/1354/56a6/0b9da36431cd8c9e0d73816b6cde0d4e.m4a',
-                img_url: 'http://p1.music.126.net/BBq3M_9quD5k5ar3oU4SUQ==/109951167188757028.jpg?param=130y130',
+                title: 'Stay',
+                artist: 'DJ Noriken',
+                audio_url: 'https://m701.music.126.net/20230620034327/31b8b279e02076af901db9bef56612d3/jdyyaac/obj/w5rDlsOJwrLDjj7CmsOj/14286755376/c8b8/31d0/a56c/e1674ade455e9e673e4954328b9ddd61.m4a',
+                img_url: 'http://p2.music.126.net/kgKG-pYsBqmPW4WW8oSJsw==/109951167379615955.jpg?param=130y130',
                 releast_time: '2023/6/16',
                 preview_start: 0, 
             },
+           
+            {
+                tid: 3,
+                title: 'Enigma',
+                artist: 'Nhato',
+                audio_url: 'https://m10.music.126.net/20230620034222/d0be1486c7235909f5385e69e86b136c/yyaac/035f/075a/545d/45b609d8cc001efb0a8fc7519dd503b7.m4a',
+                img_url: 'http://p2.music.126.net/GHZC9wqX8mentlgwBdY_gw==/109951164529232225.jpg?param=177y177',
+                releast_time: '2023/6/16',
+                preview_start: 160, 
+            },
+            
             {
                 tid: 4,
                 title: 'Sugary',
@@ -65,11 +72,11 @@ export default {
             },
             {
                 tid: 7,
-                title: 'Stay',
-                artist: 'DJ Noriken',
-                audio_url: 'https://m801.music.126.net/20230617060155/e306da0ba1f7ba96472e82f5cae41e7b/jdyyaac/obj/w5rDlsOJwrLDjj7CmsOj/14286755376/c8b8/31d0/a56c/e1674ade455e9e673e4954328b9ddd61.m4a',
-                img_url: 'http://p2.music.126.net/kgKG-pYsBqmPW4WW8oSJsw==/109951167379615955.jpg?param=130y130',
-                releast_time: '2023/6/16',
+                title: 'Amasia',
+                artist: 'aran',
+                audio_url: 'https://m801.music.126.net/20230617054826/9b8b3de64166acb66225bdce7bf225bd/jdyyaac/obj/w5rDlsOJwrLDjj7CmsOj/23889436932/2f38/e0c3/ad92/ad029e84b764a740a02d21328847809c.m4a',
+                img_url: 'http://p2.music.126.net/x8rRRNzzRxEZHTAhO6ia1A==/109951168252956758.jpg?param=177y177',
+                releast_time: '2022/10/30',
                 preview_start: 0, 
             },
             {
@@ -92,10 +99,10 @@ export default {
             },
             {
                 tid: 10,
-                title: 'Enigma',
-                artist: 'Nhato',
-                audio_url: 'https://m10.music.126.net/20230617060339/d9360b14213a1fbc748f971b61beb398/yyaac/035f/075a/545d/45b609d8cc001efb0a8fc7519dd503b7.m4a',
-                img_url: 'http://p2.music.126.net/GHZC9wqX8mentlgwBdY_gw==/109951164529232225.jpg?param=177y177',
+                title: "Angel's Ladder",
+                artist: 'xi',
+                audio_url: 'https://m801.music.126.net/20230617055023/68d8affcadb7d00216619b9fee282ba9/jdyyaac/obj/w5rDlsOJwrLDjj7CmsOj/13599119751/dbc3/1354/56a6/0b9da36431cd8c9e0d73816b6cde0d4e.m4a',
+                img_url: 'http://p1.music.126.net/BBq3M_9quD5k5ar3oU4SUQ==/109951167188757028.jpg?param=130y130',
                 releast_time: '2023/6/16',
                 preview_start: 0, 
             },
