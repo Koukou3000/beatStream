@@ -76,6 +76,7 @@ export default {
             loadPercent : 1,
             loadingHint: '正在读取资源...',
             volume: 0,
+            audioTimer: null, //淡入淡出
         }
     },
     computed:{
@@ -86,10 +87,10 @@ export default {
     watch:{
         volume(newVal){
             if(newVal >= 0.9){
-                console.log(this.timer)
-                clearInterval(this.timer)
-                this.timer = null
+                clearInterval(this.audioTimer)
+                this.audioTimer = null
             }
+           
         }
     },
     methods:{
@@ -148,22 +149,31 @@ export default {
                 }
                 image.src = track.img_url
                 console.log(track)
-
-        
-                audio.volume = 0
-                this.timer = setInterval(()=>{
-                    if(audio.volume < 0.9){
-                        audio.volume += 0.01
-                        this.volume = audio.volume   
-                    }
-                    else{
-                        console.log(audio.volume,'uplifting audio volume')             
-                    }
-                },16)
-                console.log(this.timer)
             });
 
 
+            // let audio = new Audio()
+            
+            // audio.oncanplay=()=>{
+            //     audio.play()
+            // }
+            // audio.src = 'https://m10.music.126.net/20230620055102/29d239625723e682e67fe8dc6ef785eb/yyaac/0652/005a/0f58/181b11be9970c018c46482ed7758fd24.m4a'
+            // audio.volume = 0
+            
+            //     this.audioTimer = setInterval(()=>{
+            //         console.log(audio.volume)
+            //         if(audio.volume < 0.9){
+            //             audio.volume += 0.01
+            //             this.volume = audio.volume   
+            //         }
+            //         else{
+            //             console.log(audio.volume,'uplifting audio volume')   
+            //             // clearInterval(this.audioTimer)     
+            //             // this.audioTimer = null     
+            //         }
+            //     },16)
+
+            
             // start from here --------------------------------------------
 
             this.loading = true
