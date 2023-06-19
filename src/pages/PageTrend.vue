@@ -83,6 +83,15 @@ export default {
             return this.$store.state.track
         }
     },
+    watch:{
+        volume(newVal){
+            if(newVal >= 0.9){
+                console.log(this.timer)
+                clearInterval(this.timer)
+                this.timer = null
+            }
+        }
+    },
     methods:{
         startTimer(){    
             this.timer = setInterval(() => {
@@ -139,21 +148,19 @@ export default {
                 }
                 image.src = track.img_url
                 console.log(track)
-                if(track.audioOk){
-                    audio.volume = 0
-                    this.timer =  setInterval(()=>{
-                        audio.volume += 0.1
-                        if(audio.volume>=1){
-                            this.timer = null
-                            clearInterval(this)
-                        }
-                        console.log('interval仍然在调用')
 
-                    },16)
-                    audio.currentTime = track.preview_start
-                    audio.play()
-                }
-                
+        
+                audio.volume = 0
+                this.timer = setInterval(()=>{
+                    if(audio.volume < 0.9){
+                        audio.volume += 0.01
+                        this.volume = audio.volume   
+                    }
+                    else{
+                        console.log(audio.volume,'uplifting audio volume')             
+                    }
+                },16)
+                console.log(this.timer)
             });
 
 
