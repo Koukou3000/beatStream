@@ -32,16 +32,16 @@ export default {
                 releast_time: '2023/6/16',
                 preview_start: 0, 
             },
-            
             {
                 tid: 3,
-                title: 'Enigma',
-                artist: 'Nhato',
-                audio_url: 'https://m10.music.126.net/20230620034222/d0be1486c7235909f5385e69e86b136c/yyaac/035f/075a/545d/45b609d8cc001efb0a8fc7519dd503b7.m4a',
-                img_url: 'http://p2.music.126.net/GHZC9wqX8mentlgwBdY_gw==/109951164529232225.jpg?param=177y177',
+                title: 'Cortado',
+                artist: 'tokiwa',
+                audio_url: 'http://47.115.222.108/music/Cortado.mp3',
+                img_url: 'http://p2.music.126.net/9DiVhLWjoQBDXa7qz3cAsw==/109951167107507722.jpg?param=130y130',
                 releast_time: '2023/6/16',
-                preview_start: 190, 
+                preview_start: 100, 
             },
+           
             
             {
                 tid: 4,
@@ -108,12 +108,12 @@ export default {
             },
             {
                 tid: 11,
-                title: 'Cortado',
-                artist: 'tokiwa',
-                audio_url: 'http://47.115.222.108/music/Cortado.mp3',
-                img_url: '12313131adasda',
+                title: 'Enigma',
+                artist: 'Nhato',
+                audio_url: 'https://m10.music.126.net/20230620034222/d0be1486c7235909f5385e69e86b136c/yyaac/035f/075a/545d/45b609d8cc001efb0a8fc7519dd503b7.m4a',
+                img_url: 'http://p2.music.126.net/GHZC9wqX8mentlgwBdY_gw==/109951164529232225.jpg?param=177y177',
                 releast_time: '2023/6/16',
-                preview_start: 100, 
+                preview_start: 190, 
             },
         ],
         // playlist:[ 

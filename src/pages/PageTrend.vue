@@ -26,16 +26,16 @@
                 <!-- 加载动画 -->
                 <transition name="startload">
                     <div class="loading__progress" v-show="loading" :style="{width: loadPercent+'%'}">
-                        <div class="loading__progress__hint">{{loadingHint}}</div>
+                        <div class="loading__progress__hint">{{loadingText}}</div>
                     </div>
                 </transition>
             </div>
         </transition>
         
-
         <!-- 试听内容 -->
         <div class="slide__list" v-if="carousel=='crossfade'">
             <div class="slide" style="background-image: url(https://shop32-makeshop.akamaized.net/shopimages/redwave/slide1.jpg?MjAyMy0wNS0xNiAxOToyODo0MQ==)"></div>
+            <div class="slide__cloak">如果没有音频显示静态图片，没有图片显示文字</div>
         </div>
         <div class="carousel__progress" :style="{width: count+'%'}"></div>
 
@@ -67,14 +67,19 @@
 export default {
     data(){
         return{
-            carousel: '', // 记录走马灯类型：排行/试听
+            carousel: '', // 容器当前显示内容: crossfade / podium
+
             showCurtain: true, //控制幕布动画
             count: 0, // 计时器
             timer: null, 
 
+            // crossfade
             loading: false, // 是否已经开始加载资源
-            loadPercent : 1,
-            loadingHint: '正在读取资源...',
+            loaded: 0,
+            total: 0,   //音频 图片资源总数
+            loadingText: '正在读取资源...',
+
+            // 播放中
             volume: 0,
             audioTimer: null, //淡入淡出
         }
@@ -82,15 +87,25 @@ export default {
     computed:{
         track(){
             return this.$store.state.track
+        },
+        loadPercent(){
+            return 100 * this.loaded / this.total
         }
     },
     watch:{
+        loaded(newVal){
+            this.loadingText = '正在读取资源...'+newVal+'/'+this.total
+            if(newVal == this.total){
+                this.loading = false
+                this.showCurtain = false
+            }
+        },
         volume(newVal){
-            if(newVal >= 0.9){
+            // 淡入淡出计时器
+            if(newVal >= 0.99){
                 clearInterval(this.audioTimer)
                 this.audioTimer = null
-            }
-           
+            }     
         }
     },
     methods:{
@@ -106,7 +121,6 @@ export default {
                 }
                 console.log('interval仍然在调用')
             }, 16);
-           
         },
         stopTimer(){
             clearInterval(this.timer)
@@ -114,97 +128,83 @@ export default {
         },
         go(e){      
             // curtain ==go()>> crossfade(slide) => result(podium)
-            
-            let tracks = this.$store.getters['track/getTop3Tracks']
-            
-            
-            tracks.forEach(track => {
-
-                // 如果audioOk == false 放图片、名字
-                let audio = new Audio()
-                track['audioObj'] = {}
-                audio.oncanplaythrough = ()=>{
-                    console.log('加载音频成功 - ',track.title)
-                    track['audioObj'] = audio
-                    track['audioOk'] = true
-                }
-                audio.onerror = ()=>{
-                    console.log('加载音频失败 - ',track.title)
-                    track['imgOk'] = false
-                    track['audioOk'] = false
-                }
-                audio.src = track.audio_url
-
-                // 如果imgOk == false 放音乐、名字    
-                let image = new Image()
-                track['imgObj'] = {}
-                image.onload = ()=>{
-                    console.log('加载图片成功 - ',track.title)
-                    track['imgObj'] = image
-                    track['imgOk'] = true
-                }
-                image.onError = ()=>{
-                    console.log('加载图片失败 - ',track.title)
-                    track['imgOk'] = false
-                }
-                image.src = track.img_url
-                console.log(track)
-            });
-
-
-            // let audio = new Audio()
-            
-            // audio.oncanplay=()=>{
-            //     audio.play()
-            // }
-            // audio.src = 'https://m10.music.126.net/20230620055102/29d239625723e682e67fe8dc6ef785eb/yyaac/0652/005a/0f58/181b11be9970c018c46482ed7758fd24.m4a'
-            // audio.volume = 0
-            
-            //     this.audioTimer = setInterval(()=>{
-            //         console.log(audio.volume)
-            //         if(audio.volume < 0.9){
-            //             audio.volume += 0.01
-            //             this.volume = audio.volume   
-            //         }
-            //         else{
-            //             console.log(audio.volume,'uplifting audio volume')   
-            //             // clearInterval(this.audioTimer)     
-            //             // this.audioTimer = null     
-            //         }
-            //     },16)
-
-            
-            // start from here --------------------------------------------
-
             this.loading = true
+            
+            let tracks = this.$store.getters['track/getTop3Tracks'] 
             if(e == 'podium'){
-                // 加载图片
-                this.carousel = 'podium' 
+                // 图片的foreach加载
+                    
+                this.carousel = 'podium' // 直接进入阶段2
             }
             else if(e == 'crossfade'){
-                // 加载音频 图片
-                let total = 99 //图片音频资源
-                let loaded = 0
-     
-                this.timer = setInterval(() => {
-                    loaded++
-                    this.loadPercent = 100*loaded / total
-                    this.loadingHint = '正在载入图片资源... '+loaded+'/'+total
-                    if(loaded == 99) {
-                        this.loadingHint = '开始播放..'
-                        clearInterval(this.timer)
-                        this.timer = null
-                        console.log('进度为100')
-                        this.showCurtain = false
-                        this.loading = false
-                    }     
-                    console.log('仍然在调用Interval')
-                }, 50);
+                this.total = 6 //音频 图片资源总数
+                this.loaded = 0
+
+                         
+                tracks.forEach(track => {
+                    let audio = new Audio()      
+                    audio.oncanplaythrough = ()=>{                     
+                        track['audioObj'] = audio
+                        track['audioOk'] = true
+                        this.loaded++    
+                    }
+                    audio.onerror = ()=>{
+                        track['audioObj'] = {}
+                        track['audioOk'] = false
+                        this.loaded++                        
+                    }
+                    audio.src = track.audio_url
+
+                    let image = new Image()                
+                    image.onload = ()=>{
+                        track['imgObj'] = image
+                        track['imgOk'] = true
+                        this.loaded++   
+                    }               
+                    image.onError = ()=>{
+                        track['imgObj'] = {}
+                        track['imgOk'] = false
+                        this.loaded++
+                    }
+                    image.src = track.img_url
+                    
+                });
+               
+                // 阶段1 carousel = 'crossfade'  
+                this.carousel = 'crossfade'  
+
+                // 设置容器背景图动画，这个一直移动，在timer管辖之外
+                // 禁止其他音频播放， vuex管理锁，每次play（）前需要访问锁（不能跨页面）
+
+               
+                // tracks.foreach (async )
+                    
+                    // 启动timer
+                    // 设置img audio
+                        // * 音频 图片滚动是优先级最高， 如果没有音频就换成cloak的专辑封面，如果没有图片就换成歌曲信息和黑色背景，两个都没有的话直接跳过
+                    // volume=0，  brightness=0
+                    // volume 1秒淡入，音量变成1，brightness变成1
+                    // 当count=95时，淡出 音量变成0，brightness变成0
+                    // count=100 结束一轮, count = 0 
+
                 
-                this.carousel = 'crossfade' 
-                // 当阶段走完后carousel = 'podium'
+                // 解除音频锁
+
+
+                
+                // 阶段2 carousel = 'podium'
+                    // 直接显示就好
             }
         },
+        testPromise(track){
+           return new Promise((resolve)=>{
+                setTimeout(()=>{
+                    console.log('second pass - ',track.title)
+                    
+                },1000)
+                resolve()
+           })
+        }
         
     },
     
@@ -375,8 +375,13 @@ svg{
     height: 100%;
     background-size: cover;
     background-repeat: no-repeat;
+    animation: closeup 60s infinite;
 }
-
+@keyframes closeup {
+    from{background-position: top left;}
+    50%{background-position: bottom right;}
+    to{background-position: top left;}
+}
 
 /* 静音按钮 */
 .speaker__icon{
