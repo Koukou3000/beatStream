@@ -33,31 +33,29 @@
         </transition>
         
         <!-- 试听内容 -->
-        <div class="slide__list" v-if="carousel=='crossfade'">
-            <div class="slide" style="background-image: url(https://shop32-makeshop.akamaized.net/shopimages/redwave/slide1.jpg?MjAyMy0wNS0xNiAxOToyODo0MQ==)"></div>
-            <div class="slide__cloak">如果没有音频显示静态图片，没有图片显示文字</div>
+        <div class="slide__container" v-if="stage=='crossfade'">
+            <div class="slide" :style="{'background-image': 'url('+slideBackground+')'}"></div>
+            <div class="slide__cloak" ref="slideCloak" :style="{opacity: opacity}"></div>
         </div>
-        <div class="carousel__progress" :style="{width: count+'%'}"></div>
-
-        <div class="speaker__icon">
+        
+        <div class="carousel__progress" :style="{width: count*5+'%'}" v-show="timer"></div>
+        
+        <div class="speaker__icon" v-show="stage=='crossfade'">
             <svg t="1687059934913" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3697" xmlns:xlink="http://www.w3.org/1999/xlink" width="200" height="200"><path d="M266.417804 400.877059l189.369133-150.280807v522.816527L266.417804 623.122941H92.161282V400.877059H266.417804zM51.208941 324.080355c-19.801549 0-35.842556 16.041007-35.842556 35.842556v304.159596c0 19.790712 16.041007 35.844362 35.842556 35.844362h188.44435c78.275995 62.115778 156.550183 124.231556 234.822566 186.359977 23.48623 18.632927 58.118621 1.907364 58.118621-28.075826V165.796204c0-29.992221-34.632391-46.71959-58.118621-28.074019-78.272382 62.115778-156.546571 124.242393-234.822566 186.35817H51.208941zM596.926483 330.382244c-13.59539-16.264978-11.433349-40.491756 4.831629-54.090759 16.279427-13.597196 40.493563-11.433349 54.090758 4.844272 47.637148 56.993348 95.279715 113.988503 142.916863 170.992689 47.638954-57.004186 95.279715-113.99934 142.929507-170.992689 13.59539-16.277621 37.813138-18.441468 54.079921-4.844272 16.274009 13.597196 18.437856 37.823975 4.842466 54.090759-50.597537 60.542563-101.20591 121.083321-151.801641 181.624078 50.59573 60.540757 101.204104 121.079708 151.801641 181.611434 13.59539 16.277621 11.431543 40.493563-4.842466 54.090759-16.26859 13.608033-40.484532 11.44238-54.079921-4.835241-47.649792-56.993348-95.290552-113.997534-142.929507-170.990883l-142.916863 170.990883c-13.597196 16.277621-37.813138 18.443274-54.090758 4.835241-16.264978-13.597196-18.427018-37.814944-4.831629-54.090759 50.599343-60.531726 101.191461-121.070677 151.799835-181.611434-50.606568-60.542563-101.200492-121.083321-151.799835-181.624078z" fill="#cccccc" p-id="3698"></path></svg>
         </div>
-        <div class="speaker__icon" v-show="true">
+        <div class="speaker__icon" v-show="stage=='crossfade'">
             <svg t="1687059909535" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2967" xmlns:xlink="http://www.w3.org/1999/xlink" width="200" height="200"><path d="M701.78095 343.629034c-10.378519-21.239297-37.17735-28.335921-56.709772-15.025913-19.534229 13.31362-22.731232 40.847581-6.766086 58.279374 49.241068 76.142853 49.241068 174.092156 0 250.236816-15.965146 17.431793-12.768143 44.96756 6.766086 58.279374 19.532423 13.311814 46.331254 6.211578 56.709772-15.022301M888.624993 858.76011c161.822529-202.863375 161.822529-490.660458 0-693.518414-12.538753-18.529973-38.181606-22.503649-55.743447-8.637326-17.560035 13.86271-19.648021 39.725921-4.535409 56.225706 137.182126 175.856829 137.182126 422.483018 0 598.34346-15.112612 16.499786-13.024626 42.362997 4.535409 56.2239 17.563647 13.86271 43.204693 9.889034 55.743447-8.637326zM239.651485 324.076743c78.274189-62.115778 156.544765-124.23878 234.818953-186.356364 23.488036-18.643764 58.118621-1.912783 58.118621 28.074019v692.41301c0 29.988609-34.630585 46.712365-58.118621 28.072213L239.651485 699.921451H51.201716c-19.794324 0-35.838943-16.046425-35.838943-35.84075V359.919299c0-19.792518 16.044619-35.84075 35.838943-35.84075l188.449769-0.001806z m-147.488396 76.800316v222.245882h174.26194l189.367327 150.284419V250.590834l-189.367327 150.288031H92.163089zM695.538667 689.537513c75.32825-106.375301 75.32825-248.701532 0-355.075026" fill="#cccccc" p-id="2968"></path></svg>
         </div>
 
         <!-- 结果内容 -->
-        <div class="podium__" v-if="carousel=='podium'">
+        <div class="podium__" v-if="stage=='podium'">
             
         </div>
-
-
         
     </div>  
-        <button @click="startTimer">start</button>
-        <button @click="stopTimer">stop</button>
+
         
-        {{count}} 
+
         
   </div>
     
@@ -67,21 +65,27 @@
 export default {
     data(){
         return{
-            carousel: '', // 容器当前显示内容: crossfade / podium
+            stage: '', 
+            tracks: [],
 
-            showCurtain: true, //控制幕布动画
-            count: 0, // 计时器
-            timer: null, 
-
-            // crossfade
+            // 幕布
+            showCurtain: true,
             loading: false, // 是否已经开始加载资源
-            loaded: 0,
             total: 0,   //音频 图片资源总数
+            loaded: 0, // 已尝试加载完的资源数
             loadingText: '正在读取资源...',
 
-            // 播放中
+            // crossfade
+            count: 0, // 全局时间
+            timer: null,  // 全局时间计时器
+            nowPlaying: '',
+            
+            slideBackground: '',
+            opacity: 1,
             volume: 0,
-            audioTimer: null, //淡入淡出
+            audio: null,
+            fadeTimer: null, //line 167 --------------------------------------------------------------------------------------------------- line 167
+            
         }
     },
     computed:{
@@ -90,120 +94,140 @@ export default {
         },
         loadPercent(){
             return 100 * this.loaded / this.total
-        }
+        },
+     
     },
     watch:{
-        loaded(newVal){
+        async loaded(newVal){
+            console.log(newVal)
             this.loadingText = '正在读取资源...'+newVal+'/'+this.total
+            // 资源下载完，执行图片/音频的逻辑（与count的值相关
             if(newVal == this.total){
                 this.loading = false
                 this.showCurtain = false
+                
+                this.stage = 'crossfade'  
+                // *****vuex管理锁，每次play（）前需要访问锁（不能跨页面）
+                this.startTimer() 
+                for(let i=2; i>=0; i--){  
+
+                    if(!this.tracks[i].audioOk){
+                        // 没音频，cloak放专辑图片和名字上来
+                        console.log('操作cloak - 图左字右')
+                    }
+                    else if(!this.tracks[i].imgOk){
+                        // 没图片，cloak放名字上来
+                        console.log('操作cloak - 黑背景白字')
+                    }
+                    else{
+                        this.slideBackground = this.tracks[i].img_url
+                        this.audio = this.tracks[i].audioObj
+                        this.volume = 0
+                        this.audio.currentTime = this.tracks[i].preview_start
+                        this.audio.play()
+                    }
+                    await this.delaySec(20)
+                    this.audio = null
+                    if(i==0){
+                        clearInterval(this.timer)
+                        this.timer=null
+                        this.stage = 'podium' // stage2
+                    }
+                }
+                // *****解除音频锁
+            }
+        },
+        count(newVal){  
+            // 启动timer，每16ms刷新一次count
+            if(newVal >= 0 && newVal <= 2){
+                this.volume += 0.02
+                this.opacity -= 0.05
+            }
+            else if(newVal >= 18 && newVal <= 20){
+                this.opacity += 0.02 
+                this.volume -= 0.02 
             }
         },
         volume(newVal){
-            // 淡入淡出计时器
-            if(newVal >= 0.99){
-                clearInterval(this.audioTimer)
-                this.audioTimer = null
-            }     
-        }
+            // 实时更新到audio身上
+            if(newVal>=1) this.volume = 1
+            if(newVal<=0) this.volume = 0
+            if(this.audio){
+                this.audio.volume = this.volume
+            }
+        },
+        opacity(newVal){
+            if(newVal>=1) this.opacity = 1
+            if(newVal<=0) this.opacity = 0
+        },
+        
     },
     methods:{
         startTimer(){    
+            // 读取nowplaying, 读取tracks--------------------------------------------------------------------------------------------------------修改方向
+            // count每1000ms 刷新， 调用淡入淡出计时器
+            // count除了更新进度条之外，还会更新 nowplaying，
+            // 当count到20时，nowplay++ 并且再次调用startTimer() 
             this.timer = setInterval(() => {
-                this.count+=0.08  // 20s => 进度100% =>延迟两秒
-                if(this.count>=100) {
+                this.count += 0.016  // 1000ms : 1
+                if(this.count >= 20) {
                     this.count=0
-                    clearInterval(this.timer)
-                    setTimeout(() => {
-                        this.startTimer()
-                    }, 2000);
                 }
-                console.log('interval仍然在调用')
             }, 16);
-        },
-        stopTimer(){
-            clearInterval(this.timer)
-            this.loading = !this.loading 
-        },
+    
+        },  
         go(e){      
             // curtain ==go()>> crossfade(slide) => result(podium)
             this.loading = true
             
-            let tracks = this.$store.getters['track/getTop3Tracks'] 
+            this.tracks = this.$store.getters['track/getTop3Tracks'] 
             if(e == 'podium'){
-                // 图片的foreach加载
-                    
-                this.carousel = 'podium' // 直接进入阶段2
+                this.loading = false
+                this.showCurtain = false
+                this.stage = 'podium' // 直接进入阶段2
             }
             else if(e == 'crossfade'){
-                this.total = 6 //音频 图片资源总数
+                this.total = 6 // 音频、图片资源总数
                 this.loaded = 0
 
-                         
-                tracks.forEach(track => {
+                // 预下载资源
+                this.tracks.forEach(track => {
                     let audio = new Audio()      
                     audio.oncanplaythrough = ()=>{                     
-                        track['audioObj'] = audio
                         track['audioOk'] = true
-                        this.loaded++    
+                        track['audioObj'] = audio
+                        this.loaded++  
+                        if(this.loaded == this.total) {
+                            audio.oncanplaythrough = null;
+                        }
                     }
                     audio.onerror = ()=>{
-                        track['audioObj'] = {}
                         track['audioOk'] = false
-                        this.loaded++                        
+                        track['audioObj'] = {}
+                        this.loaded++     
+                                
                     }
                     audio.src = track.audio_url
 
                     let image = new Image()                
                     image.onload = ()=>{
-                        track['imgObj'] = image
                         track['imgOk'] = true
                         this.loaded++   
+               
                     }               
                     image.onError = ()=>{
-                        track['imgObj'] = {}
                         track['imgOk'] = false
                         this.loaded++
+  
                     }
                     image.src = track.img_url
-                    
-                });
-               
-                // 阶段1 carousel = 'crossfade'  
-                this.carousel = 'crossfade'  
-
-                // 设置容器背景图动画，这个一直移动，在timer管辖之外
-                // 禁止其他音频播放， vuex管理锁，每次play（）前需要访问锁（不能跨页面）
-
-               
-                // tracks.foreach (async )
-                    
-                    // 启动timer
-                    // 设置img audio
-                        // * 音频 图片滚动是优先级最高， 如果没有音频就换成cloak的专辑封面，如果没有图片就换成歌曲信息和黑色背景，两个都没有的话直接跳过
-                    // volume=0，  brightness=0
-                    // volume 1秒淡入，音量变成1，brightness变成1
-                    // 当count=95时，淡出 音量变成0，brightness变成0
-                    // count=100 结束一轮, count = 0 
-
-                
-                // 解除音频锁
-
-
-                
-                // 阶段2 carousel = 'podium'
-                    // 直接显示就好
+                });           
             }
         },
-        testPromise(track){
-           return new Promise((resolve)=>{
-                setTimeout(()=>{
-                    console.log('second pass - ',track.title)
-                    
-                },1000)
-                resolve()
-           })
+        delaySec(sec){
+          return new Promise(resolve =>{
+            setTimeout(resolve, sec*1000);
+          })
         }
         
     },
@@ -333,12 +357,18 @@ svg{
     left: 50%;
     width: 1%;
     height: 1%;
-    background-color: #fff;
     transform: translateX(-50%);
     display: flex;
     justify-content: center;
     border-radius: 4px;
     transition: .3s;
+    background: #fff;
+    animation: breathe 3s infinite ease-in-out;
+}
+@keyframes breathe {
+    from{opacity: 0.9;}
+    50%{opacity: 0.3;}
+    to{opacity: 0.9;}
 }
 .loading__progress__hint{
     position: absolute;
@@ -366,21 +396,31 @@ svg{
 
 
 /* 试听 */
-.slide__list{
+.slide__container{
     height: inherit;
+    width: inherit;
     overflow: auto;
 }
 .slide{
-    width: 100%;
-    height: 100%;
-    background-size: cover;
+    position: absolute;
+    height: inherit;
+    width: inherit;
+    background-size: 100%;
     background-repeat: no-repeat;
-    animation: closeup 60s infinite;
+    animation: closeup 80s infinite;
 }
 @keyframes closeup {
-    from{background-position: top left;}
-    50%{background-position: bottom right;}
-    to{background-position: top left;}
+    from{background-position: top;}
+    
+    to{background-position: bottom;}
+}
+
+.slide__cloak{
+    position: absolute;
+    height: inherit;
+    width: inherit;
+    background: #000;
+    transition: 2s;
 }
 
 /* 静音按钮 */
@@ -397,7 +437,7 @@ svg{
 .carousel__progress{
     position: absolute;
     width: 0;
-    height: 2%;
+    height: 1%;
     background: #ff5500;
     bottom: 0;
 }

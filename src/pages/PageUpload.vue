@@ -426,7 +426,7 @@ textarea:focus{
   margin: 25px;
 }
 .edit__header{
-  font-size: 26px;
+  font-size: 24px;
 }
 .edit__header span{
   border-bottom: 1px solid #f2f2f2;
