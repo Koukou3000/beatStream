@@ -1,6 +1,10 @@
 export default {
     namespaced: 'track',
     actions:{
+        getTop3(context){
+            console.log(context)
+            return 114514
+        }
     },
     mutations:{
         UPLOAD_SINGLE(context, track){
@@ -9,6 +13,7 @@ export default {
     },
     getters:{
         getTop3Tracks(track){
+            console.log('获取top3',track.trackList.slice(0,3))
             return track.trackList.slice(0,3)
         }
     },
@@ -38,7 +43,7 @@ export default {
                 title: 'Changing the Future',
                 artist: 'kazeoff',
                 audio_url: 'http://47.115.222.108/music/Changing-the-Future.mp3',
-                img_url: '',//img_url: 'https://f4.bcbits.com/img/a4286791867_10.jpg',
+                img_url: 'https://f4.bcbits.com/img/a4286791867_10.jpg',//img_url: 'https://f4.bcbits.com/img/a4286791867_10.jpg',
                 releast_time: '2023/6/16',
                 preview_start: 166, 
             },
