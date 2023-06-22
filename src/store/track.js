@@ -1,23 +1,20 @@
 export default {
     namespaced: 'track',
     actions:{
-        getTop3(context){
-            console.log(context)
-            return 114514
-        }
+     
     },
     mutations:{
-        UPLOAD_SINGLE(context, track){
-            context.trackList.push(track)
+        UPLOAD_SINGLE(state, track){
+            state.trackList.push(track)
         }
     },
     getters:{
-        getTop3Tracks(track){
-            console.log('获取top3',track.trackList.slice(0,3))
-            return track.trackList.slice(0,3)
+        // 用方法的方式调用getters，避免缓存，同时可以传递参数
+        getTop3Tracks: (state)=>()=>{
+            return state.trackList.slice(0,3)
         }
     },
-    state:{
+    state:{  
         trackList:[
             {
                 tid: 1,
