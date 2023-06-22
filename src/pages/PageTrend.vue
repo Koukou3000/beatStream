@@ -99,8 +99,10 @@ export default {
     },
     watch:{
         async loaded(newVal){
-            console.log(newVal)
             this.loadingText = '正在读取资源...'+newVal+'/'+this.total
+            if(newVal>=this.total) {
+                this.loadingText = '加载完成'
+            }
             // 资源下载完，执行图片/音频的逻辑（与count的值相关
             if(newVal == this.total){
                 this.loading = false
@@ -197,9 +199,7 @@ export default {
                         track['audioOk'] = true
                         track['audioObj'] = audio
                         this.loaded++  
-                        if(this.loaded == this.total) {
-                            audio.oncanplaythrough = null;
-                        }
+                        
                     }
                     audio.onerror = ()=>{
                         track['audioOk'] = false
