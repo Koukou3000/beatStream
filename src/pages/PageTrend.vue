@@ -35,10 +35,12 @@
         <!-- 试听内容 -->
         <div class="slide__container" v-if="stage=='crossfade'">
             <div class="slide" :style="{'background-image': 'url('+slideBackground+')'}"></div>
+            <div class="carousel__progress" :style="{width: count*5+'%'}" v-show="timer"></div>
+            
             <div class="slide__cloak" ref="slideCloak" :style="{opacity: opacity}"></div>
         </div>
         
-        <div class="carousel__progress" :style="{width: count*5+'%'}" v-show="timer"></div>
+        
         
         <div class="speaker__icon" v-show="stage=='crossfade'">
             <svg t="1687059934913" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3697" xmlns:xlink="http://www.w3.org/1999/xlink" width="200" height="200"><path d="M266.417804 400.877059l189.369133-150.280807v522.816527L266.417804 623.122941H92.161282V400.877059H266.417804zM51.208941 324.080355c-19.801549 0-35.842556 16.041007-35.842556 35.842556v304.159596c0 19.790712 16.041007 35.844362 35.842556 35.844362h188.44435c78.275995 62.115778 156.550183 124.231556 234.822566 186.359977 23.48623 18.632927 58.118621 1.907364 58.118621-28.075826V165.796204c0-29.992221-34.632391-46.71959-58.118621-28.074019-78.272382 62.115778-156.546571 124.242393-234.822566 186.35817H51.208941zM596.926483 330.382244c-13.59539-16.264978-11.433349-40.491756 4.831629-54.090759 16.279427-13.597196 40.493563-11.433349 54.090758 4.844272 47.637148 56.993348 95.279715 113.988503 142.916863 170.992689 47.638954-57.004186 95.279715-113.99934 142.929507-170.992689 13.59539-16.277621 37.813138-18.441468 54.079921-4.844272 16.274009 13.597196 18.437856 37.823975 4.842466 54.090759-50.597537 60.542563-101.20591 121.083321-151.801641 181.624078 50.59573 60.540757 101.204104 121.079708 151.801641 181.611434 13.59539 16.277621 11.431543 40.493563-4.842466 54.090759-16.26859 13.608033-40.484532 11.44238-54.079921-4.835241-47.649792-56.993348-95.290552-113.997534-142.929507-170.990883l-142.916863 170.990883c-13.597196 16.277621-37.813138 18.443274-54.090758 4.835241-16.264978-13.597196-18.427018-37.814944-4.831629-54.090759 50.599343-60.531726 101.191461-121.070677 151.799835-181.611434-50.606568-60.542563-101.200492-121.083321-151.799835-181.624078z" fill="#cccccc" p-id="3698"></path></svg>
@@ -78,8 +80,7 @@ export default {
             // crossfade
             count: 0, // 全局时间
             timer: null,  // 全局时间计时器
-            nowPlaying: '',
-            
+     
             slideBackground: '',
             opacity: 1,
             volume: 0,
@@ -107,47 +108,9 @@ export default {
             if(newVal == this.total){
                 this.loading = false
                 this.showCurtain = false
-                
+                               
                 this.stage = 'crossfade'  
-                // *****vuex管理锁，每次play（）前需要访问锁（不能跨页面）
                 this.startTimer() 
-                for(let i=2; i>=0; i--){  
-
-                    if(!this.tracks[i].audioOk){
-                        // 没音频，cloak放专辑图片和名字上来
-                        console.log('操作cloak - 图左字右')
-                    }
-                    else if(!this.tracks[i].imgOk){
-                        // 没图片，cloak放名字上来
-                        console.log('操作cloak - 黑背景白字')
-                    }
-                    else{
-                        this.slideBackground = this.tracks[i].img_url
-                        this.audio = this.tracks[i].audioObj
-                        this.volume = 0
-                        this.audio.currentTime = this.tracks[i].preview_start
-                        this.audio.play()
-                    }
-                    await this.delaySec(20)
-                    this.audio = null
-                    if(i==0){
-                        clearInterval(this.timer)
-                        this.timer=null
-                        this.stage = 'podium' // stage2
-                    }
-                }
-                // *****解除音频锁
-            }
-        },
-        count(newVal){  
-            // 启动timer，每16ms刷新一次count
-            if(newVal >= 0 && newVal <= 2){
-                this.volume += 0.02
-                this.opacity -= 0.05
-            }
-            else if(newVal >= 18 && newVal <= 20){
-                this.opacity += 0.02 
-                this.volume -= 0.02 
             }
         },
         volume(newVal){
@@ -158,25 +121,75 @@ export default {
                 this.audio.volume = this.volume
             }
         },
-        opacity(newVal){
-            if(newVal>=1) this.opacity = 1
-            if(newVal<=0) this.opacity = 0
-        },
-        
+        opacity(newVal){      
+            if(newVal>=1) {
+                this.opacity = 1
+                clearInterval(this.fadeTimer)
+                this.fadeTimer = null
+            }
+            if(newVal<=0) {
+                this.opacity = 0
+                clearInterval(this.fadeTimer)
+                this.fadeTimer = null     
+            }
+        },        
     },
     methods:{
         startTimer(){    
-            // 读取nowplaying, 读取tracks--------------------------------------------------------------------------------------------------------修改方向
-            // count每1000ms 刷新， 调用淡入淡出计时器
-            // count除了更新进度条之外，还会更新 nowplaying，
-            // 当count到20时，nowplay++ 并且再次调用startTimer() 
+            let t = this.tracks.pop()
+
+            if(!t.audioOk){
+                console.log('专辑和名字')
+            }
+            else if(!t.imgOk){
+                console.log('名字')
+            }
+            else{
+                // 一切正常
+                this.slideBackground = t.img_url
+                this.audio = t.audioObj
+            }
+                
+            // *****vuex管理锁，每次play（）前需要访问锁（不能跨页面）
+            if(this.audio){
+                this.audio.volume = 0
+                this.audio.currentTime = t.preview_start
+                this.audio.play()
+            }
+
             this.timer = setInterval(() => {
-                this.count += 0.016  // 1000ms : 1
-                if(this.count >= 20) {
-                    this.count=0
+                //淡入
+                if(this.count==0){            
+                    this.fadeTimer = setInterval(() => {
+                        this.opacity -= 0.1
+                        this.volume += 0.1
+                    }, 100);
                 }
-            }, 16);
-    
+                //淡出
+                else if(this.count==18){
+                    this.fadeTimer = setInterval(() => {
+                        this.opacity += 0.1
+                        this.volume -= 0.1
+                    }, 100);
+                }
+                
+                if(this.count > 20) {
+                    clearInterval(this.timer)
+                    this.timer = null
+                    this.count = 0
+
+                    if(this.tracks.length > 0){ 
+                        this.startTimer()
+                    }
+                    else if(this.tracks.length == 0){                       
+                        this.stage = 'podium' // stage2
+                    }
+                }
+                else this.count += 1
+                
+            }, 1000);
+        
+            // *****解除音频锁
         },  
         go(e){      
             // curtain ==go()>> crossfade(slide) => result(podium)
@@ -189,38 +202,41 @@ export default {
                 this.stage = 'podium' // 直接进入阶段2
             }
             else if(e == 'crossfade'){
+                
                 this.total = 6 // 音频、图片资源总数
                 this.loaded = 0
 
                 // 预下载资源
                 this.tracks.forEach(track => {
                     let audio = new Audio()      
+                    
                     audio.oncanplaythrough = ()=>{                     
                         track['audioOk'] = true
                         track['audioObj'] = audio
                         this.loaded++  
-                        
                     }
                     audio.onerror = ()=>{
                         track['audioOk'] = false
                         track['audioObj'] = {}
-                        this.loaded++     
-                                
+                        this.loaded++        
                     }
                     audio.src = track.audio_url
-
+                    // setTimeout(()=>{
+                    //     audio.error = new Error()
+                    // },10000)
                     let image = new Image()                
                     image.onload = ()=>{
                         track['imgOk'] = true
                         this.loaded++   
-               
                     }               
                     image.onError = ()=>{
                         track['imgOk'] = false
                         this.loaded++
-  
                     }
                     image.src = track.img_url
+                    // setTimeout(()=>{
+                    //     image.error = new Error()
+                    // },10000)
                 });           
             }
         },
@@ -361,7 +377,7 @@ svg{
     display: flex;
     justify-content: center;
     border-radius: 4px;
-    transition: .3s;
+    transition: .3s linear;
     background: #fff;
     animation: breathe 3s infinite ease-in-out;
 }
@@ -440,6 +456,7 @@ svg{
     height: 1%;
     background: #ff5500;
     bottom: 0;
+    transition: 1s linear;
 }
 
 
