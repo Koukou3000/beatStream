@@ -21,7 +21,7 @@ export default {
                 audio_url: 'http://47.115.222.108/music/Alone-Intelligence.mp3',
                 img_url: 'https://cametek.jp/heartofandroid/assets/jacket_full.jpg',
                 releast_time: '2018/1/26',
-                preview_start: 93, 
+                preview_start: 90, 
             },
             {
                 tid: 2,
@@ -40,7 +40,7 @@ export default {
                 audio_url: 'http://47.115.222.108/music/Changing-the-Future.mp3',
                 img_url: 'https://f4.bcbits.com/img/a4286791867_10.jpg',
                 releast_time: '2023/6/16',
-                preview_start: 169, 
+                preview_start: 166, 
             },
            
             
