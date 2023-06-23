@@ -116,7 +116,7 @@
 
               <div v-for="(t, idx) in nextup" :key="t.tid" @click="playNextup(t, idx)">
                  <!-- 列表内容 -->
-                <div class="queue__itemWrapper" :style="{background: idx==nowPlaying ? '#f8f8f8' : '#fff'}">
+                <div class="queue__itemWrapper" :style="{background: idx==nowPlaying ? '#f8f8f8' : '#fff'}" @mouseenter="highlightItem(idx)">
                   <div class="queue__item">
                     <div class="item__dragHandle">
                       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
@@ -132,10 +132,10 @@
                       </template>
                     </div>
                     <div class="item__details">
-                      <div><span class="item__meta">Camellia</span></div>
-                      <div><span class="item__title">Alone Intelligence</span></div>
+                      <div><span class="item__meta">{{t.artist}}</span></div>
+                      <div><span class="item__title">{{t.title}}</span></div>
                     </div>
-                    <div class="item__duration">5:41</div>
+                    <div class="item__duration">{{t.release_time}}</div>
                     <div class="item__remove">x</div>
                   </div>
                 </div>
@@ -190,6 +190,7 @@ export default {
       showNextup: false, // 显示播放列表
       nextup: [], 
       nowPlaying: 1,  // 当前播放【索引值】
+      
     }
   },
   computed:{
@@ -354,9 +355,12 @@ export default {
     },
 
     // 播放列表
-    playNextup(t, idx){
+    playNextup(idx){
       console.log('在index=',idx,'前的全部降透明度')
       console.log('播放playlist中index=',idx,'的歌曲')
+    },
+    highlightItem(idx){
+      console.log('聚焦在idx=',idx,'修改它的样式')
     }
   },
 
@@ -373,6 +377,7 @@ export default {
     }
   },
   mounted(){
+    // localStorage.removeItem('nextup_list')
     // let tracks = this.$store.getters['track/getTop3Tracks']()
     // let val = JSON.stringify(tracks)
     // localStorage.setItem('nextup_list',val)
