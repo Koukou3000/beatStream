@@ -575,6 +575,7 @@ svg{
     bottom: 1%;
     filter: drop-shadow(0 0 4px #000);
     z-index: 4;
+    user-select: none;
 }
 .rank__number__pos::after{
     content: 'Ranking No.';

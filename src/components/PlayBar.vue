@@ -86,26 +86,74 @@
           </div>
         </div>
         <div class="ctrl__right">
-          <div class="icon" v-show="!showPlaylist" @click="showPlaylist=true">
+          <div class="icon" v-show="!showNextup" @click="showNextup=true">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"><path fill="#333" class="playbackSoundBadge__queueIcon" d="M6 11h12v2H6zM6 7h8v2H6zM6 15h12v2H6zM16 3v6l4-3z"></path></svg>
           </div>
-          <div class="icon" v-show="showPlaylist" @click="showPlaylist=false">
+          <div class="icon" v-show="showNextup" @click="showNextup=false">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"><path fill="#ff5500" class="playbackSoundBadge__queueIcon" d="M6 11h12v2H6zM6 7h8v2H6zM6 15h12v2H6zM16 3v6l4-3z"></path></svg>
           </div>
         </div>
       </div>
+
       <!-- 列表 -->
-      <div class="track__panel" v-show="showPlaylist" @click="showPlaylist=false">
-        <div class="panel__top" >
+      <transition name="loadPanel">
+        <div class="panel__pos" v-show="showNextup">
+          <div class="track__panel">
+            <div class="panel__top">
+              <div class="panel__text">Next up</div>
+              <button class="clear__btn">Clear</button>
+              <button class="close__btn" @click="showNextup=false">           
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                    <g fill="none" fill-rule="evenodd">
+                        <path fill="#000" fill-rule="nonzero" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                    </g>
+                </svg>
+              </button>
+            </div>
+            
+           
+            <div class="queue__scroll">
+
+              <div v-for="(t, idx) in nextup" :key="t.tid" @click="playNextup(t, idx)">
+                 <!-- 列表内容 -->
+                <div class="queue__itemWrapper" :style="{background: idx==nowPlaying ? '#f8f8f8' : '#fff'}">
+                  <div class="queue__item">
+                    <div class="item__dragHandle">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                          <g fill="none" fill-rule="evenodd">
+                              <path fill="#CCC" d="M9 5h2v2H9V5zm4 0h2v2h-2V5zm0 8h2v2h-2v-2zm0-4h2v2h-2V9zm0 8h2v2h-2v-2zM9 9h2v2H9V9zm0 4h2v2H9v-2zm0 4h2v2H9v-2z"/>
+                          </g>
+                      </svg>
+                    </div>
+                    <div class="item__thumbnail">
+                      <template v-if="idx==nowPlaying">
+                        <div class="cirtus play" v-show="idx==nowPlaying && paused"></div>
+                        <div class="cirtus pause" v-show="idx==nowPlaying && !paused"></div>
+                      </template>
+                    </div>
+                    <div class="item__details">
+                      <div><span class="item__meta">Camellia</span></div>
+                      <div><span class="item__title">Alone Intelligence</span></div>
+                    </div>
+                    <div class="item__duration">5:41</div>
+                    <div class="item__remove">x</div>
+                  </div>
+                </div>
+
+              </div>
+              
+              
+
+            </div>
+            
           
-          Next up | clear | close
+          </div>
+
         </div>
-        <div> track 1</div>
-        <div> track 1</div>
-        <div> track 1</div>
-        <div> track 1</div>
-        <div>高度实时计算 整个screenY - bar - 50px </div>
-      </div>
+      </transition>
+      
+
+      
     
     </div>
     
@@ -138,9 +186,10 @@ export default {
       changingVolume: false,      // 调节进度条，控制动画效果正常进行
 
       // --- 列表
-      openPlaylist: false, // 计算播放列表定位
-      showPlaylist: false, // 显示播放列表
-      playlist: []
+      openNextup: false, // 计算播放列表定位----------------未用到
+      showNextup: false, // 显示播放列表
+      nextup: [], 
+      nowPlaying: 1,  // 当前播放【索引值】
     }
   },
   computed:{
@@ -150,7 +199,7 @@ export default {
   },
   watch:{
     currentTimeSeconds(now){
-      this.$bus.$emit('trackProgress', now, this.durationSeconds) // 更新就传输时间 
+      this.$bus.$emit('trackProgress', now, this.durationSeconds) // 更新时传输时间 
     }
   },
   methods:{
@@ -302,6 +351,12 @@ export default {
         this.onProgressBar = false
         removeEventListener('mouseup',this.progressBarUp)
       },100)
+    },
+
+    // 播放列表
+    playNextup(t, idx){
+      console.log('在index=',idx,'前的全部降透明度')
+      console.log('播放playlist中index=',idx,'的歌曲')
     }
   },
 
@@ -316,6 +371,14 @@ export default {
       }
       return '0:00'
     }
+  },
+  mounted(){
+    // let tracks = this.$store.getters['track/getTop3Tracks']()
+    // let val = JSON.stringify(tracks)
+    // localStorage.setItem('nextup_list',val)
+    this.nextup = JSON.parse(localStorage.getItem('nextup_list'))
+ 
+  
   }
 }
 </script>
@@ -584,15 +647,188 @@ button:focus{
 }
 
 /* 列表操作面板 */
-.track__panel{
+.panel__pos{
   width: 480px;
-  height: 650px;
+  height: 660px;
+  max-height: calc(100vh - 120px);
   background: #fff;
-  box-shadow: 0 0 4px 1px #ccc;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.25);
   position: absolute;
   bottom: 55px;
   right: 0;
 }
+.track__panel{
+  transform: translateY(0);
+  opacity: 1;
+  height: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.panel__top{
+  display: flex;
+  padding: 9px 24px;
+  border-bottom: 1px solid #e5e5e5;
+  align-items: center;
+}
+.panel__text{
+  line-height: 46px;
+  flex-grow: 1;
+  font-size: 16px;
+}
+.clear__btn{
+  display: inline-block;
+  position: relative;
+  height: 26px;
+  margin: 0;
+  padding: 2px 11px 2px 10px;
+  border: 1px solid #e5e5e5;
+  border-radius: 3px;
+  background-color: #fff;
+  cursor: pointer;
+  color: #333;
+  font-size: 14px;
+  line-height: 20px;
+  white-space: nowrap;
+  font-family: Interstate,Lucida Grande,Lucida Sans Unicode,Lucida Sans,Garuda,Verdana,Tahoma,sans-serif;
+  font-weight: 100;
+  text-align: center;
+  vertical-align: initial;
+  margin-right: 14px;
+}
+.close__btn{
+  background: none;
+  transition: none;
+  padding-top: 3px;
+  padding-bottom: 3px;
+  cursor: pointer;
+  border: none;
+}
 
+.loadPanel-enter-active{
+  animation: load .35s forwards;
+}
+.loadPanel-leave-active{
+  animation: load reverse 0.35s forwards ;
+}
+@keyframes load {
+  from{
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  90%{
+    opacity: 1;
+    transform: translateY(-3px);
+  }
+  to{
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 播放列表相关 */
+.queue__scroll{
+  width: 100%;
+  flex: 1;
+  font-family: Interstate,Lucida Grande,Lucida Sans Unicode,Lucida Sans,Garuda,Verdana,Tahoma,sans-serif;
+  font-weight: 100;
+}
+.queue__itemWrapper{
+  width: 100%;
+  height: 48px;
+  background: #fff;
+  transition-property: opacity, visibility, transform;
+}
+.queue__itemWrapper:hover{
+  background: #f8f8f8;
+}
+.queue__item{
+  padding: 0 24px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+.item__dragHandle{
+  width: 24px;
+  height: 48px;
+  margin-left: -24px;
+  cursor: move;
+  display: flex;
+  align-items: center;
+  visibility: hidden;
+}
+.queue__itemWrapper:hover .item__dragHandle{
+  visibility: visible;
+}
+.item__thumbnail{
+  width: 32px;
+  height: 32px;
+  margin-right: 7px;
+  background: #000;
+  position: relative;
+}
+
+/* 当前曲目互动 */
+.cirtus{
+  height: 24px;
+  width: 24px;
+  position: absolute;
+  background: #f50;
+  border-radius: 50%;
+  top: 3px;
+  left: 4px;
+}
+.play::before{
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 1px;
+  width: 100%;
+  height: 100%;
+  content: "";
+  background-repeat: no-repeat;
+  opacity: 1;
+  transition: opacity .3s;
+  background-position: 50%;
+  background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+Cjxzdmcgd2lkdGg9IjdweCIgaGVpZ2h0PSIxMnB4IiB2aWV3Qm94PSIwIDAgNyAxMiIgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB4bWxuczpza2V0Y2g9Imh0dHA6Ly93d3cuYm9oZW1pYW5jb2RpbmcuY29tL3NrZXRjaC9ucyI+CiAgICA8IS0tIEdlbmVyYXRvcjogU2tldGNoIDMuMi4yICg5OTgzKSAtIGh0dHA6Ly93d3cuYm9oZW1pYW5jb2RpbmcuY29tL3NrZXRjaCAtLT4KICAgIDx0aXRsZT5QbGF5IDI0PC90aXRsZT4KICAgIDxkZXNjPkNyZWF0ZWQgd2l0aCBTa2V0Y2guPC9kZXNjPgogICAgPGRlZnM+PC9kZWZzPgogICAgPGcgaWQ9IlBhZ2UtMSIgc3Ryb2tlPSJub25lIiBzdHJva2Utd2lkdGg9IjEiIGZpbGw9Im5vbmUiIGZpbGwtcnVsZT0iZXZlbm9kZCIgc2tldGNoOnR5cGU9Ik1TUGFnZSI+CiAgICAgICAgPGcgaWQ9ImJ1dHRvbnMiIHNrZXRjaDp0eXBlPSJNU0FydGJvYXJkR3JvdXAiIHRyYW5zZm9ybT0idHJhbnNsYXRlKC0xNjUxLjAwMDAwMCwgLTkzNC4wMDAwMDApIiBmaWxsPSIjRkZGRkZGIj4KICAgICAgICAgICAgPHBhdGggZD0iTTE2NTEsOTQ2IEwxNjUyLjYxNTM4LDk0MCBMMTY1MSw5MzQgTDE2NTgsOTQwIEwxNjUxLDk0NiBaIiBpZD0iUGxheS0yNCIgc2tldGNoOnR5cGU9Ik1TU2hhcGVHcm91cCI+PC9wYXRoPgogICAgICAgIDwvZz4KICAgIDwvZz4KPC9zdmc+);
+}
+.pause::before{
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  content: "";
+  background-repeat: no-repeat;
+  opacity: 1;
+  transition: opacity .3s;
+  background-position: 50%;
+  background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+Cjxzdmcgd2lkdGg9IjhweCIgaGVpZ2h0PSIxMHB4IiB2aWV3Qm94PSIwIDAgOCAxMCIgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB4bWxuczpza2V0Y2g9Imh0dHA6Ly93d3cuYm9oZW1pYW5jb2RpbmcuY29tL3NrZXRjaC9ucyI+CiAgICA8IS0tIEdlbmVyYXRvcjogU2tldGNoIDMuMi4yICg5OTgzKSAtIGh0dHA6Ly93d3cuYm9oZW1pYW5jb2RpbmcuY29tL3NrZXRjaCAtLT4KICAgIDx0aXRsZT5QYXVzZSAyNDwvdGl0bGU+CiAgICA8ZGVzYz5DcmVhdGVkIHdpdGggU2tldGNoLjwvZGVzYz4KICAgIDxkZWZzPjwvZGVmcz4KICAgIDxnIGlkPSJQYWdlLTEiIHN0cm9rZT0ibm9uZSIgc3Ryb2tlLXdpZHRoPSIxIiBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiIHNrZXRjaDp0eXBlPSJNU1BhZ2UiPgogICAgICAgIDxnIGlkPSJidXR0b25zIiBza2V0Y2g6dHlwZT0iTVNBcnRib2FyZEdyb3VwIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgtMTY4Mi4wMDAwMDAsIC05MzUuMDAwMDAwKSIgZmlsbD0iI0ZGRkZGRiI+CiAgICAgICAgICAgIDxwYXRoIGQ9Ik0xNjg3LDkzNSBMMTY4Nyw5NDUgTDE2OTAsOTQ1IEwxNjkwLDkzNSBMMTY4Nyw5MzUgWiBNMTY4Miw5MzUgTDE2ODIsOTQ1IEwxNjg1LDk0NSBMMTY4NSw5MzUgTDE2ODIsOTM1IFoiIGlkPSJQYXVzZS0yNCIgc2tldGNoOnR5cGU9Ik1TU2hhcGVHcm91cCI+PC9wYXRoPgogICAgICAgIDwvZz4KICAgIDwvZz4KPC9zdmc+);
+}
+.item__details{
+  flex-grow: 1;
+}
+.item__meta{
+  color: #999;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  word-break: normal;
+}
+.item__meta:hover{
+  color: #666;
+}
+.item__title{
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  word-break: normal;
+  color: #333;
+}
+.item__title:hover{
+  color: #000;
+}
 
 </style>
