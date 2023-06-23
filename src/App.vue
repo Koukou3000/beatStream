@@ -7,9 +7,8 @@
     
       <br>
       PlayBar 
-        按钮图标  
-        歌曲信息跳转 -- 点击读取id作为参数跳转 detail
         需要组件自己维护播放列表Nextup
+
         //UPDATE//
         多个标签页不允许同时播放 -- 播放时加入（修改）播放列表 -- 修改localStorage -- 监听localStorage变化
         播放状态需要存到LocalStorage
