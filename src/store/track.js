@@ -1,20 +1,21 @@
 export default {
     namespaced: 'track',
     actions:{
-     
+
     },
     mutations:{
-        // 上传信息
+        // 上传单曲
         UPLOAD_SINGLE(state, track){
             state.trackList.push(track)
         }
     },
     getters:{
-        // 用方法的方式调用getters，避免缓存，同时可以传递参数
+        // 这种写法表示getTop3Tracks是一个方法
         getTop3Tracks: (state)=>()=>{
             return state.trackList.slice(0,3)
         },
         getTrackDetail: (state)=>(tid)=>{
+            // 用方法的方式调用getters，避免vuex自动缓存，更可以传递参数
             return state.trackList.slice(tid-1, tid).pop()
         }
     },
@@ -123,17 +124,7 @@ export default {
                 preview_start: 190, 
             },
         ],
-        playlist:[ 
-            {
-                tid: 1,
-                title: 'Alone Intelligence',
-                artist: 'Camellia',
-                audio_url: 'http://47.115.222.108/music/Alone-Intelligence.mp3',
-                img_url: 'https://cametek.jp/heartofandroid/assets/jacket_full.jpg',
-                releast_time: '2018/1/26',
-                preview_start: 90, 
-            },
-        ],
+
         
     },
    

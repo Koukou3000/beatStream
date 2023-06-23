@@ -267,6 +267,7 @@ export default {
         go(e){      
             // curtain ==go()>> crossfade(slide) => result(podium)
             this.tracks = this.$store.getters['track/getTop3Tracks']()
+           
             if(e == 'podium'){
                 this.showCurtain = false
                 this.stage = 'podium' // 直接进入阶段2
