@@ -112,7 +112,8 @@
         </transition>
     </div>  
 
-    
+        
+    <router-link :to="{name:'songDetail', params:{id:1234}}">router传参测试</router-link>
   </div>
 </template>
 
