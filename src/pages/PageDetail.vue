@@ -1,7 +1,15 @@
 <template>
     <div style="color:blue;">
-        <div style="color:red;">与playbar通信 播放时间 </div>
-        <div @trackProgress="receiveProgress">{{current}}</div>
+        
+        
+        <div v-if="track">
+            {{track.title}} - {{track.artist}}
+        </div>
+        当前播放的是：playbar.nowplaying
+        当前页面是：
+            （一致）
+            当前播放比例{{progressPercent}}
+        歌曲信息 |  歌曲评论（时间戳） | lyric
     </div>
 </template>
 
@@ -11,18 +19,28 @@ export default {
         return{
             track: null,
             playing: false,
-            current: 0
+            current: 0,
+            duration: 114,
         }
     },
+    computed:{
+      progressPercent(){
+        return this.current*100 / this.duration
+      }  
+    },
     methods:{
-        receiveProgress(){
-            console.log('收到了信息！')
+        receiveProgress(now, dur){
+            this.current = now
+            this.duration = dur
         }
     },
     mounted(){
         this.track = this.$store.getters['track/getTrackDetail'](this.$route.params.tid)
-        console.log(this.track)
+        this.$bus.$on('trackProgress',this.receiveProgress)
     },
+    beforeDestroy(){
+        this.$bus.$off('trackProgress')
+    }
    
     
 }

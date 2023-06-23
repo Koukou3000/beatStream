@@ -13,6 +13,7 @@ Vue.use(store)
 import { Notification } from 'element-ui';
 
 Vue.prototype.$notify = Notification //挂载到原型对象上 类似bus
+Vue.prototype.$bus = new Vue()
 
 Vue.config.productionTip = false
 new Vue({

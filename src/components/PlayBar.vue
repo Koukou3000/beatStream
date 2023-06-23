@@ -148,6 +148,11 @@ export default {
         return this.currentTimeSeconds*100 / this.durationSeconds
     }
   },
+  watch:{
+    currentTimeSeconds(now){
+      this.$bus.$emit('trackProgress', now, this.durationSeconds) // 更新就传输时间 
+    }
+  },
   methods:{
     updateProgressBar(){
       //更新播放状态（进度条、音量等

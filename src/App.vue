@@ -32,7 +32,6 @@
 import NavBar from './components/NavBar.vue'
 import PlayBar from './components/PlayBar.vue'
 
-
 export default {
   name: 'App',
   components:{NavBar, PlayBar},
