@@ -1,18 +1,30 @@
 <template>
     <div style="color:blue;">
-        this.$route.params == {
-          
-        }
-
-        <div style="color:red;">与playbar通信播放时间 </div>
+        <div style="color:red;">与playbar通信 播放时间 </div>
+        <div @trackProgress="receiveProgress">{{current}}</div>
     </div>
 </template>
 
 <script>
 export default {
+    data(){
+        return{
+            track: null,
+            playing: false,
+            current: 0
+        }
+    },
+    methods:{
+        receiveProgress(){
+            console.log('收到了信息！')
+        }
+    },
     mounted(){
-        console.log('要根据歌曲id读state',this.$route.params.id)
-    }
+        this.track = this.$store.getters['track/getTrackDetail'](this.$route.params.tid)
+        console.log(this.track)
+    },
+   
+    
 }
 </script>
 

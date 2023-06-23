@@ -54,7 +54,8 @@
                     </transition>
                 </div>
             </div>
-            <div class="slide__cloak" ref="slideCloak" :style="{opacity: opacity}"></div>
+         
+            <div class="slide__cloak" ref="slideCloak" :style="{opacity: opacity}" @click="pushRoute"></div>
             <div class="carousel__progress" :style="{width: count*5+'%'}" v-show="timer"></div>
             <div class="slide" :style="{'background-image': 'url('+slideBackground+')'}"></div>
             
@@ -72,7 +73,7 @@
         <transition name="rankStep">
             <div class="podium__" v-show="stage=='podium'">                
                 <div class="stepping__stone">
-                    <div class="poster" style="background-image: linear-gradient(135deg,#846170,#e6846e)" ref="rank2"></div>
+                    <div class="poster" style="background-image: linear-gradient(135deg,#846170,#e6846e)" ref="rank2" @click="pushRoute(2)"></div>
                     <div class="rank2">
                         <div class="placeholder__crown">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 396.45 289.09"><defs></defs>
@@ -84,7 +85,7 @@
                     </div>
                 </div>
                 <div class="stepping__stone">
-                    <div class="poster" style="background-image: linear-gradient(135deg,#e6846e,#70929c)" ref="rank1"></div>
+                    <div class="poster" style="background-image: linear-gradient(135deg,#e6846e,#70929c)" ref="rank1" @click="pushRoute(1)"></div>
                     <div class="rank1">
                         <div class="placeholder__crown">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 396.45 289.09"><defs></defs> 
@@ -96,7 +97,7 @@
                     </div>
                 </div>
                 <div class="stepping__stone">
-                    <div class="poster" style="background-image: linear-gradient(135deg,#8e8485,#70929c)" ref="rank3"></div>
+                    <div class="poster" style="background-image: linear-gradient(135deg,#8e8485,#70929c)" ref="rank3" @click="pushRoute(3)"></div>
                     <div class="rank3">
                         <div class="placeholder__crown">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 396.45 289.09"><defs></defs>
@@ -113,7 +114,7 @@
     </div>  
 
         
-    <router-link :to="{name:'songDetail', params:{id:1234}}">router传参测试</router-link>
+   
   </div>
 </template>
 
@@ -143,6 +144,8 @@ export default {
             fadeTimer: null,  //淡入淡出定时器
             showNumber: false,
             
+            // 当前播放曲目的tid
+            tid: 0,
         }
     },
     computed:{
@@ -211,6 +214,7 @@ export default {
             let t = this.tracks.pop()
             this.trackTitle = t.title
             this.trackArtist = t.artist
+            this.tid = t.tid
             if(t.imgOk){
                 this.slideBackground = t.img_url
             }
@@ -326,15 +330,28 @@ export default {
           return new Promise(resolve =>{
             setTimeout(resolve, sec*1000);
           })
+        },  
+        pushRoute(e){      
+            switch(e){
+                case 1: this.tid = this.tracks[0].tid; break;
+                case 2: this.tid = this.tracks[1].tid; break;
+                case 3: this.tid = this.tracks[2].tid; break;
+                default:break;
+            }
+            this.$router.push({name:'trackDetail', params:{tid: this.tid}})
         }
-       
-        
     },
     filters:{
         twoDigits(number){
             if(number<10)
                 return '0'+number 
             return number
+        }
+    },
+    beforeDestroy(){
+        if(this.audio){
+            this.audio.pause()
+            this.audio = null
         }
     }
 }
@@ -497,7 +514,7 @@ svg{
     background: #fff;
     transition: 2s;
     z-index: 3;
-    
+    cursor: pointer;
 }
 /* 静音按钮 */
 .speaker__icon{
@@ -644,6 +661,7 @@ svg{
     background-position: 0 0;
     display: flex;
     justify-content: center;
+    cursor: pointer;
 }
 .placeholder__crown{
     position: absolute;

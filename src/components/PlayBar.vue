@@ -3,11 +3,21 @@
     <div class="element__container">
 
       <!-- 播放操作按钮 -->
-      <button class="icon prev__btn" @click="stepPrev"></button>
-      <button class="icon play__btn" @click="playTrack" v-if="paused"></button>
-      <button class="icon pause__btn" @click="pauseTrack" v-else></button>
-      <button class="icon next__btn" @click="stepNext"></button>
-      <button class="icon loop__btn" @click="loopCurrentTrack"></button>
+      <button class="icon" @click="stepPrev">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"><path fill="#333" d="M7 6h2v12H7V6zm2 6l8 6V6l-8 6z"/></svg>
+      </button>
+      <button class="icon" @click="playTrack" v-if="paused">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"><path fill="#333" d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" /></svg>
+      </button>
+      <button class="icon" @click="pauseTrack" v-else>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"><path fill="#333" d="M8 5v14l11-7z" v-if="!paused"/></svg>
+      </button>
+      <button class="icon" @click="stepNext">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"><path fill="#333" d="M7 18l8-6-8-6v12zm8-12v12h2V6h-2z"/></svg>
+      </button>
+      <button class="icon" @click="loopCurrentTrack" style="  margin-left: 20px; margin-right: 40px;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"><path fill="#333" d="M12 8H9a4 4 0 1 0 0 8h6a4 4 0 0 0 2.104-7.403l1.77-1.18.02.018A6 6 0 0 1 15 18H9A6 6 0 1 1 9 6h3V4l4 3-4 3V8z"/></svg>
+      </button>
       
    
       <!-- AUDIOTIME - 进度条 -->
@@ -38,8 +48,12 @@
 
       <!-- VOLUME - 喇叭光标 -->
       <div class="volume__judge" @click="toggleMuted" @mouseover="chVolume" @mouseout="finVolume" >
-        <button class="icon volume__state" v-show="!muted"></button>
-        <button class="icon muted__state" v-show="muted"></button>
+        <button class="icon playlist__pos" v-show="!muted">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"><path fill="#333" d="M4 9h4.002L12 5v14c-2.446-2.667-3.778-4-3.998-4H4V9zm10 4a1 1 0 0 0 0-2V9a3 3 0 0 1 0 6v-2zm0 4a5 5 0 0 0 0-10V5a7 7 0 0 1 0 14v-2z"/></svg>
+        </button>
+        <button class="icon playlist__pos" v-show="muted">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"><path fill="#333" d="M18 10.584l-2.293-2.291-1.414 1.414 2.293 2.291-2.291 2.291 1.414 1.415 2.292-2.292 2.294 2.292 1.414-1.415-2.293-2.291 2.291-2.29-1.414-1.415-2.292 2.291zM4 9h4.002L12 5v14c-2.446-2.667-3.778-4-3.998-4H4V9z"/></svg>
+        </button>
       </div>
       <!-- VOLUME - 音量进度条 - 立即定位=> 随后出现进度条和动画 -->
       <div class="volume__pos" v-show="openVolumeJudgeArea"
@@ -63,13 +77,22 @@
 
       <!-- 歌曲信息   -->
       <div class="track__container">
-        <div class="poster__image"></div>
-        <div>
-          <div class="artist">yomoha</div>
-          <div class="track__title">collapse-as-snowslide</div>
+
+        <div class="ctrl__left">
+          <div class="poster__image"></div>
+          <div>
+            <div class="artist">yomoha</div>
+            <div class="track__title">collapse-as-snowslide</div>
+          </div>
         </div>
-        <div class="icon playlist" v-show="!showPlaylist" @click="showPlaylist=true"></div>
-        <div class="icon playlist-active" v-show="showPlaylist" @click="showPlaylist=false"></div>
+        <div class="ctrl__right">
+          <div class="icon" v-show="!showPlaylist" @click="showPlaylist=true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"><path fill="#333" class="playbackSoundBadge__queueIcon" d="M6 11h12v2H6zM6 7h8v2H6zM6 15h12v2H6zM16 3v6l4-3z"></path></svg>
+          </div>
+          <div class="icon" v-show="showPlaylist" @click="showPlaylist=false">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"><path fill="#ff5500" class="playbackSoundBadge__queueIcon" d="M6 11h12v2H6zM6 7h8v2H6zM6 15h12v2H6zM16 3v6l4-3z"></path></svg>
+          </div>
+        </div>
       </div>
       <!-- 列表 -->
       <div class="track__panel" v-show="showPlaylist" @click="showPlaylist=false">
@@ -81,7 +104,7 @@
         <div> track 1</div>
         <div> track 1</div>
         <div> track 1</div>
-        <div>高度实时计算 整个document高度的50%？</div>
+        <div>高度实时计算 整个screenY - bar - 50px </div>
       </div>
     
     </div>
@@ -328,33 +351,14 @@ body{
 button:focus{
   outline: none;
 }
-.pause__btn{
-  background: url(../assets/playbar/pause.svg) 0 0 no-repeat;
-  background-size: cover;
-}
-.play__btn{
-  background: url(../assets/playbar/play.svg) 0 0 no-repeat;
-  background-size: cover;
-}
-.prev__btn{
-  background: url(../assets/playbar/pre.svg) 0 0 no-repeat;
-  background-size: cover;
-}
-.next__btn{
-  background: url(../assets/playbar/next.svg) 0 0 no-repeat;
-  background-size: cover;
-}
-.loop__btn{
-  background: url(../assets/playbar/repeat.svg) 0 0 no-repeat;
-  background-size: cover;
-  margin-left: 20px;
-  margin-right: 40px;
-}
+
+
 
 /* 进度条相关 */
 .progressBar__container{
   height: 100%;
   display: flex;
+    flex-shrink: 0;
   align-items: center;
   margin-left: 20px;
 }
@@ -434,19 +438,12 @@ button:focus{
   width: 30px;
   height: 100%;
   display: flex;
+    flex-shrink: 0;
   align-items: center;
+  transform: translateX(-9px);
   cursor: pointer;
 }
-.volume__state{
-  position: absolute;
-  background: url(../assets/playbar/volume.svg) 0 0 no-repeat;
-  background-size: cover;
-}
-.muted__state{
-  position: absolute;
-  background: url(../assets/playbar/volume-muted.svg) 0 0 no-repeat;
-  background-size: cover;
-}
+
 
 /* 音量条显示定位 */
 .volume__pos{
@@ -533,6 +530,12 @@ button:focus{
 /* 播放列表 */
 .track__container{
   display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: space-between;
+}
+.ctrl__left{
+  display: flex;
   align-items: center;
 }
 .poster__image{
@@ -545,6 +548,10 @@ button:focus{
   margin-left: 10px;
   color: #999;
   cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 280px;
 }
 .artist:hover{
   color: #111;
@@ -553,26 +560,24 @@ button:focus{
   margin-left: 10px;
   color: #666;
   cursor: pointer;
+  width: 280px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .track__title:hover{
   color: #111;
 }
-.playlist{
+.ctrl__right{
+  position: absolute;
+   right: 0;
+}
+.playlist__pos{
   position: absolute;
   right: 0;
-  width: 24px;
-  height: 24px;
-  background: url(../assets/playbar/playlist.svg) 0 0 no-repeat;
-  background-size: cover;
+
 }
-.playlist-active{
-  position: absolute;
-  right: 0;
-  width: 24px;
-  height: 24px;
-  background: url(../assets/playbar/playlist-active.svg) 0 0 no-repeat;
-  background-size: cover;
-}
+
 /* 列表操作面板 */
 .track__panel{
   width: 480px;

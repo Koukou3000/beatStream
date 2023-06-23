@@ -12,6 +12,9 @@ export default {
         // 用方法的方式调用getters，避免缓存，同时可以传递参数
         getTop3Tracks: (state)=>()=>{
             return state.trackList.slice(0,3)
+        },
+        getTrackDetail: (state)=>(tid)=>{
+            return state.trackList.slice(tid-1, tid)
         }
     },
     state:{  
