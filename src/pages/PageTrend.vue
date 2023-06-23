@@ -283,7 +283,7 @@ export default {
                 this.total = 6 // 音频、图片资源总数
                 this.loaded = 0
 
-                let timeoutDuration = 8000 //ms
+                let timeoutDuration = 10000 //ms
                 // 预下载资源
                 this.tracks.forEach(track => {
                     let audio = new Audio()      

@@ -5,6 +5,8 @@
     <div class="container">
       <router-view></router-view>
     
+      
+      <div style="color:red">playlist加入localStorage，detail页面歌词滚动，skeleton镜面反射，pageupload中的内容形成组件 </div>
       <br>
       PlayBar 
         需要组件自己维护播放列表Nextup
