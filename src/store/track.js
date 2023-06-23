@@ -4,6 +4,7 @@ export default {
      
     },
     mutations:{
+        // 上传信息
         UPLOAD_SINGLE(state, track){
             state.trackList.push(track)
         }
@@ -122,14 +123,17 @@ export default {
                 preview_start: 190, 
             },
         ],
-        // playlist:[ 
-        //     {
-        //         lid: 1,
-        //         listName:'Frankenstein complex',
-        //         poster_url: '12312321313asdsada',
-        //         tracks: [1,2,3,4], // tid
-        //     },
-        // ],
+        playlist:[ 
+            {
+                tid: 1,
+                title: 'Alone Intelligence',
+                artist: 'Camellia',
+                audio_url: 'http://47.115.222.108/music/Alone-Intelligence.mp3',
+                img_url: 'https://cametek.jp/heartofandroid/assets/jacket_full.jpg',
+                releast_time: '2018/1/26',
+                preview_start: 90, 
+            },
+        ],
         
     },
    

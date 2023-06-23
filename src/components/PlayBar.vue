@@ -331,7 +331,7 @@ body{
   bottom: 0;
   width: 100%;
   height: 49px;
-  border-top: 1px solid #e3e3e3;
+  border-top: 1px solid #cecece;
   background: #f2f2f2;
   display: flex;
   justify-content: center;
