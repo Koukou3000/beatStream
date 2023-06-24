@@ -1,12 +1,15 @@
 <template>
   <div>
-    过滤 state 中内容 - 参数来自navbar -- emit?
+    to query
   </div>
 </template>
 
 <script>
 export default {
-
+  mounted(){
+    this.$bus.$on('')
+  },
+ 
 }
 </script>
 

@@ -16,8 +16,7 @@ export default {
         },
         getTrackDetail: (state)=>(tid)=>{
             // 用方法的方式调用getters，避免vuex自动缓存，更可以传递参数
-            console.log(tid,'getter收到的')
-            return state.trackList.slice(tid-1, tid).pop()
+            return state.trackList.slice(tid-1, tid).pop() 
         }
     },
     state:{  

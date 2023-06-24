@@ -71,7 +71,9 @@ export default {
         })
     },
     search(){
-      console.log('向pageSearch通信',this.$refs.searchInput.value)
+
+      console.log(this.$refs.searchInput.value)
+      this.$router.push({path:'/search', })
     }
   }
 }

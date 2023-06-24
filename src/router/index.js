@@ -23,22 +23,19 @@ const router = new VueRouter({
             path:'/search',
             component: PageSearch,
             meta:{
-                title: 'xxx 的搜索结果'
+                title: '搜索中'
             }
         },
         {
             name:'trackDetail',
             path:'/detail/:tid',
             component: PageDetail,
-            meta:{
-                title: 'Streaming xxx'
-            }
         },
         {
             path:'/upload',
             component: PageUpload,
             meta:{
-                title: '上传'
+                title: '上传歌曲'
             }
         },
        
