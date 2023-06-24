@@ -116,7 +116,7 @@
 
               <div v-for="(t, idx) in nextup" :key="t.tid" @click="playNextup(t, idx)" ref="items">
                  <!-- 列表内容 -->
-                <div class="queue__itemWrapper" :style="{background: nowPlaying==idx? '#f8f8f8':'#fff'}"
+                <div class="queue__itemWrapper" :style="{background: nowIndex==idx? '#f8f8f8':'#fff'}"
                 @mouseenter="highlightItem(idx)" @mouseleave="delightItem(idx)">
                   
                   <div class="queue__item">
@@ -128,9 +128,9 @@
                       </svg>
                     </div>
                     <div class="item__thumbnail">
-                      <template v-if="idx==nowPlaying">
-                        <div class="cirtus play" v-show="idx==nowPlaying && paused"></div>
-                        <div class="cirtus pause" v-show="idx==nowPlaying && !paused"></div>
+                      <template v-if="idx==nowIndex">
+                        <div class="cirtus play" v-show="idx==nowIndex && paused"></div>
+                        <div class="cirtus pause" v-show="idx==nowIndex && !paused"></div>
                       </template>
                     </div>
                     <div class="item__details">
@@ -191,11 +191,11 @@ export default {
       changingVolume: false,      // 调节进度条，控制动画效果正常进行
 
       // --- 列表
-      openNextup: false, // 计算播放列表定位----------------未用到
+      openNextup: false, // 计算播放列表定位--------------------------------------------------未用到
       showNextup: false, // 显示播放列表
       nextup: [], 
-      nowPlaying: 1,  // 当前播放【索引值】
-      
+      nowIndex: 1,  // 当前播放【索引值】
+      nowPlaying: null, // 当前播放【曲目】
     }
   },
   computed:{
@@ -224,15 +224,14 @@ export default {
       }
 
     },
-    playTrack(){
-      this.paused=false
+    playTrack(){   
       if(!this.audio){
-        console.log('新建一次')
-        this.audio = new Audio('http://47.115.222.108/music/collapse-as-snowslide.mp3')
+        this.audio = new Audio('http://47.115.222.108/music/Changing-the-Future.mp3')
         this.audio.addEventListener('timeupdate', this.updateProgressBar)
       }
       this.audio.volume = this.volumePercent/100 // 初次播放时调整音量
       this.audio.play() 
+      this.paused=false
     },
     pauseTrack(){
       this.paused=true
@@ -301,10 +300,13 @@ export default {
     },
     finVolume(e){
       if(this.changingVolume) return 
-      else if(e.type == 'mouseup' && e.target.className.substring(0,6) == 'volume') // 鼠标单击音量条，不隐藏
-        return       
-      // 移开后开始计时，随后隐藏
-      else if(this.showVolumeBar){
+      else if(e.type == 'mouseup'){
+        if(e.target.tagName.toLowerCase() == 'div'){
+          if(e.target.className.substring(0,6) == 'volume')  // 鼠标单击音量条，不隐藏
+            return 
+        }
+      }
+      if(this.showVolumeBar){
         this.volumeBarTimer = setTimeout(() => {
           this.showVolumeBar = false
           setTimeout(() => {
@@ -348,9 +350,11 @@ export default {
       if(this.changingTime) return
       else if(e.type == 'mouseup'){
         // 鼠标单击进度条，不隐藏
-        if(e.target.className.substring(0,8) == 'progress' 
-        || e.target.className.substring(0,8) == 'timeline')
-          return
+        if(e.target.tagName.toLowerCase() == 'div'){
+          if(e.target.className.substring(0,8) == 'progress' || 
+             e.target.className.substring(0,8) == 'timeline')
+            return
+        }
       }    
       //移开后开始计时并隐藏
       this.progressBarTimer = setTimeout(() => {
@@ -361,9 +365,10 @@ export default {
 
     // 播放列表
     playNextup(t,idx){
-      console.log('在index=',idx,'前的全部降透明度')
-      console.log('播放playlist中index=',idx,'的歌曲')
-    
+      console.log(t)
+      this.nowPlaying = t
+      this.nowIndex = idx
+      this.playTrack()
     },
     highlightItem(idx){
       let itemWrapper = this.$refs.items[idx].children[0]
@@ -376,7 +381,7 @@ export default {
     },
     delightItem(idx){
       let itemWrapper = this.$refs.items[idx].children[0]
-      if(this.nowPlaying != idx)
+      if(this.nowIndex != idx)
         itemWrapper.style.background = '#fff'
       let item = itemWrapper.children[0]
       item.children[0].style.visibility = 'hidden' // handle
