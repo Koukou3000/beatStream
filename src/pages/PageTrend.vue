@@ -270,8 +270,8 @@ export default {
            
             if(e == 'podium'){
                 this.showCurtain = false
-                this.stage = 'podium' // 直接进入阶段2
-                
+                this.stage = 'podium' //阶段2
+                // 编辑排行榜的内容
                 this.$refs.rank1.style.backgroundImage = `url(${this.tracks[0].img_url})`
                 this.$refs.rank1.innerHTML = this.tracks[0].title + ' - ' + this.tracks[0].artist
                 this.$refs.rank2.style.backgroundImage = `url(${this.tracks[1].img_url})`

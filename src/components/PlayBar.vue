@@ -75,7 +75,7 @@
         </transition>
       </div>
 
-      <!-- 歌曲信息   -->
+      <!-- 底部栏 - 歌曲信息   -->
       <div class="track__container">
         <div class="ctrl__left"> 
           <template v-if="nowPlaying">
@@ -111,11 +111,12 @@
       </div>
 
      
+      <!-- 播放列表 -->
       <transition name="loadPanel">
          <!-- 列表定位 -->
         <div class="panel__pos" v-if="showNextup">
           <div class="track__panel">
-            <!-- 顶部 -->
+            <!-- 顶部说明 -->
             <div class="panel__top">
               <div class="panel__text" @click="showNextup=false">Next up</div>
               <button class="clear__btn" @click="clearNextup">Clear</button>
@@ -130,46 +131,52 @@
             <!-- 滚动列表 -->
             <div class="queue__scroll">
 
-              <div v-for="(t, idx) in nextup" :key="t.tid" ref="items">
-                 <!-- item内容 -->
-                <div class="queue__itemWrapper" :style="{background: nowIndex==idx? '#f8f8f8':'#fff'}"
-                  @mouseenter="highlightItem(idx)" @mouseleave="delightItem(idx)">
-                  
-                  <div class="queue__item">
-                    <div class="item__dragHandle">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                          <g fill="none" fill-rule="evenodd">
-                              <path fill="#CCC" d="M9 5h2v2H9V5zm4 0h2v2h-2V5zm0 8h2v2h-2v-2zm0-4h2v2h-2V9zm0 8h2v2h-2v-2zM9 9h2v2H9V9zm0 4h2v2H9v-2zm0 4h2v2H9v-2z"/>
-                          </g>
-                      </svg>
+              <transition-group name="queueX">
+                <div v-for="(t, idx) in nextup" :key="t.tid" ref="items" :style="{transform:'translateY('+ (idx)*48+'px)'}" class="queue__itemLocate">
+                  <!-- item外壳，光标悬浮时highlight -->
+
+                  <div class="queue__itemWrapper" :style="{background: nowIndex==idx? '#f8f8f8':'#fff'}"
+                    @mouseenter="highlightItem(idx)" @mouseleave="delightItem(idx)">
+                    <!-- 内容数据 -->
+                    <div class="queue__item">
+                      <div class="item__dragHandle">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                            <g fill="none" fill-rule="evenodd">
+                                <path fill="#CCC" d="M9 5h2v2H9V5zm4 0h2v2h-2V5zm0 8h2v2h-2v-2zm0-4h2v2h-2V9zm0 8h2v2h-2v-2zM9 9h2v2H9V9zm0 4h2v2H9v-2zm0 4h2v2H9v-2z"/>
+                            </g>
+                        </svg>
+                      </div>
+                      <div class="item__thumbnail" @click="playThis(idx)">
+                        <div class="cirtus _play" v-show="idx!=nowIndex && focusIdx == idx"></div>
+                        <TrackArtwork :imgURL="t.img_url"></TrackArtwork>
+                        <template v-if="idx==nowIndex">
+                          <div class="cirtus _play" v-show="(idx==nowIndex && paused)" ></div>
+                          <div class="cirtus _pause" v-show="(idx==nowIndex && !paused)" ></div>
+                        </template>
+                      </div>
+                      <div class="item__details">
+                        <div><span class="item__meta">{{t.artist}}</span></div>
+                        <router-link class="item__title" :to="{name:'trackDetail', params:{tid: t.tid}}">{{t.title}}</router-link>
+                        <div class="detail__bg" @click="playThis(idx)"></div>
+                      </div>
+                      <div class="item__rightside">
+                        <div style="color:#999">{{t.duration}}</div>
+                        <div class="remove__block" title="从播放列表中移除" @click="nextupRemove(idx)">x</div>
+                      </div>
                     </div>
-                    <div class="item__thumbnail" @click="playThis(idx)">
-                      <div class="cirtus _play" v-show="idx!=nowIndex && focusIdx == idx"></div>
-                      <TrackArtwork :imgURL="t.img_url"></TrackArtwork>
-                      <template v-if="idx==nowIndex">
-                        <div class="cirtus _play" v-show="(idx==nowIndex && paused)" ></div>
-                        <div class="cirtus _pause" v-show="(idx==nowIndex && !paused)" ></div>
-                      </template>
-                    </div>
-                    <div class="item__details">
-                      <div><span class="item__meta">{{t.artist}}</span></div>
-                      <router-link class="item__title" :to="{name:'trackDetail', params:{tid: t.tid}}">{{t.title}}</router-link>
-                      <div class="detail__bg" @click="playThis(idx)"></div>
-                    </div>
-                    <div class="item__rightside">
-                      <div style="color:#999">{{t.duration}}</div>
-                      <div class="remove__block" style="display:none" title="从播放列表中移除">x</div>
-                    </div>
-                    
                   </div>
                 </div>
-
-              </div>
+              </transition-group>
               
-              
-
             </div>
-            
+
+            <div style="border-top:1px solid #e5e5e5">
+              tutorial  <br>
+
+              点击remove 播放动画 ,随后修改Nextup 使用splice(idx,1) <br>
+              点击添加播放动画，随后修改Nextup，splice(idx,0,'new Element') <br>
+              watch Nextup 发生变化就要写入localStorage <br>
+            </div>
           
           </div>
 
@@ -386,16 +393,20 @@ export default {
       this.clearThenPlay()
     },
     highlightItem(idx){
+      this.focusIdx = idx // 表示光标悬浮
       let itemWrapper = this.$refs.items[idx].children[0]
       itemWrapper.style.background = '#f2f2f2'
       let item = itemWrapper.children[0]
       item.children[0].style.visibility = 'visible' // handle
       let right = item.children[3]
-      right.children[0].style.display = 'none' // duration
-      right.children[1].style.display = 'block' // remove
-      this.focusIdx = idx
+      // 只有当nowIndex和idx不同时才允许移除
+      if(this.nowIndex != idx){
+        right.children[0].style.display = 'none' // duration
+        right.children[1].style.display = 'block' // remove
+      }
     },
     delightItem(idx){
+      this.focusIdx = -1
       let itemWrapper = this.$refs.items[idx].children[0]
       if(this.nowIndex == idx){
         itemWrapper.style.background = '#f8f8f8'
@@ -407,7 +418,7 @@ export default {
       let right = item.children[3]
       right.children[0].style.display = 'block' // duration
       right.children[1].style.display = 'none' // remove
-      this.focusIdx = -1
+      
     },
     stepPrev(){ 
       // if 
@@ -434,6 +445,12 @@ export default {
         this.nowIndex = idx
         this.clearThenPlay()
       }
+    },
+    nextupRemove(idx){
+      this.$refs.items[idx].children[0].style.transform = 'translateX(100%)'
+      setTimeout(()=>{
+        this.nextup.splice(idx,1)
+      },300)
     },
     clearNextup(){
       this.$notify.info({
@@ -463,7 +480,7 @@ export default {
   },
   mounted(){
     localStorage.removeItem('nextup_list')
-    let tracks = this.$store.getters['track/getTop3Tracks']()
+    let tracks = this.$store.getters['track/getAllTracks']()
     let val = JSON.stringify(tracks)
     localStorage.setItem('nextup_list',val)
     this.nextup = JSON.parse(localStorage.getItem('nextup_list'))
@@ -818,16 +835,18 @@ button:focus{
 
 /* 播放列表相关 */
 .queue__scroll{
-  width: 100%;
-  flex: 1;
   font-family: Interstate,Lucida Grande,Lucida Sans Unicode,Lucida Sans,Garuda,Verdana,Tahoma,sans-serif;
   font-weight: 100;
+  position: relative;
+  overflow: hidden;
+  flex: 1;
 }
 .queue__itemWrapper{
   width: 100%;
   height: 48px;
   background: #fff;
-  transition-property: opacity, visibility, transform;
+  transition-property: transform,opacity,visibility;
+  transition-duration: .3s;
 }
 .queue__item{
   padding: 0 24px;
@@ -852,7 +871,7 @@ button:focus{
   position: relative;
 }
 
-/* 列表曲目互动 */
+/* 播放列表的互动 */
 .cirtus{
   height: 24px;
   width: 24px;
@@ -939,5 +958,15 @@ button:focus{
   width: 24px;
   height: 24px;
   text-align: center;
+  display: none;
 }
+
+/* nextup动画 */
+.queue__itemLocate{
+  position: absolute;
+  width: 100%;
+  transition-property: transform,opacity,visibility;
+  transition-duration: .3s;
+}
+
 </style>
