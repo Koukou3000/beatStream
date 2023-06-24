@@ -17,10 +17,9 @@
 export default {
     data(){
         return{
-            track: null,
-            playing: false,
-            current: 0,
-            duration: 114,
+            track: null, // 歌曲详情
+            current: 0, // 当前播放时间
+            duration: 114, // 总时长
         }
     },
     computed:{
@@ -35,11 +34,18 @@ export default {
         }
     },
     mounted(){
-        this.track = this.$store.getters['track/getTrackDetail'](this.$route.params.tid)
-        this.$bus.$on('trackProgress',this.receiveProgress)
+        this.track = this.$store.getters['track/getTrackDetail'](this.$route.params.tid) 
+        this.$bus.$on('trackProgress',this.receiveProgress) // 接收进度条更新  
     },
     beforeDestroy(){
         this.$bus.$off('trackProgress')
+    },
+    beforeRouteUpdate(to, from, next){
+        
+        console.log(this.$route)
+        this.track = this.$store.getters['track/getTrackDetail'](this.$route.params.tid) 
+        console.log(to.params.tid)
+        next()
     }
    
     

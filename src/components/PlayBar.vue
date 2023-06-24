@@ -93,7 +93,9 @@
               <span v-else>艺术家</span>
             </div>
             <div class="track__title">
-              <span v-if="nowPlaying">{{nowPlaying.title}}</span>
+              <span v-if="nowPlaying">
+                <router-link :to="{name:'trackDetail', params:{tid: nowPlaying.tid}}">{{nowPlaying.title}}</router-link>
+              </span>
               <span v-else>曲名</span>
             </div>
           </div>
@@ -111,7 +113,7 @@
      
       <transition name="loadPanel">
          <!-- 列表定位 -->
-        <div class="panel__pos" v-show="showNextup">
+        <div class="panel__pos" v-if="showNextup">
           <div class="track__panel">
             <!-- 顶部 -->
             <div class="panel__top">
@@ -129,10 +131,10 @@
             <!-- 滚动列表 -->
             <div class="queue__scroll">
 
-              <div v-for="(t, idx) in nextup" :key="t.tid" @click="playNextup(idx)" ref="items">
+              <div v-for="(t, idx) in nextup" :key="t.tid" ref="items">
                  <!-- item内容 -->
                 <div class="queue__itemWrapper" :style="{background: nowIndex==idx? '#f8f8f8':'#fff'}"
-                @mouseenter="highlightItem(idx)" @mouseleave="delightItem(idx)">
+                  @mouseenter="highlightItem(idx)" @mouseleave="delightItem(idx)">
                   
                   <div class="queue__item">
                     <div class="item__dragHandle">
@@ -142,19 +144,22 @@
                           </g>
                       </svg>
                     </div>
-                    <div class="item__thumbnail" @click="changePlayStatus">
+                    <div class="item__thumbnail" @click="playThis(idx)">
+                      <div class="cirtus _play" v-show="idx!=nowIndex && focusIdx == idx"></div>
+                      <TrackArtwork :imgURL="t.img_url"></TrackArtwork>
                       <template v-if="idx==nowIndex">
-                        <div class="cirtus play" v-show="idx==nowIndex && paused"></div>
-                        <div class="cirtus pause" v-show="idx==nowIndex && !paused"></div>
+                        <div class="cirtus _play" v-show="(idx==nowIndex && paused)" ></div>
+                        <div class="cirtus _pause" v-show="(idx==nowIndex && !paused)" ></div>
                       </template>
                     </div>
                     <div class="item__details">
                       <div><span class="item__meta">{{t.artist}}</span></div>
-                      <div><span class="item__title">{{t.title}}</span></div>
+                      <router-link class="item__title" :to="{name:'trackDetail', params:{tid: t.tid}}">{{t.title}}</router-link>
+                      <div class="detail__bg" @click="playThis(idx)"></div>
                     </div>
                     <div class="item__rightside">
                       <div style="color:#999">{{t.duration}}</div>
-                      <div style="display:none">x</div>
+                      <div class="remove__block" style="display:none" title="从播放列表中移除">x</div>
                     </div>
                     
                   </div>
@@ -212,6 +217,7 @@ export default {
       nextup: [], 
       nowIndex: 0,  // 当前播放【索引值】
       nowPlaying: null, // 每次play前读取，
+      focusIdx: -1,
     }
   },
   computed:{
@@ -382,22 +388,27 @@ export default {
     },
     highlightItem(idx){
       let itemWrapper = this.$refs.items[idx].children[0]
-      itemWrapper.style.background = '#f8f8f8'
+      itemWrapper.style.background = '#f2f2f2'
       let item = itemWrapper.children[0]
       item.children[0].style.visibility = 'visible' // handle
       let right = item.children[3]
       right.children[0].style.display = 'none' // duration
       right.children[1].style.display = 'block' // remove
+      this.focusIdx = idx
     },
     delightItem(idx){
       let itemWrapper = this.$refs.items[idx].children[0]
-      if(this.nowIndex != idx)
+      if(this.nowIndex == idx){
+        itemWrapper.style.background = '#f8f8f8'
+      }
+      else
         itemWrapper.style.background = '#fff'
       let item = itemWrapper.children[0]
       item.children[0].style.visibility = 'hidden' // handle
       let right = item.children[3]
       right.children[0].style.display = 'block' // duration
       right.children[1].style.display = 'none' // remove
+   
     },
     stepPrev(){ 
       // if 
@@ -408,17 +419,25 @@ export default {
       this.clearThenPlay()
     },
     stepNext(){
-      if(this.nowIndex == this.nextup.length){
+      if(this.nowIndex+1 == this.nextup.length){
         this.nowIndex = -1
       }  
       this.nowIndex ++
       this.clearThenPlay()
     },
+    playThis(idx){
+      if(this.nowIndex == idx){
+        //切换播放状态
+        if(this.paused) this.playTrack()
+        else this.pauseTrack()
+      }
+      else{
+        this.nowIndex = idx
+        this.clearThenPlay()
+      }
+    },
     loopCurrentTrack(){
       
-    },
-    changePlayStatus(){
-
     },
   },
 
@@ -677,25 +696,25 @@ button:focus{
 .artist{
   margin-left: 10px;
   color: #999;
-  cursor: pointer;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   width: 280px;
-}
-.artist:hover{
-  color: #111;
 }
 .track__title{
   margin-left: 10px;
   color: #666;
-  cursor: pointer;
   width: 280px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.track__title:hover{
+.track__title a{
+  text-decoration: none;
+  color: #666;
+}
+
+.track__title a:hover{
   color: #111;
 }
 .ctrl__right{
@@ -822,11 +841,10 @@ button:focus{
   width: 32px;
   height: 32px;
   margin-right: 7px;
-  background: #000;
   position: relative;
 }
 
-/* 当前曲目互动 */
+/* 列表曲目互动 */
 .cirtus{
   height: 24px;
   width: 24px;
@@ -834,9 +852,11 @@ button:focus{
   background: #f50;
   border-radius: 50%;
   top: 3px;
-  left: 4px;
+  left: 3px;
+  z-index: 9;
 }
-.play::before{
+._play::before{
+  z-index: 10;
   display: block;
   position: absolute;
   top: 0;
@@ -850,7 +870,7 @@ button:focus{
   background-position: 50%;
   background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+Cjxzdmcgd2lkdGg9IjdweCIgaGVpZ2h0PSIxMnB4IiB2aWV3Qm94PSIwIDAgNyAxMiIgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB4bWxuczpza2V0Y2g9Imh0dHA6Ly93d3cuYm9oZW1pYW5jb2RpbmcuY29tL3NrZXRjaC9ucyI+CiAgICA8IS0tIEdlbmVyYXRvcjogU2tldGNoIDMuMi4yICg5OTgzKSAtIGh0dHA6Ly93d3cuYm9oZW1pYW5jb2RpbmcuY29tL3NrZXRjaCAtLT4KICAgIDx0aXRsZT5QbGF5IDI0PC90aXRsZT4KICAgIDxkZXNjPkNyZWF0ZWQgd2l0aCBTa2V0Y2guPC9kZXNjPgogICAgPGRlZnM+PC9kZWZzPgogICAgPGcgaWQ9IlBhZ2UtMSIgc3Ryb2tlPSJub25lIiBzdHJva2Utd2lkdGg9IjEiIGZpbGw9Im5vbmUiIGZpbGwtcnVsZT0iZXZlbm9kZCIgc2tldGNoOnR5cGU9Ik1TUGFnZSI+CiAgICAgICAgPGcgaWQ9ImJ1dHRvbnMiIHNrZXRjaDp0eXBlPSJNU0FydGJvYXJkR3JvdXAiIHRyYW5zZm9ybT0idHJhbnNsYXRlKC0xNjUxLjAwMDAwMCwgLTkzNC4wMDAwMDApIiBmaWxsPSIjRkZGRkZGIj4KICAgICAgICAgICAgPHBhdGggZD0iTTE2NTEsOTQ2IEwxNjUyLjYxNTM4LDk0MCBMMTY1MSw5MzQgTDE2NTgsOTQwIEwxNjUxLDk0NiBaIiBpZD0iUGxheS0yNCIgc2tldGNoOnR5cGU9Ik1TU2hhcGVHcm91cCI+PC9wYXRoPgogICAgICAgIDwvZz4KICAgIDwvZz4KPC9zdmc+);
 }
-.pause::before{
+._pause::before{
   display: block;
   position: absolute;
   top: 0;
@@ -866,6 +886,14 @@ button:focus{
 }
 .item__details{
   flex-grow: 1;
+  position: relative;
+}
+.detail__bg{
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  position: absolute;
 }
 .item__meta{
   color: #999;
@@ -873,6 +901,8 @@ button:focus{
   white-space: nowrap;
   text-overflow: ellipsis;
   word-break: normal;
+  position: relative;
+  z-index: 2;
 }
 .item__meta:hover{
   color: #666;
@@ -883,6 +913,9 @@ button:focus{
   text-overflow: ellipsis;
   word-break: normal;
   color: #333;
+  text-decoration: none;
+  position: relative;
+  z-index: 2;
 }
 .item__title:hover{
   color: #000;
@@ -893,5 +926,10 @@ button:focus{
   display: flex;
   align-items: center;
   justify-content: center;
+}
+.remove__block{
+  width: 24px;
+  height: 24px;
+  text-align: center;
 }
 </style>

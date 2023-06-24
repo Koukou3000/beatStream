@@ -18,11 +18,14 @@ export default {
       }
     },
     mounted(){
-      let image = new Image()
-      image.onload = ()=>{
-        this.imgLoaded = true
+      
+      if(this.imgURL){
+        let image = new Image()
+        image.onload = ()=>{
+          this.imgLoaded = true
+        }
+        image.src = this.imgURL
       }
-      image.src = this.imgURL
     }
 }
 </script>
@@ -37,6 +40,7 @@ export default {
   position: absolute;
   width: 100%;
   height: 100%;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.1);
 }
 .showArtwork-enter-active{
   animation: strip reverse .3s forwards;
