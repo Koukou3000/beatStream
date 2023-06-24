@@ -1,6 +1,7 @@
 <template>
   <header>
     <div class="header__inner">
+      <!-- 搜索框左侧 -->
       <div class="inner__left">
         <ul>
           <li>
@@ -14,18 +15,19 @@
         </ul>
       </div>
 
+      <!-- 搜索框 -->
       <div class="inner__mid">
         <div class="header__search">
-          <form class="search__form">
-            <input type="text" class="search__input" placeholder="Search"/>
-            <button type="submit" class="search__btn"></button>
-          </form>
+          <div class="search__form">
+            <input type="text" class="search__input" placeholder="Search" ref="searchInput"/>
+            <button type="submit" class="search__btn" @click="search"></button>
+          </div>
         </div>
       </div>
 
+      <!-- 搜索框右侧 -->
       <div class="inner__right">
-        <ul>
-            
+        <ul> 
             <li>
               <router-link to="/upload" active-class="selected">Upload</router-link>
             </li>
@@ -67,6 +69,9 @@ export default {
         title: str+' 并不存在',
         message: '这个部分还没开始做。',
         })
+    },
+    search(){
+      console.log('向pageSearch通信',this.$refs.searchInput.value)
     }
   }
 }

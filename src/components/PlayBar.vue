@@ -118,7 +118,7 @@
             <!-- 顶部 -->
             <div class="panel__top">
               <div class="panel__text" @click="showNextup=false">Next up</div>
-              <button class="clear__btn">Clear</button>
+              <button class="clear__btn" @click="clearNextup">Clear</button>
               <button class="close__btn" @click="showNextup=false">           
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                     <g fill="none" fill-rule="evenodd">
@@ -126,8 +126,7 @@
                     </g>
                 </svg>
               </button>
-            </div>
-            
+            </div>          
             <!-- 滚动列表 -->
             <div class="queue__scroll">
 
@@ -408,7 +407,7 @@ export default {
       let right = item.children[3]
       right.children[0].style.display = 'block' // duration
       right.children[1].style.display = 'none' // remove
-   
+      this.focusIdx = -1
     },
     stepPrev(){ 
       // if 
@@ -436,8 +435,17 @@ export default {
         this.clearThenPlay()
       }
     },
+    clearNextup(){
+      this.$notify.info({
+        title: ' 并不存在',
+        message: '这个部分还没开始做。',
+        })
+    },
     loopCurrentTrack(){
-      
+      this.$notify.info({
+        title: '并不存在',
+        message: '这个部分还没开始做。',
+        })
     },
   },
 

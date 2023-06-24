@@ -34,6 +34,7 @@ export default {
         }
     },
     mounted(){
+        
         this.track = this.$store.getters['track/getTrackDetail'](this.$route.params.tid) 
         this.$bus.$on('trackProgress',this.receiveProgress) // 接收进度条更新  
     },
@@ -41,10 +42,9 @@ export default {
         this.$bus.$off('trackProgress')
     },
     beforeRouteUpdate(to, from, next){
-        
-        console.log(this.$route)
-        this.track = this.$store.getters['track/getTrackDetail'](this.$route.params.tid) 
-        console.log(to.params.tid)
+        // mounted只调用一次，跳转其他参数时刷新页面
+        this.track = this.$store.getters['track/getTrackDetail'](to.params.tid) 
+        console.log(this.track)
         next()
     }
    
