@@ -349,6 +349,9 @@ export default {
             return number
         }
     },
+    beforeCreate(){
+        document.title = this.$route.meta.title
+    },
     beforeDestroy(){
         if(this.audio){
             this.audio.pause()

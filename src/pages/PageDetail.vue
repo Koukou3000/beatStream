@@ -41,12 +41,13 @@ export default {
     beforeDestroy(){
         this.$bus.$off('trackProgress')
     },
+    // mounted只调用一次，参数变化时也能刷新页面
     beforeRouteUpdate(to, from, next){
-        // mounted只调用一次，跳转其他参数时刷新页面
         this.track = this.$store.getters['track/getTrackDetail'](to.params.tid) 
-        console.log(this.track)
+        document.title = 'Stream "'+this.track.title+'" by '+this.track.artist
         next()
-    }
+    },
+    
    
     
 }

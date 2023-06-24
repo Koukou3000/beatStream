@@ -22,9 +22,6 @@ const router = new VueRouter({
         {   
             path:'/search',
             component: PageSearch,
-            meta:{
-                title: '搜索中'
-            }
         },
         {
             name:'trackDetail',
@@ -35,7 +32,7 @@ const router = new VueRouter({
             path:'/upload',
             component: PageUpload,
             meta:{
-                title: '上传歌曲'
+                title: '在 BeatStream 上传歌曲'
             }
         },
        
@@ -43,8 +40,6 @@ const router = new VueRouter({
     ]
 })
 
-router.afterEach((to)=>{
-    document.title = to.meta.title
-})
+
 
 export default router

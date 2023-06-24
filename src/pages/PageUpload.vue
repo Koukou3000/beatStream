@@ -207,7 +207,6 @@ export default {
         this.pagesCount = consult
     },
     getBunchOfTrack(){
-      console.log('getbunch')
       this.calcPagesCount() // 渲染页面前需要获取总页数
       // 通过当前的页数拉取state中数据
       let from = (this.page-1)*10
@@ -233,6 +232,9 @@ export default {
     },
 
   },
+  beforeCreate(){
+    document.title = this.$route.meta.title
+  }
 
 }
 </script>

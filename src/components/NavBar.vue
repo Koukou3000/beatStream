@@ -71,11 +71,18 @@ export default {
         })
     },
     search(){
-
-      console.log(this.$refs.searchInput.value)
-      this.$router.push({path:'/search', query:{
-        q: this.$refs.searchInput.value
-      }})
+      let words = this.$refs.searchInput.value
+      if(words.trim().length==0) return
+      else{
+        this.$router.push({
+          path:'/search', 
+          query:{
+            q: this.$refs.searchInput.value
+          }
+        })
+      }
+      
+      
     }
   }
 }
