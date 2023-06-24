@@ -100,7 +100,7 @@
         <div class="panel__pos" v-show="showNextup">
           <div class="track__panel">
             <div class="panel__top">
-              <div class="panel__text">Next up</div>
+              <div class="panel__text" @click="showNextup=false">Next up</div>
               <button class="clear__btn">Clear</button>
               <button class="close__btn" @click="showNextup=false">           
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
@@ -114,9 +114,10 @@
            
             <div class="queue__scroll">
 
-              <div v-for="(t, idx) in nextup" :key="t.tid" @click="playNextup(t, idx)">
+              <div v-for="(t, idx) in nextup" :key="t.tid" @click="playNextup(t, idx)" ref="items">
                  <!-- 列表内容 -->
-                <div class="queue__itemWrapper" :style="{background: idx==nowPlaying ? '#f8f8f8' : '#fff'}" @mouseenter="highlightItem(idx)">
+                <div class="queue__itemWrapper" @mouseenter="highlightItem(idx)" @mouseleave="delightItem(idx)">
+                  
                   <div class="queue__item">
                     <div class="item__dragHandle">
                       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
@@ -135,7 +136,7 @@
                       <div><span class="item__meta">{{t.artist}}</span></div>
                       <div><span class="item__title">{{t.title}}</span></div>
                     </div>
-                    <div class="item__duration">{{t.release_time}}</div>
+                    <div class="item__duration">{{t.duration}}</div>
                     <div class="item__remove">x</div>
                   </div>
                 </div>
@@ -355,12 +356,27 @@ export default {
     },
 
     // 播放列表
-    playNextup(idx){
+    playNextup(t,idx){
       console.log('在index=',idx,'前的全部降透明度')
       console.log('播放playlist中index=',idx,'的歌曲')
+    
     },
     highlightItem(idx){
-      console.log('聚焦在idx=',idx,'修改它的样式')
+      let itemWrapper = this.$refs.items[idx].children[0]
+      itemWrapper.style.background = '#f8f8f8'
+      let item = itemWrapper.children[0]
+      item.children[0].style.visibility = 'visible' // handle
+      item.children[3].style.visibility = 'hidden' // duration
+      item.children[4].style.visibility = 'visible' // remove
+      
+    },
+    delightItem(idx){
+      let itemWrapper = this.$refs.items[idx].children[0]
+      itemWrapper.style.background = '#fff'
+      let item = itemWrapper.children[0]
+      item.children[0].style.visibility = 'hiddren' // handle
+      item.children[3].style.visibility = 'visible' // duration
+      item.children[4].style.visibility = 'hidden' // remove
     }
   },
 
@@ -377,12 +393,12 @@ export default {
     }
   },
   mounted(){
-    // localStorage.removeItem('nextup_list')
-    // let tracks = this.$store.getters['track/getTop3Tracks']()
-    // let val = JSON.stringify(tracks)
-    // localStorage.setItem('nextup_list',val)
+    localStorage.removeItem('nextup_list')
+    let tracks = this.$store.getters['track/getTop3Tracks']()
+    let val = JSON.stringify(tracks)
+    localStorage.setItem('nextup_list',val)
     this.nextup = JSON.parse(localStorage.getItem('nextup_list'))
- 
+    
   
   }
 }
@@ -675,6 +691,7 @@ button:focus{
   padding: 9px 24px;
   border-bottom: 1px solid #e5e5e5;
   align-items: center;
+  cursor: pointer;
 }
 .panel__text{
   line-height: 46px;
@@ -706,8 +723,8 @@ button:focus{
   transition: none;
   padding-top: 3px;
   padding-bottom: 3px;
-  cursor: pointer;
   border: none;
+  cursor: pointer;
 }
 
 .loadPanel-enter-active{
@@ -744,9 +761,6 @@ button:focus{
   background: #fff;
   transition-property: opacity, visibility, transform;
 }
-.queue__itemWrapper:hover{
-  background: #f8f8f8;
-}
 .queue__item{
   padding: 0 24px;
   font-size: 12px;
@@ -762,9 +776,6 @@ button:focus{
   display: flex;
   align-items: center;
   visibility: hidden;
-}
-.queue__itemWrapper:hover .item__dragHandle{
-  visibility: visible;
 }
 .item__thumbnail{
   width: 32px;
