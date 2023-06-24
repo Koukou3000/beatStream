@@ -171,6 +171,14 @@
             </div>
 
             <div style="border-top:1px solid #e5e5e5">
+              MISSION <hr>
+              做添加的动画，如果nextup 关闭，弹窗提示<br>
+              列表分为页面显示部分 （高600），页面总长度（高2900），进入页面显示部分附近的都会预加载<br>
+              ·监听页面滚动事件<br>
+              ·获取页面滚动位置<br>
+              ·判断元素是否可见<br>
+              ·加载可见元素<br>
+              <hr>
               tutorial  <br>
 
               点击remove 播放动画 ,随后修改Nextup 使用splice(idx,1) <br>
@@ -447,9 +455,9 @@ export default {
       }
     },
     nextupRemove(idx){
-      this.$refs.items[idx].children[0].style.transform = 'translateX(100%)'
+      this.$refs.items[idx].children[0].style.transform = 'translateX(100%)' //右移，预设transition=0.3s
       setTimeout(()=>{
-        this.nextup.splice(idx,1)
+        this.nextup.splice(idx,1) //清除后会计算新高度，已经预设transition= 0.3s
       },300)
     },
     clearNextup(){
