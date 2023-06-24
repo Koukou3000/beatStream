@@ -77,12 +77,25 @@
 
       <!-- 歌曲信息   -->
       <div class="track__container">
-
-        <div class="ctrl__left">
-          <div class="poster__image"></div>
+        <div class="ctrl__left"> 
+          <template v-if="nowPlaying">
+            <router-link :to="{name:'trackDetail', params:{tid: nowPlaying.tid}}">
+              <TrackArtwork :imgURL="nowPlaying.img_url"></TrackArtwork>
+            </router-link>
+          </template>
+          <template v-else>
+              <TrackArtwork></TrackArtwork>
+          </template>
+          <!-- 传输 -->
           <div>
-            <div class="artist">yomoha</div>
-            <div class="track__title">collapse-as-snowslide</div>
+            <div class="artist">
+              <span v-if="nowPlaying">{{nowPlaying.artist}}</span> 
+              <span v-else>艺术家</span>
+            </div>
+            <div class="track__title">
+              <span v-if="nowPlaying">{{nowPlaying.title}}</span>
+              <span v-else>曲名</span>
+            </div>
           </div>
         </div>
         <div class="ctrl__right">
@@ -95,10 +108,12 @@
         </div>
       </div>
 
-      <!-- 列表 -->
+     
       <transition name="loadPanel">
+         <!-- 列表定位 -->
         <div class="panel__pos" v-show="showNextup">
           <div class="track__panel">
+            <!-- 顶部 -->
             <div class="panel__top">
               <div class="panel__text" @click="showNextup=false">Next up</div>
               <button class="clear__btn">Clear</button>
@@ -111,11 +126,11 @@
               </button>
             </div>
             
-           
+            <!-- 滚动列表 -->
             <div class="queue__scroll">
 
-              <div v-for="(t, idx) in nextup" :key="t.tid" @click="playNextup(t, idx)" ref="items">
-                 <!-- 列表内容 -->
+              <div v-for="(t, idx) in nextup" :key="t.tid" @click="playNextup(idx)" ref="items">
+                 <!-- item内容 -->
                 <div class="queue__itemWrapper" :style="{background: nowIndex==idx? '#f8f8f8':'#fff'}"
                 @mouseenter="highlightItem(idx)" @mouseleave="delightItem(idx)">
                   
@@ -127,7 +142,7 @@
                           </g>
                       </svg>
                     </div>
-                    <div class="item__thumbnail">
+                    <div class="item__thumbnail" @click="changePlayStatus">
                       <template v-if="idx==nowIndex">
                         <div class="cirtus play" v-show="idx==nowIndex && paused"></div>
                         <div class="cirtus pause" v-show="idx==nowIndex && !paused"></div>
@@ -166,7 +181,9 @@
 </template>
 
 <script>
+import TrackArtwork from './TrackArtwork'
 export default {
+  components:{TrackArtwork},
   data(){
     return{
       audio: null,
@@ -191,11 +208,10 @@ export default {
       changingVolume: false,      // 调节进度条，控制动画效果正常进行
 
       // --- 列表
-      openNextup: false, // 计算播放列表定位--------------------------------------------------未用到
       showNextup: false, // 显示播放列表
       nextup: [], 
-      nowIndex: 1,  // 当前播放【索引值】
-      nowPlaying: null, // 当前播放【曲目】
+      nowIndex: 0,  // 当前播放【索引值】
+      nowPlaying: null, // 每次play前读取，
     }
   },
   computed:{
@@ -206,13 +222,12 @@ export default {
   watch:{
     currentTimeSeconds(now){
       this.$bus.$emit('trackProgress', now, this.durationSeconds) // 更新时传输时间 
-    }
+    },
   },
   methods:{
     updateProgressBar(){
       //更新播放状态（进度条、音量等
       if(this.audio){ 
-
         if(!this.changingTime) // 拖动进度条时不实时刷新进度条
           this.currentTimeSeconds =  this.audio.currentTime
         this.durationSeconds = this.audio.duration
@@ -225,8 +240,9 @@ export default {
 
     },
     playTrack(){   
+      this.nowPlaying = this.nextup[this.nowIndex]
       if(!this.audio){
-        this.audio = new Audio('http://47.115.222.108/music/Changing-the-Future.mp3')
+        this.audio = new Audio(this.nowPlaying.audio_url)
         this.audio.addEventListener('timeupdate', this.updateProgressBar)
       }
       this.audio.volume = this.volumePercent/100 // 初次播放时调整音量
@@ -234,22 +250,13 @@ export default {
       this.paused=false
     },
     pauseTrack(){
+      if(this.audio){
+        this.audio.pause()    
+      }
       this.paused=true
-      this.audio.pause()    
     },
     
-    stepPrev(){
-      console.log('开始播放上一首')
-    },
-    stepNext(){
-      console.log('开始播放下一首')
-      console.log('读取下一首歌曲 替换audio')
-      console.log('playTrack')
-    },
-    loopCurrentTrack(){
-      console.log('循环当前曲目')
-    },
-    
+
     toggleMuted(){
       this.muted = !this.muted
       this.muted ? this.volumePercent= 0 : this.volumePercent=this.volume*100 // 即使没有音乐载入，音量条也要可以调整z
@@ -364,11 +371,14 @@ export default {
     },
 
     // 播放列表
-    playNextup(t,idx){
-      console.log(t)
-      this.nowPlaying = t
-      this.nowIndex = idx
+    clearThenPlay(){
+      this.pauseTrack()
+      this.audio = null
       this.playTrack()
+    },
+    playNextup(idx){
+      this.nowIndex = idx
+      this.clearThenPlay()
     },
     highlightItem(idx){
       let itemWrapper = this.$refs.items[idx].children[0]
@@ -388,7 +398,28 @@ export default {
       let right = item.children[3]
       right.children[0].style.display = 'block' // duration
       right.children[1].style.display = 'none' // remove
-    }
+    },
+    stepPrev(){ 
+      // if 
+      if(this.nowIndex == 0){
+        this.nowIndex = this.nextup.length
+      }
+      this.nowIndex --
+      this.clearThenPlay()
+    },
+    stepNext(){
+      if(this.nowIndex == this.nextup.length){
+        this.nowIndex = -1
+      }  
+      this.nowIndex ++
+      this.clearThenPlay()
+    },
+    loopCurrentTrack(){
+      
+    },
+    changePlayStatus(){
+
+    },
   },
 
   filters:{
@@ -409,7 +440,7 @@ export default {
     let val = JSON.stringify(tracks)
     localStorage.setItem('nextup_list',val)
     this.nextup = JSON.parse(localStorage.getItem('nextup_list'))
-    
+    // 获取localstorage 的nextup
   }
 }
 </script>
@@ -641,7 +672,7 @@ button:focus{
   display: block;
   width: 30px;
   height: 30px;
-  background: rebeccapurple;
+  background-image: linear-gradient(135deg,#e6846e,#70929c);
 }
 .artist{
   margin-left: 10px;
