@@ -116,7 +116,8 @@
 
               <div v-for="(t, idx) in nextup" :key="t.tid" @click="playNextup(t, idx)" ref="items">
                  <!-- 列表内容 -->
-                <div class="queue__itemWrapper" @mouseenter="highlightItem(idx)" @mouseleave="delightItem(idx)">
+                <div class="queue__itemWrapper" :style="{background: nowPlaying==idx? '#f8f8f8':'#fff'}"
+                @mouseenter="highlightItem(idx)" @mouseleave="delightItem(idx)">
                   
                   <div class="queue__item">
                     <div class="item__dragHandle">
@@ -136,8 +137,11 @@
                       <div><span class="item__meta">{{t.artist}}</span></div>
                       <div><span class="item__title">{{t.title}}</span></div>
                     </div>
-                    <div class="item__duration">{{t.duration}}</div>
-                    <div class="item__remove">x</div>
+                    <div class="item__rightside">
+                      <div style="color:#999">{{t.duration}}</div>
+                      <div style="display:none">x</div>
+                    </div>
+                    
                   </div>
                 </div>
 
@@ -366,17 +370,19 @@ export default {
       itemWrapper.style.background = '#f8f8f8'
       let item = itemWrapper.children[0]
       item.children[0].style.visibility = 'visible' // handle
-      item.children[3].style.visibility = 'hidden' // duration
-      item.children[4].style.visibility = 'visible' // remove
-      
+      let right = item.children[3]
+      right.children[0].style.display = 'none' // duration
+      right.children[1].style.display = 'block' // remove
     },
     delightItem(idx){
       let itemWrapper = this.$refs.items[idx].children[0]
-      itemWrapper.style.background = '#fff'
+      if(this.nowPlaying != idx)
+        itemWrapper.style.background = '#fff'
       let item = itemWrapper.children[0]
-      item.children[0].style.visibility = 'hiddren' // handle
-      item.children[3].style.visibility = 'visible' // duration
-      item.children[4].style.visibility = 'hidden' // remove
+      item.children[0].style.visibility = 'hidden' // handle
+      let right = item.children[3]
+      right.children[0].style.display = 'block' // duration
+      right.children[1].style.display = 'none' // remove
     }
   },
 
@@ -399,7 +405,6 @@ export default {
     localStorage.setItem('nextup_list',val)
     this.nextup = JSON.parse(localStorage.getItem('nextup_list'))
     
-  
   }
 }
 </script>
@@ -846,5 +851,11 @@ button:focus{
 .item__title:hover{
   color: #000;
 }
-
+.item__rightside{
+  min-width: 52px;
+  text-align: right;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 </style>
