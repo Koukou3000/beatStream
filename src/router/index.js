@@ -19,15 +19,6 @@ const router = new VueRouter({
                 title: '发现 BeatStream 的热门趋势'
             }
         },
-        {   
-            path:'/search',
-            component: PageSearch,
-        },
-        {
-            name:'trackDetail',
-            path:'/detail/:tid',
-            component: PageDetail,
-        },
         {
             path:'/upload',
             component: PageUpload,
@@ -35,6 +26,17 @@ const router = new VueRouter({
                 title: '在 BeatStream 上传歌曲'
             }
         },
+        {
+            name:'trackDetail',
+            path:'/detail/:tid',
+            component: PageDetail,
+        },
+        {   
+            path:'/search',
+            component: PageSearch,
+        },
+        
+        
        
         
     ]
