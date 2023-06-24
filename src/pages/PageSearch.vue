@@ -1,13 +1,13 @@
 <template>
   <div>
-    to query
+      搜索结果
   </div>
 </template>
 
 <script>
 export default {
   mounted(){
-    this.$bus.$on('')
+    document.title = this.$route.query.value+' results on BeatStream'
   },
  
 }

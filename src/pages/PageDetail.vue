@@ -34,8 +34,8 @@ export default {
         }
     },
     mounted(){
-        
         this.track = this.$store.getters['track/getTrackDetail'](this.$route.params.tid) 
+        document.title = 'Stream "'+this.track.title+'" by '+this.track.artist
         this.$bus.$on('trackProgress',this.receiveProgress) // 接收进度条更新  
     },
     beforeDestroy(){

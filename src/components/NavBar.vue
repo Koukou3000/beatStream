@@ -73,7 +73,9 @@ export default {
     search(){
 
       console.log(this.$refs.searchInput.value)
-      this.$router.push({path:'/search', })
+      this.$router.push({path:'/search', query:{
+        q: this.$refs.searchInput.value
+      }})
     }
   }
 }
