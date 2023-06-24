@@ -39,10 +39,10 @@ export default {
   height: 100%;
 }
 .showArtwork-enter-active{
-  animation: strip reverse 1s forwards;
+  animation: strip reverse .3s forwards;
 }
 .showArtwork-leave-active{
-  animation: strip 1s forwards;
+  animation: strip .3s forwards;
 }
 @keyframes strip {
   from{opacity: 1;}

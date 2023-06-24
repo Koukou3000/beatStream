@@ -80,7 +80,7 @@
         <div class="ctrl__left"> 
           <template v-if="nowPlaying">
             <router-link :to="{name:'trackDetail', params:{tid: nowPlaying.tid}}">
-              <TrackArtwork :imgURL="nowPlaying.img_url"></TrackArtwork>
+              <TrackArtwork :imgURL="nowPlaying.img_url" :key="nowPlaying.tid"></TrackArtwork>
             </router-link>
           </template>
           <template v-else>
