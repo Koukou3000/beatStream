@@ -183,8 +183,9 @@
                           </div>
                       </div>
                     </div>
+                    <div class="scrollbar" style="top:0%;" ></div>
               </div>
-              <div class="scrollbar"></div>
+              
             </div>
             
            
@@ -239,7 +240,7 @@ export default {
       focusIdx: -1,           // 光标悬浮的索引值
       tidSet: new Set(),      // 拒绝tid相同的曲目进入列表
       depth: 114,               // 卷轴高度
-      marine: 0,                // 当前高度
+      submarine: 0,                // 当前高度
     }
   },
   computed:{
@@ -519,17 +520,14 @@ export default {
         if(a>=0 && b<0){
           return // 向上滚到头不做操作
         }
-        else if(this.marine>=this.depth && b>0) {
-          // 下滚到底，不做操作
-          return 
+        else if(this.submarine>=this.depth && b>0) {
+          return // 下滚到底不做操作
         }
         else{
           let ans = a-b //  向下滚动66，期望值应该是translateY(-66px)，但是deltaY是66，所以相减
           this.$refs.itemsHeight.style.transform = 'translateY('+ ans +'px)'; 
-          this.marine += b // 记录高度
-         
+          this.submarine += b // 记录已滚动距离
         }
-
       }) 
     },
     checkNextup(){
@@ -538,7 +536,7 @@ export default {
         let scroll = this.$refs.itemsHeight.getBoundingClientRect().height // 内容长度
         let footer = this.$refs.itemsFooter.getBoundingClientRect().height // 尾部长度
         let onePage = this.$refs.scrollableInner.getBoundingClientRect().height // 一页的长度
-        this.depth =  scroll + footer - onePage
+        this.depth =  scroll + footer - onePage  // 可滚动的距离 >= 总长减去一页
       })
       
       
