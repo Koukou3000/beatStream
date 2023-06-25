@@ -19,7 +19,7 @@ export default {
             return state.trackList.slice(tid-1, tid).pop() 
         },
         getAllTracks: (state)=>()=>{
-            return state.trackList
+            return state.trackList.slice()
         }
     },
     state:{  

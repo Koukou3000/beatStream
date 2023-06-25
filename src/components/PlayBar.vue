@@ -233,7 +233,7 @@ export default {
       nowIndex: 0,            // 当前播放的索引值
       nowPlaying: null,       // 每次play前读取，曲目信息
       focusIdx: -1,           // 光标悬浮的索引值
-      tidSet: new Set(),   // 拒绝tid相同的曲目进入列表
+      tidSet: new Set(),      // 拒绝tid相同的曲目进入列表
     }
   },
   computed:{
@@ -429,7 +429,6 @@ export default {
       let right = item.children[3]
       right.children[0].style.display = 'block' // duration
       right.children[1].style.display = 'none' // remove
-      
     },
     stepPrev(){ 
       // if 
@@ -447,6 +446,10 @@ export default {
       this.clearThenPlay()
     },
     playThis(idx){
+      let itemWrapper = this.$refs.items[idx].children[0]
+      let right = itemWrapper.children[0].children[3]
+      right.children[0].style.display = 'block' // duration
+      right.children[1].style.display = 'none' // remove
       if(this.nowIndex == idx){
         //切换播放状态
         if(this.paused) this.playTrack()
@@ -458,12 +461,15 @@ export default {
       }
     },
     nextupRemove(idx){
-      // 当删除的在nowIndex索引上
+      // nowIndex < idx ，正常
       let tid = this.nextup[idx].tid
-      this.tidSet.delete(tid)
-      this.$refs.items[idx].children[0].style.transform = 'translateX(100%)' //右移，预设transition=0.3s
+      this.tidSet.delete(tid) 
+      this.$refs.items[idx].children[0].style.transform = 'translateX(100%)' //右移动画
       setTimeout(()=>{
-        this.nextup.splice(idx,1) //清除后会计算新高度，已经预设transition= 0.3s
+        this.nextup.splice(idx,1) // 调用数组方法会重新计算新高度，已经预设transition= 0.3s
+        if(this.nowIndex > idx){ 
+          this.nowIndex -- // nowIndex > idx ，特殊处理，放在splice之后，渲染后才刷新播放按钮位置
+        }
       },300)
     },
     clearNextup(){
@@ -481,6 +487,8 @@ export default {
     nextupAffix(){
       // 根据歌曲tid 从getters读取track
       let t = this.$store.getters['track/getTrackDetail'](2)
+      console.log(t.tid)
+      console.log(this.tidSet)
       if(this.tidSet.has(t.tid)){
         this.$notify.error({
           title: '操作违规',
@@ -506,9 +514,10 @@ export default {
       return '0:00'
     }
   },
+  //暂时的初始化，后面删
   mounted(){
-    localStorage.removeItem('nextup_list') // 清楚之前操作内容
-    let tracks = this.$store.getters['track/getTop3Tracks']()
+    localStorage.removeItem('nextup_list') 
+    let tracks = this.$store.getters['track/getAllTracks']()
     let val = JSON.stringify(tracks)
     localStorage.setItem('nextup_list',val)
     this.nextup = tracks
