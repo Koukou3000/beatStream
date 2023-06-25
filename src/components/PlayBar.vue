@@ -131,7 +131,6 @@
             <!-- 滚动列表 -->
             <div class="queue__scroll">
 
-              <transition-group name="queueX">
                 <div v-for="(t, idx) in nextup" :key="t.tid" ref="items" :style="{transform:'translateY('+ (idx)*48+'px)'}" class="queue__itemLocate">
                   <!-- item外壳，光标悬浮时highlight -->
 
@@ -166,12 +165,14 @@
                     </div>
                   </div>
                 </div>
-              </transition-group>
+        
               
             </div>
 
-            <div style="border-top:1px solid #e5e5e5">
-              MISSION <hr>
+            <div class="panel__footer" :style="{transform:'translateY('+ ((nextup.length)*48 + 78)+'px)'}">
+              <button @click="nextupAffix">hit2add</button>
+
+
               做添加的动画，如果nextup 关闭，弹窗提示<br>
               列表分为页面显示部分 （高600），页面总长度（高2900），进入页面显示部分附近的都会预加载<br>
               ·监听页面滚动事件<br>
@@ -227,17 +228,19 @@ export default {
       changingVolume: false,      // 调节进度条，控制动画效果正常进行
 
       // --- 列表
-      showNextup: false, // 显示播放列表
-      nextup: [], 
-      nowIndex: 0,  // 当前播放【索引值】
-      nowPlaying: null, // 每次play前读取，
-      focusIdx: -1,
+      showNextup: false,       // 显示播放列表
+      nextup: [],     
+      nowIndex: 0,            // 当前播放的索引值
+      nowPlaying: null,       // 每次play前读取，曲目信息
+      focusIdx: -1,           // 光标悬浮的索引值
+      tidSet: new Set(),   // 拒绝tid相同的曲目进入列表
     }
   },
   computed:{
     progressPercent(){
         return this.currentTimeSeconds*100 / this.durationSeconds
-    }
+    },
+
   },
   watch:{
     currentTimeSeconds(now){
@@ -455,6 +458,9 @@ export default {
       }
     },
     nextupRemove(idx){
+      // 当删除的在nowIndex索引上
+      let tid = this.nextup[idx].tid
+      this.tidSet.delete(tid)
       this.$refs.items[idx].children[0].style.transform = 'translateX(100%)' //右移，预设transition=0.3s
       setTimeout(()=>{
         this.nextup.splice(idx,1) //清除后会计算新高度，已经预设transition= 0.3s
@@ -472,6 +478,20 @@ export default {
         message: '这个部分还没开始做。',
         })
     },
+    nextupAffix(){
+      // 根据歌曲tid 从getters读取track
+      let t = this.$store.getters['track/getTrackDetail'](2)
+      if(this.tidSet.has(t.tid)){
+        this.$notify.error({
+          title: '操作违规',
+          message: '不能添加重复元素!'
+        })
+      }
+      else{
+        this.tidSet.add(t.tid)
+        this.nextup.push(t)
+      }
+    } 
   },
 
   filters:{
@@ -487,13 +507,15 @@ export default {
     }
   },
   mounted(){
-    localStorage.removeItem('nextup_list')
-    let tracks = this.$store.getters['track/getAllTracks']()
+    localStorage.removeItem('nextup_list') // 清楚之前操作内容
+    let tracks = this.$store.getters['track/getTop3Tracks']()
     let val = JSON.stringify(tracks)
     localStorage.setItem('nextup_list',val)
-    this.nextup = JSON.parse(localStorage.getItem('nextup_list'))
-    // 获取localstorage 的nextup
-  }
+    this.nextup = tracks
+    tracks.forEach(t => {
+      this.tidSet.add(t.tid)
+    });
+  },  
 }
 </script>
 
@@ -778,6 +800,8 @@ button:focus{
   flex: 1;
   display: flex;
   flex-direction: column;
+  position: relative;
+  overflow: hidden;
 }
 .panel__top{
   display: flex;
@@ -878,6 +902,13 @@ button:focus{
   margin-right: 7px;
   position: relative;
 }
+.panel__footer{
+  border-top:1px solid #e5e5e5;
+  position: absolute;
+  background: #fff;
+  transition: .3s;
+  padding: 15px;
+}
 
 /* 播放列表的互动 */
 .cirtus{
@@ -968,6 +999,7 @@ button:focus{
   text-align: center;
   display: none;
 }
+
 
 /* nextup动画 */
 .queue__itemLocate{
