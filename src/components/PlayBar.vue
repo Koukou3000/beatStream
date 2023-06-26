@@ -111,6 +111,7 @@
       </div>
 
      
+
       <!-- 播放列表 -->
       <transition name="loadPanel">
          <!-- 列表定位 -->
@@ -129,13 +130,11 @@
               </button>
             </div>          
 
-
-
             <!-- 定位>可见区域>高度计算>实际内容 -->
             <div class="queue__scrollable">
-              <div class="queue__scrollableInner" @mousewheel="scrolling" ref="scrollableInner">
+              <div class="queue__scrollableInner" ref="scrollableInner">
 
-                    <div class="queue__itemsHeight" :style="{height: (nextup.length)*48+'px'}" ref="itemsHeight">
+                    <div class="queue__itemsHeight" :style="{height: (nextup.length)*48+'px'}">
                       <div class="queue__itemsContainer">
                           <div v-for="(t, idx) in nextup" :key="t.tid" ref="items" :style="{transform:'translateY('+ (idx)*48+'px)'}" class="queue__itemLocate">
                             <!-- item外壳，光标悬浮时高光 -->
@@ -183,15 +182,10 @@
                           </div>
                       </div>
                     </div>
-                    <div class="scrollbar" ref="scrollbar"></div>
+                    <!-- <div class="scrollbar" ref="scrollbar"></div> -->
               </div>
               
             </div>
-            
-           
-
-        
-          
           </div>
 
         </div>
@@ -253,11 +247,7 @@ export default {
     currentTimeSeconds(now){
       this.$bus.$emit('trackProgress', now, this.durationSeconds) // 更新时传输时间 
     },
-    showNextup(){
-      this.$nextTick(()=>{
-          this.initScroll()
-      })
-    }
+
   },
   methods:{
     // 播放暂停单曲
@@ -515,96 +505,11 @@ export default {
         message: '这个部分还没开始做。',
         })
     },
-    initScroll(){
-      if(!this.showNextup) return
-      this.$nextTick(()=>{
-        //  卷轴长度
-        setTimeout(()=>{
-          let scroll = parseFloat(this.$refs.itemsHeight.style.height) // 内容长度
-          let footer = this.$refs.itemsFooter.getBoundingClientRect().height // 尾部长度
-          let onePage = this.$refs.scrollableInner.getBoundingClientRect().height // 一页的长度
-          this.depth =  scroll + footer - onePage  // 设置可滚动距离 = 总长 - 页面
-
-          //  滑条
-          if(scroll+footer <= onePage){
-            this.$refs.itemsHeight.style.transform = 'translateY(0)'  //回到页头
-            this.$refs.scrollbar.style.opacity = 0 
-          }
-          else{
-            this.$refs.scrollbar.style.opacity = 1
-            this.$refs.scrollbar.style.height = onePage * onePage/(scroll+footer)+'px' // scrollbar 长度
-            // 调整滑条高度
-            let top = parseFloat(this.$refs.scrollbar.style.top)
-            let height = parseFloat(this.$refs.scrollbar.style.height)
-            // 位置错误时，重新计算
-            if(top+height >= onePage){
-              this.$refs.scrollbar.style.top = onePage - height +'px' 
-            }
-          }
-        },300)
-      })
-    },
     checkNextup(){
-      // 打开nextup时初始化滚动条
       this.showNextup = true
-      this.initScroll()
       //跳转到nowIndex---------------------------------------------------------------------------------
     },
-    scrolling(e){
-      //滚动=》判断滚动是否合法，计算距离；滚动触底，则ans为深度；滚动触顶，ans为0；=》同时滑条响应移动
-      this.$nextTick(()=>{
-        let oldH = this.$refs.itemsHeight.style.transform
-        let a = 0           //获得 itemsHeight 旧值
-        let b = e.deltaY    //计算距离
-        if(oldH){
-          let regex = /translateY\((.*)px\)/i; // 需要处理translateY(()px)
-          a = regex.exec(oldH)[1] 
-          a = parseFloat(a)
-        }
 
-        if(a>=0 && b<0){return} // 触顶
-        else if(this.submarine>=this.depth && b>0){return} // 触底
-        else{
-          // 计算目标位置
-          let ans = a - b // 向下滚动66px，期望值应该是translateY(-66px)，但是deltaY是66，所以相减
-          if(-ans >= this.depth){
-            ans = -this.depth
-          }
-          else if(ans >=0){
-            ans = 0
-          }
-          this.$refs.itemsHeight.style.transform = 'translateY('+ ans +'px)';  // 卷轴滚动
-          this.submarine = ans // 记录已滚动距离
-          this.scrollingBar(e)// 滑条移动 
-        }
-      }) 
-    },
-    scrollingBar(e){
-      // 滑条滚动=》建立映射，计算距离；触顶不允许向上滚动，触底不允许向下滚动
-      let b = e.deltaY
-      let before = this.$refs.scrollbar.style.top 
-      if(!before){
-        before = 0
-      }
-      else{
-        before = parseFloat(before)
-      }
-      let scroll_items = this.$refs.itemsHeight.getBoundingClientRect().height // 内容长度
-      let scroll_footer = this.$refs.itemsFooter.getBoundingClientRect().height // 尾部长度
-      let onePage = this.$refs.scrollableInner.getBoundingClientRect().height // 一页的长度
-      
-      let move = onePage * b / (scroll_items + scroll_footer)
-      let after = move + before 
-      // 检查滑条位置
-      let barH = parseFloat(this.$refs.scrollbar.style.height)  
-      if(after + barH >= onePage){
-        after = onePage - barH // 滑条触底，当top+height相加等于onePage说明到底了，不允许再向下滑动
-      }
-      else if(after < 0){
-        after = 0 // 触顶
-      }         
-      this.$refs.scrollbar.style.top = after +'px'
-    }
   },
 
   filters:{
@@ -915,7 +820,6 @@ button:focus{
   display: flex;
   flex-direction: column;
   position: relative;
-  overflow: hidden;
 }
 .panel__top{
   display: flex;
@@ -986,12 +890,26 @@ button:focus{
   width: 100%;
   height: 100%;
   position: relative;
+  overflow: hidden;
 }
 .queue__scrollableInner{
   width: inherit;
   height: inherit;
-  padding-right: 30px;
+  overflow-x: hidden;
+  overflow-y: scroll;
 }
+.queue__scrollableInner::-webkit-scrollbar{
+  width: 8px;
+  background-color: #f5f5f5;
+}
+.queue__scrollableInner::-webkit-scrollbar-thumb{
+  background: rgba(0,0,0,.2);
+  box-shadow: 0 0 1px #fff;
+  border-radius: 7px;
+}
+
+
+
 .queue__itemsHeight{
   width: inherit;
   transition: .3s;
@@ -1003,20 +921,6 @@ button:focus{
   transition: .3s;
   padding: 15px;
 }
-.scrollbar{
-  background: rgba(0,0,0,.3);
-  box-shadow: 0 0 1px #fff;
-  border-radius: 7px;
-  width: 7px;
-  height: 0;
-  right: 2px;
-  position: absolute;
-  z-index: 1;
-  transition: height .3s, top .3s, opacity .3s;
-  top: 0;
-}
-
-
 
 
 
