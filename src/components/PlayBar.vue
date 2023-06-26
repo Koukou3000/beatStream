@@ -132,7 +132,7 @@
 
             <!-- 定位>可见区域>高度计算>实际内容 -->
             <div class="queue__scrollable">
-              <div class="queue__scrollableInner" ref="scrollableInner">
+              <div class="queue__scrollableInner" ref="scrollableInner" @scroll="scrolling">
 
                     <div class="queue__itemsHeight" :style="{height: (nextup.length)*48+'px'}">
                       <div class="queue__itemsContainer">
@@ -140,11 +140,12 @@
                             <!-- item外壳，光标悬浮时高光 -->
                             <div class="queue__itemWrapper" :style="{background: nowIndex==idx? '#f8f8f8':'#fff'}"
                               @mouseenter="highlightItem(idx)" @mouseleave="delightItem(idx)">
+
                               <!-- 内容数据 -->
                               <div class="queue__item">
                                 <div class="item__dragHandle">
                                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                                      <g fill="none" fill-rule="evenodd">
+                                      <g fill="none" fill-rule="evenodd"  v-show="nowIndex!=idx">
                                           <path fill="#CCC" d="M9 5h2v2H9V5zm4 0h2v2h-2V5zm0 8h2v2h-2v-2zm0-4h2v2h-2V9zm0 8h2v2h-2v-2zM9 9h2v2H9V9zm0 4h2v2H9v-2zm0 4h2v2H9v-2z"/>
                                       </g>
                                   </svg>
@@ -169,16 +170,9 @@
                               </div>
                             </div>
                           </div>
-                          <div class="queue__footer" :style="{transform:'translateY('+ ((nextup.length*48)+13)+'px)'}" ref="itemsFooter">
-                            <button @click="nextupAffix">hit2add</button>
-                            做添加的动画，如果nextup 关闭，弹窗提示<br>
-                            列表分为页面显示部分 （高600），页面总长度（高2900），进入页面显示部分附近的都会预加载<br>
-                            ·监听页面滚动事件<br>
-                            ·获取页面滚动位置<br>
-                            ·判断元素是否可见<br>
-                            ·加载可见元素<br>
-                              watch Nextup 发生变化就要写入localStorage <br>
-                                 
+                          <div class="queue__footer" :style="{transform:'translateY('+ ((nextup.length*48)+13)+'px)'}" ref="itemsFooter">           
+                             audio 存在sessionStorage中 （以audio url为key，读取sessionStorage中的blob?
+                             每次nextup变更时都应写入localstorage   
                           </div>
                       </div>
                     </div>
@@ -474,24 +468,25 @@ export default {
           this.nowIndex -- // nowIndex > idx ，特殊处理，放在splice之后，渲染后才刷新播放按钮位置
         }
       },300)
-      this.initScroll()
     },
-    nextupAffix(){
-      // 根据歌曲tid 从getters读取track
-      let t = this.$store.getters['track/getTrackDetail'](2)
+    nextupAffix(t){
+      // 获取到传来的参数
       if(this.tidSet.has(t.tid)){
-        this.$notify.error({
-          title: '不能添加重复元素!',
-          message: '因为我不会'
+        this.$notify.warning({
+          title: t.artist+" - "+t.title,
+          message: '禁止重复添加已有歌曲'
         })
       }
       else{
         this.tidSet.add(t.tid)
         this.nextup.push(t)
-      }
-      
-      this.initScroll()
-      
+        if(!this.showNextup){
+          this.$notify.success({
+            title: t.artist+" - "+t.title,
+            message: '被添加到Nextup中'
+          })
+        }
+      } 
     }, 
     clearNextup(){
       this.$notify.info({
@@ -507,9 +502,15 @@ export default {
     },
     checkNextup(){
       this.showNextup = true
-      //跳转到nowIndex---------------------------------------------------------------------------------
+      this.$nextTick(()=>{  
+          this.$refs.scrollableInner.scrollTop = (this.nowIndex-1)*48 
+      })
     },
-
+    scrolling(){
+      let now = this.$refs.scrollableInner.scrollTop //获取页面滚动位置
+      console.log('当前',now, '当Items的scrollTop为xx~xx时显示') //判断元素是否可见
+      //加载可见元素（发出请求时显示骨架，成功后显示内容）
+    }
   },
 
   filters:{
@@ -524,17 +525,30 @@ export default {
       return '0:00'
     }
   },
-  //暂时的初始化，后面删
+  
   mounted(){
+    //暂时的初始化，后面删------------------------
     localStorage.removeItem('nextup_list') 
     let tracks = this.$store.getters['track/getAllTracks']()
     let val = JSON.stringify(tracks)
     localStorage.setItem('nextup_list',val)
-    this.nextup = tracks
-    tracks.forEach(t => {
-      this.tidSet.add(t.tid)
-    });
+    // ------------------------------------------------------
+    let c = localStorage.getItem('nextup_list')
+    let arr = JSON.parse(c)
+    arr.forEach(t => {      
+      if(this.tidSet.has(t.tid)){
+        console.log('出现重复元素',t.tid)
+      }
+      else{
+        this.nextup.push(t)
+        this.tidSet.add(t.tid)
+      }
+    })
+    this.$bus.$on('nextupAffix', this.nextupAffix)
   },  
+  beforeDestroy(){
+    this.$bus.$off('nextupAffix')
+  }
 }
 </script>
 
@@ -855,6 +869,9 @@ button:focus{
   vertical-align: initial;
   margin-right: 14px;
 }
+.clear__btn:hover{
+  border: 1px solid #aaa;
+}
 .close__btn{
   background: none;
   transition: none;
@@ -897,6 +914,7 @@ button:focus{
   height: inherit;
   overflow-x: hidden;
   overflow-y: scroll;
+  transition: .3s;
 }
 .queue__scrollableInner::-webkit-scrollbar{
   width: 8px;

@@ -9,14 +9,10 @@
       <div style="color:red">
         playlist加入localStorage;
         detail页面歌词滚动;
-        skeleton镜面反射;
         pageupload中的内容形成组件; </div>
       <br>
       PlayBar 
-
-        
         播放状态需要存到LocalStorage
-        -- 播放时加入（修改）播放列表 -- 修改localStorage -- 监听localStorage变化
         //UPDATE//多个标签页不允许同时播放 
 
       <br>
@@ -24,7 +20,7 @@
         歌词滚动
         webAudio  频谱进度条?
 
-      关于音乐格式 qq netease dizzylab soundcloud
+      音乐格式 qq netease dizzylab soundcloud
     </div>
     <PlayBar/>
 

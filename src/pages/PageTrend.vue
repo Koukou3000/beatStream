@@ -113,8 +113,10 @@
         </transition>
     </div>  
 
-        
-   
+    <div>歌曲slider</div>
+    <button @click="nextupAffix(1)">添 加 1</button>
+    <button @click="nextupAffix(2)">添 加 2</button>
+    <button @click="nextupAffix(3)">添 加 3</button>
   </div>
 </template>
 
@@ -340,6 +342,10 @@ export default {
                 default:break;
             }
             this.$router.push({name:'trackDetail', params:{tid: this.tid}})
+        },
+        nextupAffix(tid){
+            let t = this.$store.getters['track/getTrackDetail'](tid)
+            this.$bus.$emit('nextupAffix', t)
         }
     },
     filters:{
