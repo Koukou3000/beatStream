@@ -183,7 +183,7 @@
                           </div>
                       </div>
                     </div>
-                    <div class="scrollbar" style="top:0%;" ></div>
+                    <div class="scrollbar" ref="scrollbar"></div>
               </div>
               
             </div>
@@ -255,7 +255,7 @@ export default {
     },
   },
   methods:{
-    // 乐曲时间
+    // 播放暂停单曲
     updateProgressBar(){
       //更新播放状态（进度条、音量等
       if(this.audio){ 
@@ -273,7 +273,7 @@ export default {
     playTrack(){   
       this.nowPlaying = this.nextup[this.nowIndex]
       if(!this.audio){
-        this.audio = new Audio(this.nowPlaying.audio_url)
+        this.audio = new Audio(this.nowPlaying.audio_url) // 播放组件只着手【当前曲目】，如果要分组件应该从这开始
         this.audio.addEventListener('timeupdate', this.updateProgressBar)
       }
       this.audio.volume = this.volumePercent/100 // 初次播放时调整音量
@@ -479,6 +479,7 @@ export default {
           this.nowIndex -- // nowIndex > idx ，特殊处理，放在splice之后，渲染后才刷新播放按钮位置
         }
       },300)
+      this.initScroll()
     },
     nextupAffix(){
       // 根据歌曲tid 从getters读取track
@@ -493,6 +494,7 @@ export default {
         this.tidSet.add(t.tid)
         this.nextup.push(t)
       }
+      this.initScroll()
     }, 
     clearNextup(){
       this.$notify.info({
@@ -506,6 +508,20 @@ export default {
         message: '这个部分还没开始做。',
         })
     },
+
+    initScroll(){
+      this.$nextTick(()=>{
+        let scroll = this.$refs.itemsHeight.getBoundingClientRect().height // 内容长度
+        let footer = this.$refs.itemsFooter.getBoundingClientRect().height // 尾部长度
+        let onePage = this.$refs.scrollableInner.getBoundingClientRect().height // 一页的长度
+        this.depth =  scroll + footer - onePage  // 可滚动距离 = 总长 - 页面
+        this.$refs.scrollbar.style.height = onePage * onePage/(scroll+footer)+'px' // scrollbar 长度
+      })
+    },
+    checkNextup(){
+      this.showNextup = true
+      this.initScroll()
+    },
     scrolling(e){
       this.$nextTick(()=>{
         let oldH = this.$refs.itemsHeight.style.transform
@@ -513,34 +529,42 @@ export default {
         let b = e.deltaY //获得滚动的高度 
         if(oldH){
           let regex = /translateY\((-?\d+(\.\d+)?)px\)/i; // 小数点也要带上，不然正则出问题
-          let str = oldH 
-          a = regex.exec(str)[1] 
+          a = regex.exec(oldH)[1] 
         }
       
-        if(a>=0 && b<0){
-          return // 向上滚到头不做操作
-        }
-        else if(this.submarine>=this.depth && b>0) {
-          return // 下滚到底不做操作
-        }
+        if(a>=0 && b<0){return} // 向上滚到头不做操作
+        else if(this.submarine>=this.depth && b>0) {return} // 下滚到底不做操作
         else{
-          let ans = a-b //  向下滚动66，期望值应该是translateY(-66px)，但是deltaY是66，所以相减
-          this.$refs.itemsHeight.style.transform = 'translateY('+ ans +'px)'; 
+          let ans = a - b //  向下滚动66，期望值应该是translateY(-66px)，但是deltaY是66，所以相减
+          this.$refs.itemsHeight.style.transform = 'translateY('+ ans +'px)';  // 卷轴滚动
           this.submarine += b // 记录已滚动距离
+
+          // 滑条移动 --------------------------
+          let before = this.$refs.scrollbar.style.top
+          if(!before){
+            before = 0
+          }
+          else{
+            before = parseFloat(before)
+          }
+          let scroll_items = this.$refs.itemsHeight.getBoundingClientRect().height // 内容长度
+          let scroll_footer = this.$refs.itemsFooter.getBoundingClientRect().height // 尾部长度
+          let onePage = this.$refs.scrollableInner.getBoundingClientRect().height // 一页的长度
+          
+          let move = onePage * b / (scroll_items + scroll_footer)
+          let after = move + before 
+ 
+          let barH = parseFloat(this.$refs.scrollbar.style.height)  
+          if(after + barH >= onePage){
+            after = onePage - barH // 滑条触底，当top+height相加等于onePage说明到底了，不允许再向下滑动
+          }
+          else if(after < 0){
+            after = 0 // 触顶
+          }         
+          this.$refs.scrollbar.style.top = after +'px'
         }
       }) 
     },
-    checkNextup(){
-      this.showNextup = true
-      this.$nextTick(()=>{
-        let scroll = this.$refs.itemsHeight.getBoundingClientRect().height // 内容长度
-        let footer = this.$refs.itemsFooter.getBoundingClientRect().height // 尾部长度
-        let onePage = this.$refs.scrollableInner.getBoundingClientRect().height // 一页的长度
-        this.depth =  scroll + footer - onePage  // 可滚动的距离 >= 总长减去一页
-      })
-      
-      
-    }
   },
 
   filters:{
@@ -948,7 +972,7 @@ button:focus{
   right: 2px;
   position: absolute;
   z-index: 1;
-  transition: opacity .3s linear;
+  transition: top .3s;
   top: 0;
 }
 
