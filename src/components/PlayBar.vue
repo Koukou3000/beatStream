@@ -132,14 +132,14 @@
 
             <!-- 定位>可见区域>高度计算>实际内容 -->
             <div class="queue__scrollable">
-              <div class="queue__scrollableInner" ref="scrollableInner" @scroll="scrolling">
+              <div class="queue__scrollableInner" ref="scrollableInner" @scroll="renderVisible">
 
                     <div class="queue__itemsHeight" :style="{height: (nextup.length)*48+'px'}">
                       <div class="queue__itemsContainer">
                           <div class="queue__itemLocate" v-for="(t, idx) in nextup" :key="t.tid" ref="items" :style="{transform:'translateY('+ (idx)*48+'px)'}">
                               
-                            <!-- 只渲染视口范围内的 -->
-                            <div class="item__skeleton" v-if="idx < renderIndex-5 || renderIndex+15 < idx">
+                            <!-- v-if 懒加载 -->
+                            <div class="item__skeleton" v-if="idx < renderIndex-15 || renderIndex+25 < idx">
                               <div class="img__skeleton"></div>
                               <div class="text__skeleton">
                                 <span></span>
@@ -147,7 +147,7 @@
                               </div>
                             </div>
 
-                            <!-- item外壳，光标悬浮时高光 -->
+                            <!-- v-else 渲染的，光标悬浮时高光 -->
                             <div class="queue__itemWrapper" :style="{background: nowIndex==idx? '#f8f8f8':'#fff'}" v-else
                               @mouseenter="highlightItem(idx)" @mouseleave="delightItem(idx)">
                               <!-- 内容数据 -->
@@ -186,7 +186,7 @@
                           </div>
                       </div>
                     </div>
-                    <!-- <div class="scrollbar" ref="scrollbar"></div> -->
+                    
               </div>
               
             </div>
@@ -237,7 +237,7 @@ export default {
       nowPlaying: null,       // 每次play前读取，曲目信息
       focusIdx: -1,           // 光标悬浮的索引值
       tidSet: new Set(),      // 拒绝tid相同的曲目进入列表
-      renderIndex: 0,
+      renderIndex: 0,         // 当前滚动的位置，用于渲染列表
 
 
     }
@@ -514,15 +514,14 @@ export default {
     checkNextup(){
       this.showNextup = true
       this.$nextTick(()=>{  
-          this.$refs.scrollableInner.scrollTop = (this.nowIndex-1)*48 
+          this.$refs.scrollableInner.scrollTop = (this.nowIndex-1)*48 // 开局跳转到当前曲目为止
+          this.renderVisible()  
       })
     },
-    scrolling(){
-      console.log(this.$refs.scrollableInner.style.height)
+    renderVisible(){
+      // renderIndex - 15 < idx < renderIndex + 25 // 懒加载的目标
       let now = this.$refs.scrollableInner.scrollTop 
-      
       this.renderIndex = parseInt(now / 48)
-      console.log(this.renderIndex,'需要渲染的index结点')
     }
   },
 
