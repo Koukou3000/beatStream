@@ -253,6 +253,11 @@ export default {
     currentTimeSeconds(now){
       this.$bus.$emit('trackProgress', now, this.durationSeconds) // 更新时传输时间 
     },
+    showNextup(){
+      this.$nextTick(()=>{
+          this.initScroll()
+      })
+    }
   },
   methods:{
     // 播放暂停单曲
@@ -510,12 +515,20 @@ export default {
     },
 
     initScroll(){
+      if(!this.showNextup) return
       this.$nextTick(()=>{
         let scroll = this.$refs.itemsHeight.getBoundingClientRect().height // 内容长度
         let footer = this.$refs.itemsFooter.getBoundingClientRect().height // 尾部长度
         let onePage = this.$refs.scrollableInner.getBoundingClientRect().height // 一页的长度
-        this.depth =  scroll + footer - onePage  // 可滚动距离 = 总长 - 页面
-        this.$refs.scrollbar.style.height = onePage * onePage/(scroll+footer)+'px' // scrollbar 长度
+        this.depth =  scroll + footer - onePage  // 设置可滚动距离 = 总长 - 页面
+        if(scroll+footer <= onePage){//只剩一页了
+          this.$refs.scrollbar.style.opacity = 0 
+          this.$refs.itemsHeight.style.transform = 'translateY(0)'  //回到页头
+        }
+        else{
+          this.$refs.scrollbar.style.opacity = 1
+          this.$refs.scrollbar.style.height = onePage * onePage/(scroll+footer)+'px' // scrollbar 长度
+        }
       })
     },
     checkNextup(){
@@ -528,8 +541,9 @@ export default {
         let a = 0        //获得之前的高度值，预设0
         let b = e.deltaY //获得滚动的高度 
         if(oldH){
-          let regex = /translateY\((-?\d+(\.\d+)?)px\)/i; // 小数点也要带上，不然正则出问题
+          let regex = /translateY\((.*)px\)/i; // 需要处理translateY(()px)
           a = regex.exec(oldH)[1] 
+          a = parseFloat(a)
         }
       
         if(a>=0 && b<0){return} // 向上滚到头不做操作
@@ -538,6 +552,7 @@ export default {
           let ans = a - b //  向下滚动66，期望值应该是translateY(-66px)，但是deltaY是66，所以相减
           this.$refs.itemsHeight.style.transform = 'translateY('+ ans +'px)';  // 卷轴滚动
           this.submarine += b // 记录已滚动距离
+
 
           // 滑条移动 --------------------------
           let before = this.$refs.scrollbar.style.top
@@ -553,7 +568,7 @@ export default {
           
           let move = onePage * b / (scroll_items + scroll_footer)
           let after = move + before 
- 
+          // 检查滑条位置
           let barH = parseFloat(this.$refs.scrollbar.style.height)  
           if(after + barH >= onePage){
             after = onePage - barH // 滑条触底，当top+height相加等于onePage说明到底了，不允许再向下滑动
@@ -972,7 +987,7 @@ button:focus{
   right: 2px;
   position: absolute;
   z-index: 1;
-  transition: top .3s;
+  transition: height .3s, top .3s, opacity .3s;
   top: 0;
 }
 
