@@ -136,11 +136,20 @@
 
                     <div class="queue__itemsHeight" :style="{height: (nextup.length)*48+'px'}">
                       <div class="queue__itemsContainer">
-                          <div v-for="(t, idx) in nextup" :key="t.tid" ref="items" :style="{transform:'translateY('+ (idx)*48+'px)'}" class="queue__itemLocate">
-                            <!-- item外壳，光标悬浮时高光 -->
-                            <div class="queue__itemWrapper" :style="{background: nowIndex==idx? '#f8f8f8':'#fff'}"
-                              @mouseenter="highlightItem(idx)" @mouseleave="delightItem(idx)">
+                          <div class="queue__itemLocate" v-for="(t, idx) in nextup" :key="t.tid" ref="items" :style="{transform:'translateY('+ (idx)*48+'px)'}">
+                              
+                            <!-- 只渲染视口范围内的 -->
+                            <div class="item__skeleton" v-if="idx < renderIndex-5 || renderIndex+15 < idx">
+                              <div class="img__skeleton"></div>
+                              <div class="text__skeleton">
+                                <span></span>
+                                <span></span>
+                              </div>
+                            </div>
 
+                            <!-- item外壳，光标悬浮时高光 -->
+                            <div class="queue__itemWrapper" :style="{background: nowIndex==idx? '#f8f8f8':'#fff'}" v-else
+                              @mouseenter="highlightItem(idx)" @mouseleave="delightItem(idx)">
                               <!-- 内容数据 -->
                               <div class="queue__item">
                                 <div class="item__dragHandle">
@@ -170,6 +179,7 @@
                               </div>
                             </div>
                           </div>
+
                           <div class="queue__footer" :style="{transform:'translateY('+ ((nextup.length*48)+13)+'px)'}" ref="itemsFooter">           
                              audio 存在sessionStorage中 （以audio url为key，读取sessionStorage中的blob?
                              每次nextup变更时都应写入localstorage   
@@ -227,8 +237,9 @@ export default {
       nowPlaying: null,       // 每次play前读取，曲目信息
       focusIdx: -1,           // 光标悬浮的索引值
       tidSet: new Set(),      // 拒绝tid相同的曲目进入列表
-      depth: 114,               // 卷轴高度
-      submarine: 0,                // 当前高度
+      renderIndex: 0,
+
+
     }
   },
   computed:{
@@ -507,9 +518,11 @@ export default {
       })
     },
     scrolling(){
-      let now = this.$refs.scrollableInner.scrollTop //获取页面滚动位置
-      console.log('当前',now, '当Items的scrollTop为xx~xx时显示') //判断元素是否可见
-      //加载可见元素（发出请求时显示骨架，成功后显示内容）
+      console.log(this.$refs.scrollableInner.style.height)
+      let now = this.$refs.scrollableInner.scrollTop 
+      
+      this.renderIndex = parseInt(now / 48)
+      console.log(this.renderIndex,'需要渲染的index结点')
     }
   },
 
@@ -1079,6 +1092,39 @@ button:focus{
   width: 100%;
   transition-property: transform,opacity,visibility;
   transition-duration: .3s;
+}
+
+/* 预加载相关 */
+.item__skeleton{
+  position: absolute;
+  height: 48px;
+  width: 100%;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+}
+.img__skeleton{
+  margin-left: 24px;
+  width: 30px;
+  height: 30px;
+  margin-right: 7px;
+  background: #f2f2f2;
+}
+.text__skeleton{
+  display: flex;
+  flex-direction: column;
+}
+.text__skeleton :nth-child(1){
+  width: 50px;
+  height: 8px;
+  background: #f2f2f2;
+  transform: translateY(-3px);
+}
+.text__skeleton :nth-child(2){
+  width: 130px;
+  height: 8px;
+  background: #f2f2f2;
+  transform: translateY(3px);
 }
 
 </style>
