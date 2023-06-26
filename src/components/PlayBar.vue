@@ -239,7 +239,6 @@ export default {
       tidSet: new Set(),      // 拒绝tid相同的曲目进入列表
       renderIndex: 0,         // 当前滚动的位置，用于渲染列表
 
-
     }
   },
   computed:{
@@ -252,7 +251,9 @@ export default {
     currentTimeSeconds(now){
       this.$bus.$emit('trackProgress', now, this.durationSeconds) // 更新时传输时间 
     },
-
+    nextup(){
+      console.log('nextup更新，更新LocalStorage，audio转成blob存入sessionStorage')
+    }
   },
   methods:{
     // 播放暂停单曲
