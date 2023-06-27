@@ -37,6 +37,9 @@ import PlayBar from './components/PlayBar.vue'
 export default {
   name: 'App',
   components:{NavBar, PlayBar},
+  updated(){
+    console.log('app渲染了')
+  }
 }
 
 
@@ -50,9 +53,7 @@ body{
 }
 .container{
   width: 1240px;
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
+  margin: 0 auto;
   font-size: 14px;
 }
 

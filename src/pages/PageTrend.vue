@@ -9,14 +9,14 @@
                 <span>TOP 3</span>
             
                 <!-- 选择 - 结果 -->
-                <div class="rank__result" @click.once="go('podium')" title="直接查看结果">
+                <div class="rank__result" @click.once="go('podium')" title="直接查看结果" v-if="!isSelected">
                    <svg t="1687113755128" class="icon" viewBox="0 0 1239 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5322" xmlns:xlink="http://www.w3.org/1999/xlink" width="241.9921875" height="200">
                         <path d="M592.276211 217.411368V52.978526l-19.429053 4.769685c-2.883368 0.673684-6.817684 1.347368-9.701053 1.347368-12.961684 0-24.117895-10.186105-24.117894-22.420211 0-10.536421 7.194947-19.348211 18.351157-22.42021l35.624421-9.862737c10.428632-2.721684 18.351158-4.392421 25.896422-4.392421h0.727578c15.090526 0 27.324632 11.533474 27.324632 25.815579v191.595789c0 14.255158-12.234105 25.815579-27.324632 25.815579-15.117474 0-27.351579-11.560421-27.351578-25.815579zM1239.578947 754.903579v215.578947a26.947368 26.947368 0 0 1-26.947368 26.947369H26.947368a26.947368 26.947368 0 0 1-26.947368-26.947369v-377.263158c0-44.570947 36.271158-80.842105 80.842105-80.842105h296.421053v-80.842105c0-44.570947 36.271158-80.842105 80.842105-80.842105h323.368421c44.597895 0 80.842105 36.271158 80.842105 80.842105v242.526316h296.421053c44.597895 0 80.842105 36.271158 80.842105 80.842105z m-53.894736 0a26.947368 26.947368 0 0 0-26.947369-26.947368H835.368421a26.947368 26.947368 0 0 1-26.947368-26.947369v-269.473684a26.947368 26.947368 0 0 0-26.947369-26.947369H458.105263c-14.848 0-26.947368 12.072421-26.947368 26.947369v107.789474a26.947368 26.947368 0 0 1-26.947369 26.947368H80.842105c-14.848 0-26.947368 12.072421-26.947368 26.947368v350.31579h1131.789474v-188.631579z" 
                         fill="none" p-id="5323" stroke="#fff" stroke-width="10"></path>
                     </svg>                  
                 </div>
                 <!-- 选择 - 试听 -->
-                <div class="rank__play" @click.once="go('crossfade')" title="试听内容">
+                <div class="rank__play" @click.once="go('crossfade')" title="试听内容" v-if="!isSelected">
                     <svg t="1687422595687" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="12681" width="200" height="200">
                         <path d="M512 960C265.6 960 64 758.4 64 512S265.6 64 512 64s448 201.6 448 448-201.6 448-448 448z m0-832C300.8 128 128 300.8 128 512s172.8 384 384 384 384-172.8 384-384S723.2 128 512 128z"
                          fill="none" p-id="12682" stroke="#fff" stroke-width="10"></path>
@@ -32,8 +32,7 @@
                 </transition>
             </div>
         </transition>
-        
-        <!-- 试听内容 -->
+        <!-- 试听 -->
         <div class="slide__container" v-if="stage=='crossfade'">
             <div class="speaker__icon" @click="muted=!muted" v-show="muted" >
                 <svg t="1687059934913" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3697" xmlns:xlink="http://www.w3.org/1999/xlink" width="200" height="200">
@@ -68,8 +67,7 @@
             </div> 
             
         </div>
-        
-        <!-- 结果内容 -->
+        <!-- 结果 -->
         <transition name="rankStep">
             <div class="podium__" v-show="stage=='podium'">                
                 <div class="stepping__stone">
@@ -113,15 +111,32 @@
         </transition>
     </div>  
 
-    <div>歌曲slider</div>
-    <button @click="nextupAffix(1)">添 加 1</button>
-    <button @click="nextupAffix(2)">添 加 2</button>
-    <button @click="nextupAffix(3)">添 加 3</button>
+    <!-- 懒加载列表 -->
+    <div class="l__container">
+        <div class="main">
+            <div class="left__pos">
+                <div class="left__content">
+                    <!-- 组件 - slider -->
+                    <div class="section">
+                        <TrackSlider :length="4" :p="getsth()"/>
+                    </div>
+                </div>  
+            </div>
+            <div class="right__pos"></div>
+        </div>
+    </div>
+    <!-- <div>
+         <button @click="nextupAffix(1)">添 加 1</button>
+        <button @click="nextupAffix(2)">添 加 2</button>
+        <button @click="nextupAffix(3)">添 加 3</button>
+    </div> -->
   </div>
 </template>
 
 <script>
+import TrackSlider from '@/components/TrackSlider.vue'
 export default {
+    components:{TrackSlider},
     data(){
         return{
             stage: '', 
@@ -129,25 +144,26 @@ export default {
 
             // 幕布
             showCurtain: true,
+            isSelected: false,
             loading: false, // 是否已经开始加载资源
             total: 0,   //音频 图片资源总数
             loaded: 0, // 已尝试加载完的资源数
             loadingText: '正在读取资源...',
-
+            
             // crossfade
             count: 0, // 全局时间
-            timer: null,  // 全局时间计时器
-            
+            timer: null,  // 全局时间计时器  
+
             slideBackground: '',
             opacity: 1,
             volume: 0,
             muted: false,
             audio: null,
             fadeTimer: null,  //淡入淡出定时器
-            showNumber: false,
-            
-            // 当前播放曲目的tid
-            tid: 0,
+            showNumber: false, 
+            tid: 0,                 // 当前播放曲目
+
+
         }
     },
     computed:{
@@ -266,7 +282,8 @@ export default {
                 
             }, 1000);
         },  
-        go(e){      
+        go(e){       
+            this.isSelected = true
             // curtain ==go()>> crossfade(slide) => result(podium)
             this.tracks = this.$store.getters['track/getTop3Tracks']()
            
@@ -346,6 +363,11 @@ export default {
         nextupAffix(tid){
             let t = this.$store.getters['track/getTrackDetail'](tid)
             this.$bus.$emit('nextupAffix', t)
+        },
+
+        getsth(){
+            console.log('getsth()')
+            return this.$store.getters['track/getAllTracks']()
         }
     },
     filters:{
@@ -359,16 +381,22 @@ export default {
         document.title = this.$route.meta.title
     },
     beforeDestroy(){
+        // 关闭这个页面时停掉页面的音乐，后续可考虑和detail playbar传参
         if(this.audio){
             this.audio.pause()
             this.audio = null
         }
+    },
+    mounted(){      
+
     }
 }
 </script>
 <style scoped>
 .page__bg{
     background: #fff;
+    overflow: hidden;
+
 }
 /* 走马灯 */
 .rank__container{
@@ -376,6 +404,7 @@ export default {
     width: 1240px;
     height: 420px;
     overflow: hidden;
+    border-bottom: 1px solid #f2f2f2;
 }
 /* 幕布，内容预告 */
 .rank__curtain{
@@ -386,7 +415,6 @@ export default {
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 3;
     user-select: none;
 }
 .rank__curtain span:nth-of-type(1){
@@ -623,8 +651,6 @@ svg{
     animation: rankUp reverse 1s forwards;
 }
 
-
-
 /* 排行结果 */
 .rankStep-enter-active{
     animation: fade reverse 2s;
@@ -682,6 +708,37 @@ svg{
     right: 31px;
 }
 
+
+/* 列表相关 */
+.l__container{
+    width: 1180px;
+    padding: 0 30px;
+}
+.main{
+    width: inherit;
+    height: auto;
+    position: relative;
+}
+.left__pos{
+    padding: 30px 30px 0 0;
+    margin: 0 330px 0 0 ;
+    height: 500px;
+    border-right: 1px solid #f2f2f2;
+}
+.right__pos{
+    width: 300px;
+    background: #eee;
+    right: 0;
+    bottom: 0;
+    top: 30px;
+    position: absolute;
+}
+.left__content{
+    overflow: hidden;
+    width: 100%;
+    background: #eee;
+    height: 100%;
+}
 
 
 </style>
