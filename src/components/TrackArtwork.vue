@@ -1,5 +1,5 @@
 <template>
-  <div class="coverWrapper">
+  <div class="coverWrapper" >
     <transition name="showArtwork">
       <div v-show="!imgLoaded" :class="'cover artwork-placeholder-'+rand" style="z-index:2"></div>
     </transition>
@@ -18,7 +18,6 @@ export default {
       }
     },
     mounted(){
-      
       if(this.imgURL){
         let image = new Image()
         image.onload = ()=>{
@@ -26,7 +25,8 @@ export default {
         }
         image.src = this.imgURL
       }
-    }
+    },
+
 }
 </script>
 

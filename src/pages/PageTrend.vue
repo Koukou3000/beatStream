@@ -114,14 +114,16 @@
     <!-- 懒加载列表 -->
     <div class="l__container">
         <div class="main">
+
             <div class="left__pos">
                 <div class="left__content">
                     <!-- 组件 - slider -->
                     <div class="section">
-                        <TrackSlider :length="4" :p="getsth()"/>
+                        <TrackGallery :tracks="getsth()" title="推荐单曲"/>
                     </div>
                 </div>  
             </div>
+
             <div class="right__pos"></div>
         </div>
     </div>
@@ -134,9 +136,9 @@
 </template>
 
 <script>
-import TrackSlider from '@/components/TrackSlider.vue'
+import TrackGallery from '@/components/TrackGallery.vue'
 export default {
-    components:{TrackSlider},
+    components:{TrackGallery},
     data(){
         return{
             stage: '', 
@@ -366,7 +368,6 @@ export default {
         },
 
         getsth(){
-            console.log('getsth()')
             return this.$store.getters['track/getAllTracks']()
         }
     },
@@ -709,7 +710,7 @@ svg{
 }
 
 
-/* 列表相关 */
+/* 轮播图相关 */
 .l__container{
     width: 1180px;
     padding: 0 30px;
@@ -736,9 +737,15 @@ svg{
 .left__content{
     overflow: hidden;
     width: 100%;
-    background: #eee;
     height: 100%;
 }
+
+.section{
+    margin: 0 0 34px 0;
+    border-bottom: 1px solid #f2f2f2;
+}
+
+
 
 
 </style>
