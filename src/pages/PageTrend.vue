@@ -121,17 +121,13 @@
                     <div class="section">
                         <TrackGallery :tracks="getsth()" title="推荐单曲"/>
                     </div>
+                   
                 </div>  
             </div>
 
             <div class="right__pos"></div>
         </div>
     </div>
-    <!-- <div>
-         <button @click="nextupAffix(1)">添 加 1</button>
-        <button @click="nextupAffix(2)">添 加 2</button>
-        <button @click="nextupAffix(3)">添 加 3</button>
-    </div> -->
   </div>
 </template>
 
@@ -723,7 +719,6 @@ svg{
 .left__pos{
     padding: 30px 30px 0 0;
     margin: 0 330px 0 0 ;
-    height: 500px;
     border-right: 1px solid #f2f2f2;
 }
 .right__pos{

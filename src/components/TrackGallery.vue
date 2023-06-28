@@ -7,12 +7,13 @@
             <div class="track__panel" :style="{transform: `translateX(${nowX}px)`}">
                 <!-- 一首乐曲 -->
                 <div class="track__frame" v-for="(t, idx) in tracks" :key="t.tid" ref="items">
-                    <div class="track__cover">     
+                    <div class="track__cover" @mouseover="focusIdx=idx" @mouseout="focusIdx=-1">     
                             <!-- 小于visitedIdx 在可视范围内 -->                         
-                        <div class="track__" @mouseenter="focusIdx=idx" @mouseleave="focusIdx=-1" @click="pictureClick" v-if="idx <= visitedIdx">
+                        <div class="track__" @click="pictureClick(t)" v-if="idx <= visitedIdx">
                             <TrackArtwork style="position:absolute;width:100%;height:100%;top:0;" :imgURL="t.img_url"/>
-                            <div class="play__now" v-show="focusIdx==idx" @click.stop="playClick"></div>
-                            <div class="play__actions" v-show="focusIdx==idx" @click.stop="addNextup"></div>
+                          
+                            <div class="play__now" v-show="focusIdx==idx" @click.stop="playClick(t)" ></div>
+                            <div class="play__actions" v-show="focusIdx==idx" @click.stop="addNextup(t)" ></div>
                             <div class="track__text text__bigger">{{t.title}}</div>
                             <div class="track__text text__smaller">{{t.artist}}</div>
                         </div>
@@ -25,10 +26,10 @@
                 </div>
                 
             </div>
-            <div class="gallery__backward" @mouseenter="ready2Left" @click="goLeft" v-show="hasBackward" :style="hasForward ? 'right:96%' : 'right:92%'">
+            <div class="gallery__backward" @mouseover="ready2Left" @click="goLeft" v-show="hasBackward" :style="hasForward ? 'right:96%' : 'right:92%'">
                 <div class="gallery__button icon__backward"></div>
             </div>
-            <div class="gallery__forward" @mouseenter="ready2Right" @click="goRight" v-show="hasForward" :style="hasBackward ? 'left:96%' : 'left:92%'">
+            <div class="gallery__forward" @mouseover="ready2Right" @click="goRight" v-show="hasForward" :style="hasBackward ? 'left:96%' : 'left:92%'">
                 <div class="gallery__button icon__forward" :style="hasForward? 'right:0' : 'left:0'"></div>
             </div>
         </div>
@@ -83,14 +84,14 @@ export default {
     
     },
     methods:{
-        playClick(){
-            console.log('点击播放按钮')
+        playClick(t){
+            console.log('点击播放按钮',t)
         },
-        addNextup(){
-            console.log('添加到nextup')
+        addNextup(t){
+            this.$bus.$emit('nextupAffix',t)
         },
-        pictureClick(){
-            console.log('点击图片')
+        pictureClick(t){
+            this.$router.push({name:'trackDetail', params:{tid: t.tid}})
         },
         ready2Left(){
             if(this.moving) return
@@ -254,7 +255,6 @@ export default {
     background-size: 40% 60%;
     background-position: 60%;
     background-repeat: no-repeat;
-    transition: opacity .3s;
     opacity: 1;
     cursor: pointer;
 }
@@ -265,13 +265,23 @@ export default {
     background: linear-gradient(to bottom, transparent, rgba(0,0,0,.4));
     bottom: 0;
 }
+.hoverTrack-enter-active{
+    animation: fade reverse .3s;
+}
+.hoverTrack-leave-active{
+    animation: fade .3s;
+}
+@keyframes fade {
+    from{opacity: 1;}
+    to{opacity: 0;}
+}
+
 .track__text{
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
     word-break: normal;
 }
-
 .text__bigger{
     color: #333;
     font-size: 14px;

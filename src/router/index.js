@@ -36,12 +36,8 @@ const router = new VueRouter({
             component: PageSearch,
         },
         
-        
-       
-        
     ]
 })
-
 
 
 export default router

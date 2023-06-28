@@ -148,10 +148,11 @@
                             </div>
 
                             <!-- v-else 渲染的，光标悬浮时高光 -->
-                            <div class="queue__itemWrapper" :style="{background: nowIndex==idx? '#f8f8f8':'#fff'}" v-else
+                            <div class="queue__itemWrapper" v-else
+                              :style="{background: nowIndex==idx? '#f8f8f8':'#fff', opacity: idx < nowIndex ? 0.5 : 1}" 
                               @mouseenter="highlightItem(idx)" @mouseleave="delightItem(idx)">
                               <!-- 内容数据 -->
-                              <div class="queue__item">
+                              <div class="queue__item" @click.stop="playThis(idx)">
                                 <div class="item__dragHandle">
                                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                                       <g fill="none" fill-rule="evenodd"  v-show="nowIndex!=idx">
@@ -159,7 +160,7 @@
                                       </g>
                                   </svg>
                                 </div>
-                                <div class="item__thumbnail" @click="playThis(idx)">
+                                <div class="item__thumbnail" @click.stop="playThis(idx)">
                                   <div class="cirtus _play" v-show="idx!=nowIndex && focusIdx == idx"></div>
                                   <TrackArtwork :imgURL="t.img_url"></TrackArtwork>
                                   <template v-if="idx==nowIndex">
@@ -169,8 +170,9 @@
                                 </div>
                                 <div class="item__details">
                                   <div><span class="item__meta">{{t.artist}}</span></div>
-                                  <router-link class="item__title" :to="{name:'trackDetail', params:{tid: t.tid}}">{{t.title}}</router-link>
-                                  <div class="detail__bg" @click="playThis(idx)"></div>
+                                  <span class="item__title" @click.stop="checkDetail(t)">{{t.title}}</span>
+                                  
+                                  
                                 </div>
                                 <div class="item__rightside">
                                   <div style="color:#999">{{t.duration}}</div>
@@ -523,6 +525,9 @@ export default {
       // renderIndex - 15 < idx < renderIndex + 25 // 懒加载的目标
       let now = this.$refs.scrollableInner.scrollTop 
       this.renderIndex = parseInt(now / 48)
+    },
+    checkDetail(t){
+      this.$router.push({name:'trackDetail', params:{tid: t.tid}})
     }
   },
 
