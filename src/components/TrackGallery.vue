@@ -12,7 +12,7 @@
                         <div class="track__" @mouseenter="focusIdx=idx" @mouseleave="focusIdx=-1" @click="pictureClick" v-if="idx <= visitedIdx">
                             <TrackArtwork style="position:absolute;width:100%;height:100%;top:0;" :imgURL="t.img_url"/>
                             <div class="play__now" v-show="focusIdx==idx" @click.stop="playClick"></div>
-                            <div class="play__actions" v-show="focusIdx==idx"></div>
+                            <div class="play__actions" v-show="focusIdx==idx" @click.stop="addNextup"></div>
                             <div class="track__text text__bigger">{{t.title}}</div>
                             <div class="track__text text__smaller">{{t.artist}}</div>
                         </div>
@@ -85,6 +85,9 @@ export default {
     methods:{
         playClick(){
             console.log('点击播放按钮')
+        },
+        addNextup(){
+            console.log('添加到nextup')
         },
         pictureClick(){
             console.log('点击图片')
