@@ -37,9 +37,6 @@ import PlayBar from './components/PlayBar.vue'
 export default {
   name: 'App',
   components:{NavBar, PlayBar},
-  updated(){
-    console.log('app渲染了')
-  }
 }
 
 

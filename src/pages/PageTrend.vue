@@ -525,8 +525,10 @@ svg{
 .slide__container{
     height: inherit;
     width: inherit;
-    overflow: auto;
+    overflow: hidden;
     background: #000;
+    position: relative;
+    z-index: 0;
 }
 .slide{
     position: absolute;

@@ -11,8 +11,14 @@
                             <!-- 小于visitedIdx 在可视范围内 -->                         
                         <div class="track__" @click="pictureClick(t)" v-if="idx <= visitedIdx">
                             <TrackArtwork style="position:absolute;width:100%;height:100%;top:0;" :imgURL="t.img_url"/>
-                          
-                            <div class="play__now" v-show="focusIdx==idx" @click.stop="playClick(t)" ></div>
+
+                            <!-- hover && ((tid对上 && 处于暂停状态)  || id对不上)-->
+                            <div class="play__now" v-show="focusIdx==idx && ((t.tid==nowTid && paused) || t.tid!=nowTid )"
+                                @click.stop="playClick(t)"></div>
+                           <!-- hover && tid对上 && 处于播放状态-->
+                            <div class="pause__now" v-show="focusIdx==idx && t.tid==nowTid && !paused" 
+                                @click.stop="pauseClick"></div>
+
                             <div class="play__actions" v-show="focusIdx==idx" @click.stop="addNextup(t)" ></div>
                             <div class="track__text text__bigger">{{t.title}}</div>
                             <div class="track__text text__smaller">{{t.artist}}</div>
@@ -50,13 +56,14 @@ export default {
             pages: 2,
             nowX: 0,                // 当前translateX             
             visitedIdx: 4,          // 允许加载的索引值
-    
             moving: false,          // 避免重复的移动
+
+            nowPlaying: null,      // 正在播放的曲目        
+            paused: true,
         }
     },
     props:{
         title: String,
-        isPlaylist : Boolean,       // 列表的每一项是否是单曲
         tracks: Array,
     },
     watch:{
@@ -80,19 +87,15 @@ export default {
             },
             immediate: true
         },
-       
-    
+    },
+    computed:{
+        nowTid(){
+            if(this.nowPlaying) // 返回当前播放的tid用来判断显示内容
+                return this.nowPlaying.tid
+            return -1
+        },
     },
     methods:{
-        playClick(t){
-            console.log('点击播放按钮',t)
-        },
-        addNextup(t){
-            this.$bus.$emit('nextupAffix',t)
-        },
-        pictureClick(t){
-            this.$router.push({name:'trackDetail', params:{tid: t.tid}})
-        },
         ready2Left(){
             if(this.moving) return
             this.$nextTick(()=>{
@@ -140,7 +143,7 @@ export default {
                 this.moving = false
             }, 600);
         },
-        // 检查元素是否可见
+        
         checkVisible(){
             let window_left = this.$refs.viewport.getBoundingClientRect().left
             let window_width = this.$refs.viewport.getBoundingClientRect().width
@@ -149,7 +152,7 @@ export default {
             setTimeout(() => {
                 for(let i=0; i<items.length; i++){
                     let item_left = items[i].getBoundingClientRect().left
-                    if(item_left - window_left < window_width){
+                    if(item_left - window_left < window_width){ // 检查元素是否可见
                         if(i > this.visitedIdx){
                             this.visitedIdx = i
                         }    
@@ -157,7 +160,37 @@ export default {
                 }
             }, 600);
             
-        }
+        },
+        // emit相关
+        updateNowPlaying(t){
+            this.nowPlaying = t // 接收播放曲目
+        },
+        updatePlayStatus(e){
+            if(e=='playing')
+                this.paused = false
+            else
+                this.paused = true
+        },
+
+
+        addNextup(t){
+            this.$bus.$emit('nextupAffix',t) // 添加到nextup
+        },
+        pictureClick(t){
+            this.$router.push({name:'trackDetail', params:{tid: t.tid}}) // 跳转到详情页
+        },
+        playClick(t){
+            // 当前点击曲目和之前当前播放曲目相同，开始播放
+            if(t.tid == this.nowTid){
+                this.$bus.$emit('playTrack')
+            }
+            else{
+                this.$bus.$emit('nextupTaken',t) // 播放当前的，其他从列表删除
+            }
+        },
+        pauseClick(){
+            this.$bus.$emit('pauseTrack')
+        },
     },
     created(){
         // 初始化页数 i = 3.5   =>   pages = 3+1  
@@ -171,6 +204,12 @@ export default {
         this.$nextTick(()=>{
             this.checkVisible()
         })
+        this.$bus.$on('updateNowPlaying',this.updateNowPlaying)
+        this.$bus.$on('updatePlayStatus',this.updatePlayStatus)
+    },
+    beforeDestroy(){
+        this.$bus.$off('updateNowPlaying')
+        this.$bus.$on('updatePlayStatus')
     }
 
 }
@@ -257,6 +296,29 @@ export default {
     background-repeat: no-repeat;
     opacity: 1;
     cursor: pointer;
+}
+.pause__now{
+    position: absolute;
+    width: 55px;
+    height: 55px;
+    background: #ff5500;
+    border-radius: 50%;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%,-50%);
+}
+.pause__now::before{
+    background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+Cjxzdmcgd2lkdGg9IjE4cHgiIGhlaWdodD0iMjdweCIgdmlld0JveD0iMCAwIDE4IDI3IiB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHhtbG5zOnNrZXRjaD0iaHR0cDovL3d3dy5ib2hlbWlhbmNvZGluZy5jb20vc2tldGNoL25zIj4KICAgIDwhLS0gR2VuZXJhdG9yOiBTa2V0Y2ggMy4yLjIgKDk5ODMpIC0gaHR0cDovL3d3dy5ib2hlbWlhbmNvZGluZy5jb20vc2tldGNoIC0tPgogICAgPHRpdGxlPlBhdXNlIDYwPC90aXRsZT4KICAgIDxkZXNjPkNyZWF0ZWQgd2l0aCBTa2V0Y2guPC9kZXNjPgogICAgPGRlZnM+PC9kZWZzPgogICAgPGcgaWQ9IlBhZ2UtMSIgc3Ryb2tlPSJub25lIiBzdHJva2Utd2lkdGg9IjEiIGZpbGw9Im5vbmUiIGZpbGwtcnVsZT0iZXZlbm9kZCIgc2tldGNoOnR5cGU9Ik1TUGFnZSI+CiAgICAgICAgPGcgaWQ9ImJ1dHRvbnMiIHNrZXRjaDp0eXBlPSJNU0FydGJvYXJkR3JvdXAiIHRyYW5zZm9ybT0idHJhbnNsYXRlKC0xNzQxLjAwMDAwMCwgLTgxOC4wMDAwMDApIiBmaWxsPSIjRkZGRkZGIj4KICAgICAgICAgICAgPHBhdGggZD0iTTE3NTIsODE4IEwxNzUyLDg0NSBMMTc1OSw4NDUgTDE3NTksODE4IEwxNzUyLDgxOCBaIE0xNzQxLDgxOCBMMTc0MSw4NDUgTDE3NDgsODQ1IEwxNzQ4LDgxOCBMMTc0MSw4MTggWiIgaWQ9IlBhdXNlLTYwIiBza2V0Y2g6dHlwZT0iTVNTaGFwZUdyb3VwIj48L3BhdGg+CiAgICAgICAgPC9nPgogICAgPC9nPgo8L3N2Zz4=);
+    background-size: 42% 56%;
+    background-position: 50% 51%;
+      content: "";
+    position: absolute;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-repeat: no-repeat;
 }
 .play__actions{
     position: absolute;

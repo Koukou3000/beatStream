@@ -176,7 +176,7 @@
                                 </div>
                                 <div class="item__rightside">
                                   <div style="color:#999">{{t.duration}}</div>
-                                  <div class="remove__block" title="从播放列表中移除" @click="nextupRemove(idx)">x</div>
+                                  <div class="remove__block" title="从播放列表中移除" @click.stop="nextupRemove(idx)">x</div>
                                 </div>
                               </div>
                             </div>
@@ -250,11 +250,15 @@ export default {
 
   },
   watch:{
+    // 更新进度条时间 
     currentTimeSeconds(now){
-      this.$bus.$emit('trackProgress', now, this.durationSeconds) // 更新时传输时间 
+      this.$bus.$emit('trackProgress', now, this.durationSeconds) 
     },
     nextup(){
-      console.log('nextup更新，更新LocalStorage，audio转成blob存入sessionStorage')
+      localStorage.setItem('nextup_list', JSON.stringify(this.nextup))
+    },
+    nowPlaying(newVal){
+      this.$bus.$emit('updateNowPlaying',newVal)
     }
   },
   methods:{
@@ -282,12 +286,14 @@ export default {
       this.audio.volume = this.volumePercent/100 // 初次播放时调整音量
       this.audio.play() 
       this.paused=false
+      this.$bus.$emit('updatePlayStatus','playing')
     },
     pauseTrack(){
       if(this.audio){
         this.audio.pause()    
       }
       this.paused=true
+      this.$bus.$emit('updatePlayStatus','paused')
     },
     // 音量
     toggleMuted(){
@@ -502,17 +508,36 @@ export default {
         }
       } 
     }, 
+    nextupTaken(t){  
+      if(this.tidSet.has(t.tid)){
+        // 已经有相同的，找出这个index
+        for(let i=0; i<this.nextup.length; i++){
+          if(this.nextup[i].tid == t.tid){
+            this.nowIndex = i
+          }
+        }
+      }
+      else{
+        this.nextupAffix(t)
+        this.nowIndex = this.nextup.length-1//添加后，新元素自然在队末
+      }
+      this.clearNextup()
+      this.clearThenPlay()
+      this.$bus.$emit('updateNowPlaying', t)
+    },
     clearNextup(){
-      this.$notify.info({
-        title: '无法清除Nextup',
-        message: '这个部分还没开始做。',
-        })
+      let s = new Set()
+      s.add(this.nextup[this.nowIndex].tid)
+      this.tidSet = s //只保留当前播放的，避免错误，其他全删
+      this.nextup.splice(0,this.nowIndex)
+      this.nextup.splice(1)
+      this.nowIndex = 0
     },
     loopCurrentTrack(){
       this.$notify.info({
         title: '无法单曲循环',
         message: '这个部分还没开始做。',
-        })
+      })
     },
     checkNextup(){
       this.showNextup = true
@@ -562,10 +587,16 @@ export default {
         this.tidSet.add(t.tid)
       }
     })
-    this.$bus.$on('nextupAffix', this.nextupAffix)
+    this.$bus.$on('nextupAffix', this.nextupAffix) // 添加
+    this.$bus.$on('nextupTaken', this.nextupTaken) // 替换
+    this.$bus.$on('pauseTrack', this.pauseTrack) 
+    this.$bus.$on('playTrack', this.playTrack) 
   },  
   beforeDestroy(){
-    this.$bus.$off('nextupAffix')
+    this.$bus.$off('nextupAffix') 
+    this.$bus.$off('nextupTaken') 
+    this.$bus.$off('pauseTrack')
+    this.$bus.$off('playTrack')
   },
 }
 </script>
