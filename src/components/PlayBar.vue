@@ -16,7 +16,11 @@
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"><path fill="#333" d="M7 18l8-6-8-6v12zm8-12v12h2V6h-2z"/></svg>
       </button>
       <button class="icon" @click="loopCurrentTrack" style="  margin-left: 20px; margin-right: 40px;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"><path fill="#333" d="M12 8H9a4 4 0 1 0 0 8h6a4 4 0 0 0 2.104-7.403l1.77-1.18.02.018A6 6 0 0 1 15 18H9A6 6 0 1 1 9 6h3V4l4 3-4 3V8z"/></svg>
+        <svg v-if="!loop"
+          xmlns="http://www.w3.org/2000/svg" width="24" height="24"><path fill="#333" d="M12 8H9a4 4 0 1 0 0 8h6a4 4 0 0 0 2.104-7.403l1.77-1.18.02.018A6 6 0 0 1 15 18H9A6 6 0 1 1 9 6h3V4l4 3-4 3V8z"/></svg>
+        <svg v-else
+          xmlns="http://www.w3.org/2000/svg" width="24" height="24"><path fill="#f50" d="M11.027 16a4.55 4.55 0 0 0 .23 2H9A6 6 0 1 1 9 6h3V4l4 3-4 3V8H9a4 4 0 1 0 0 8h2.027zm7.725-2.61a3.997 3.997 0 0 0-1.648-4.792l1.77-1.18.02.017A5.987 5.987 0 0 1 21 12c0 1.3-.413 2.503-1.116 3.486a4.496 4.496 0 0 0-1.132-2.096z"/>
+          <path fill="#f50" d="M15.5 20a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7zm-.5-5v4h1v-4h-1zm-1 0v1h1v-1h-1z"/></svg>
       </button>
       
    
@@ -147,9 +151,10 @@
                               </div>
                             </div>
 
-                            <!-- v-else 渲染的，光标悬浮时高光 -->
+                            <!-- v-else 渲染的，光标悬浮时高光 ，开启loop时，idx!=nowIndex是0.5，没开启时，idx<nowIndex是0.5-->
                             <div class="queue__itemWrapper" v-else
-                              :style="{background: nowIndex==idx? '#f8f8f8':'#fff', opacity: idx < nowIndex ? 0.5 : 1}" 
+                              :style="{background: nowIndex==idx? '#f8f8f8':'#fff', 
+                                      opacity: (loop && idx!=nowIndex)||(!loop && idx < nowIndex) ? 0.5 : 1}" 
                               @mouseenter="highlightItem(idx)" @mouseleave="delightItem(idx)">
                               <!-- 内容数据 -->
                               <div class="queue__item" @click.stop="playThis(idx)">
@@ -240,7 +245,7 @@ export default {
       focusIdx: -1,           // 光标悬浮的索引值
       tidSet: new Set(),      // 拒绝tid相同的曲目进入列表
       renderIndex: 0,         // 当前滚动的位置，用于渲染列表
-
+      loop: false,
     }
   },
   computed:{
@@ -456,11 +461,18 @@ export default {
       this.clearThenPlay()
     },
     stepNext(){
-      if(this.nowIndex+1 == this.nextup.length){
-        this.nowIndex = -1
-      }  
-      this.nowIndex ++
-      this.clearThenPlay()
+      if(this.loop){
+        // 循环单曲
+        this.audio.currentTime = 0
+        this.playTrack()
+      }
+      else{
+          if(this.nowIndex+1 == this.nextup.length){
+          this.nowIndex = -1
+        }  
+        this.nowIndex ++
+        this.clearThenPlay()
+      }
     },
     playThis(idx){
       let itemWrapper = this.$refs.items[idx].children[0]
@@ -534,10 +546,7 @@ export default {
       this.nowIndex = 0
     },
     loopCurrentTrack(){
-      this.$notify.info({
-        title: '无法单曲循环',
-        message: '这个部分还没开始做。',
-      })
+      this.loop = !this.loop
     },
     checkNextup(){
       this.showNextup = true
