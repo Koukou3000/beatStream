@@ -1,6 +1,6 @@
 <template>
-  <div class="page__bg">
-    
+  <div class="page__bg" >
+   
     <div class="rank__container">
         <!-- 预告幕布 -->
         <transition name="curtain">            

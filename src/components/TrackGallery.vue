@@ -19,7 +19,7 @@
                             <div class="pause__now" v-show="focusIdx==idx && t.tid==nowTid && !paused" 
                                 @click.stop="pauseClick"></div>
 
-                            <div class="play__actions" v-show="focusIdx==idx" @click.stop="addNextup(t)" ></div>
+                            <div class="play__actions" v-show="focusIdx==idx" @click.stop="addNextup(t)" >添加到Nextup</div>
                             <div class="track__text text__bigger">{{t.title}}</div>
                             <div class="track__text text__smaller">{{t.artist}}</div>
                         </div>
@@ -80,10 +80,9 @@ export default {
                 }
                 if(p == 1){
                     this.hasBackward = false
-                }
-                this.$nextTick(()=>{
-                     this.checkVisible() 
-                })
+                } 
+                this.checkVisible() 
+
             },
             immediate: true
         },
@@ -97,22 +96,20 @@ export default {
     },
     methods:{
         ready2Left(){
-            if(this.moving) return
-            this.$nextTick(()=>{
-                this.nowX += 15
-                setTimeout(() => {
-                    this.nowX -= 15
-                }, 200);
-            })     
+            if(this.moving) return    
+            this.nowX += 15
+            setTimeout(() => {
+                this.nowX -= 15
+            }, 200);
+              
         },
         ready2Right(){
             if(this.moving) return
-            this.$nextTick(()=>{
-                this.nowX -= 15
-                setTimeout(() => {
-                    this.nowX += 15
-                }, 200);
-            })
+            this.nowX -= 15
+            setTimeout(() => {
+                this.nowX += 15
+            }, 200);
+           
         },
         goRight(){
             this.moving = true
@@ -145,21 +142,22 @@ export default {
         },
         
         checkVisible(){
-            let window_left = this.$refs.viewport.getBoundingClientRect().left
-            let window_width = this.$refs.viewport.getBoundingClientRect().width
-            let items = this.$refs.items
+            this.$nextTick(()=>{
+                let window_left = this.$refs.viewport.getBoundingClientRect().left
+                let window_width = this.$refs.viewport.getBoundingClientRect().width
+                let items = this.$refs.items
 
-            setTimeout(() => {
-                for(let i=0; i<items.length; i++){
-                    let item_left = items[i].getBoundingClientRect().left
-                    if(item_left - window_left < window_width){ // 检查元素是否可见
-                        if(i > this.visitedIdx){
-                            this.visitedIdx = i
-                        }    
+                setTimeout(() => {
+                    for(let i=0; i<items.length; i++){
+                        let item_left = items[i].getBoundingClientRect().left
+                        if(item_left - window_left < window_width){ // 检查元素是否可见
+                            if(i > this.visitedIdx){
+                                this.visitedIdx = i
+                            }    
+                        }
                     }
-                }
-            }, 600);
-            
+                }, 600);
+            })
         },
         // emit相关
         updateNowPlaying(t){
@@ -324,8 +322,17 @@ export default {
     position: absolute;
     width: 100%;
     height: 50px;
-    background: linear-gradient(to bottom, transparent, rgba(0,0,0,.4));
+    background: linear-gradient(to bottom, transparent, #000);
     bottom: 0;
+    color: #fff;
+    text-align: center;
+    font-weight: bold;
+    line-height: 50px;
+    font-size: 16px;
+    transition: .3s;
+}
+.play__actions:hover{
+    color: #ffb482;
 }
 .hoverTrack-enter-active{
     animation: fade reverse .3s;
