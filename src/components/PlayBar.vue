@@ -134,44 +134,43 @@
 
             <div class="queue__scrollable">
               <div class="queue__scrollableInner" ref="scrollableInner" @mousewheel="scrolling">
-
                     <div class="queue__itemsHeight" ref="itemsHeight" :style="{height: `${nextup.length*48}px`}">
-                      <div class="queue__itemsContainer" :style="{transform: `translateY(${containerRenderOffset*48}px)`}">  
+                      <div class="queue__itemsContainer" :style="{transform: `translateY(${containerRenderOffset*48}px)`}" ref="itemsContainer">  
                           <!-- 实际渲染列表 locate控制Y轴 wrapper控制X轴动画-->
-                          <div class="queue__itemLocate" v-for="(t,idx) in tracksWillRender" :key="t.tid" :style="{transform:`translateY(${idx*48}px)`}">       
-                                <div class="queue__itemWrapper" ref="items" @mouseover="highlightItem" @mouseout="delightItem">
-                                  <!--透明度表示播放状态-->
-                   
-                                  <div class="queue__item" @click.stop="playThis">
-                                    <div class="item__dragHandle">
-                                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                                          <g fill="none" fill-rule="evenodd">
-                                              <path fill="#CCC" d="M9 5h2v2H9V5zm4 0h2v2h-2V5zm0 8h2v2h-2v-2zm0-4h2v2h-2V9zm0 8h2v2h-2v-2zM9 9h2v2H9V9zm0 4h2v2H9v-2zm0 4h2v2H9v-2z"/>
-                                          </g>
-                                      </svg>
-                                    </div>
-                                    <div class="item__thumbnail" @click.stop="playThis">
-                                      <TrackArtwork :imgURL="t.img_url"></TrackArtwork>
-                             
-                                      <!-- <div class="cirtus _play"></div> -->
-                                      <!-- <div class="cirtus _pause" ></div> -->
-                                        
-                                   
-                                    </div>
-                                    <div class="item__details">
-                                      <span class="item__meta">{{t.artist}}</span>
-                                      <span class="item__title" @click.stop="checkDetail(t)">{{t.title}}</span>
-                                    </div>
-                                    <div class="item__rightside">
-                                      <div style="color:#999">{{t.duration}}</div>
-                                      <div class="remove__block" title="从播放列表中移除" @click.stop="nextupRemove">x</div>
-                                    </div>
-                                  </div>
-                                
-                                </div>
-                            
-                          </div>
+                         
 
+                              <div class="queue__itemLocate" v-for="(t,idx) in tracksWillRender" :key="t.tid" :style="{transform:`translateY(${idx*48}px)`}" >       
+                                    <div class="queue__itemWrapper" @mouseover="highlightItem" @mouseout="delightItem">
+                                      <!--透明度表示播放状态-->
+                                      <div class="queue__item" @click.stop="playThis(idx)"
+                                        :style="{background: idx==hoverIdx || idx+containerRenderOffset==nowIndex ? '#f2f2f2':'#fff',
+                                                opacity: (!loop && idx+containerRenderOffset<nowIndex) || (loop&&idx+containerRenderOffset!=nowIndex)? 0.5:1}">                          
+                                        <div class="item__dragHandle" :style="{visibility: idx==hoverIdx || idx+containerRenderOffset==nowIndex ?'visible':'hidden'}">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                                <g fill="none" fill-rule="evenodd">
+                                                    <path fill="#CCC" d="M9 5h2v2H9V5zm4 0h2v2h-2V5zm0 8h2v2h-2v-2zm0-4h2v2h-2V9zm0 8h2v2h-2v-2zM9 9h2v2H9V9zm0 4h2v2H9v-2zm0 4h2v2H9v-2z"/>
+                                                </g>
+                                            </svg>
+                                        </div>
+
+                                        <div class="item__thumbnail" @click.stop="playThis(idx)">
+                                            <div class="cirtus _pause" v-show="idx+containerRenderOffset==nowIndex && !paused"></div>
+                                            <div class="cirtus _play" v-show="(idx+containerRenderOffset==nowIndex && paused) || (idx+containerRenderOffset!=nowIndex && idx==hoverIdx)"></div>
+                                            <TrackArtwork :imgURL="t.img_url"></TrackArtwork>
+                                        </div>
+                                        <div class="item__details">
+                                            <span class="item__meta">{{t.artist}}</span>
+                                            <span class="item__title" @click.stop="jumpDetail(t)">{{t.title}}</span>
+                                        </div>
+                                        <div class="item__rightside">
+                                            <div class="item__duration" v-if="hoverIdx!=idx || idx+containerRenderOffset==nowIndex">{{t.duration}}</div>
+                                            <div class="remove__block" v-if="hoverIdx==idx && idx+containerRenderOffset!=nowIndex" title="从播放列表中移除" @click.stop="nextupRemove(idx)">x</div>
+                                        </div>
+                                      </div>
+                                    
+                                    </div>
+                              </div>
+                          
                       </div>
                       <div class="queue__footer" :style="{transform:`translateY(${(nextup.length*48)+13}px)`}" ref="itemsFooter">           
                           audio 存在sessionStorage中 （以audio url为key，读取sessionStorage中的blob?
@@ -234,6 +233,7 @@ export default {
       loop: false,
       tracksWillRender: [],           // 需要被渲染的歌曲
       containerRenderOffset: 5,       // 渲染列表第一个在nextup的索引值
+      hoverIdx: -1,
     }
   },
   computed:{
@@ -434,49 +434,92 @@ export default {
     // 播放列表
     highlightItem(e){
       let mousemove = e.clientY - this.$refs.scrollableInner.getBoundingClientRect().top + this.$refs.scrollableInner.scrollTop 
-      let hoverIdx = parseInt(mousemove / 48)
-      console.log('悬浮元素在渲染列表中的idx为',hoverIdx - this.containerRenderOffset)
-
-        
+      let nextupIdx = parseInt(mousemove / 48)
+      this.hoverIdx = nextupIdx - this.containerRenderOffset
     },
     delightItem(){
+      // let mousemove = e.clientY - this.$refs.scrollableInner.getBoundingClientRect().top + this.$refs.scrollableInner.scrollTop 
+      // let nextupIdx = parseInt(mousemove / 48)
+      this.hoverIdx = -1
+    },
+    playThis(idx){
+      // 如果当前曲目和播放曲目相同，则切换状态
+      if(idx+this.containerRenderOffset == this.nowIndex){
+          if(this.paused){
+            this.playTrack()
+          }
+          else{
+            this.pauseTrack()
+          }
+      }
+      else{
+        this.nowIndex = idx+this.containerRenderOffset
+        this.clearThenPlay()
+      }
      
-    
-    },
-    playThis(){
-      console.log('播放，idx加上containerRenderOffset，就和直接操作nextup一样了')
-
-    },
-
-    nextupRemove(){
-      console.log('删除')
- 
-    },
-    nextupAffix(){
-      // 获取到传来的参数
-      console.log('添加到播放列表')
      
+    },
+    nextupRemove(idx){ 
+      let target = this.$refs.itemsContainer.children[idx].children[0]
+      target.style.opacity = 0
+      setTimeout(() => {
+        let t = this.tracksWillRender.splice(idx,1)
+        
+        this.tidSet.delete(t.pop().tid)
+        this.nextup.splice(idx+this.containerRenderOffset,1)
+        if(idx+this.containerRenderOffset < this.nowIndex)
+            this.nowIndex--
+        this.renderVisible()
+      }, 300);
+      
+    },
+    nextupAffix(t){
+      if(this.tidSet.has(t.tid)){
+        this.$notify.warning({
+          title: t.artist +' - '+t.title,
+          message: '禁止添加已存在歌曲'
+        })
+      }
+      else {
+        this.tidSet.add(t.tid)
+        this.nextup.push(t) 
+        if(!this.showNextup){
+          this.$notify.success({
+              title: t.artist +' - '+t.title,
+            message: '已经加入至Nextup队尾'
+          })
+        }
+        else{
+          this.$nextTick(()=>{this.$refs.scrollableInner.scrollTop = 48*this.nextup.length})  
+        }
+        this.renderVisible()
+      }
+      
+      
+      // this.nextup.push(t)
+
     }, 
     clearNextup(){
       console.log('clearNextup')
      
     },
     nextupTaken(t){  
-      if(this.tidSet.has(t.tid)){
-        // 已经有相同的，找出这个index
-        for(let i=0; i<this.nextup.length; i++){
-          if(this.nextup[i].tid == t.tid){
-            this.nowIndex = i
-          }
-        }
-      }
-      else{
-        this.nextupAffix(t)
-        this.nowIndex = this.nextup.length-1//添加后，新元素自然在队末
-      }
-      this.clearNextup()
-      this.clearThenPlay()
-      this.$bus.$emit('updateNowPlaying', t)
+      console.log('播放我！',t)
+      // if(this.tidSet.has(t.tid)){
+      //   // 已经有相同的，找出这个index
+      //   for(let i=0; i<this.nextup.length; i++){
+      //     if(this.nextup[i].tid == t.tid){
+      //       this.nowIndex = i
+      //     }
+      //   }
+      // }
+      // else{
+      //   this.nextupAffix(t)
+      //   this.nowIndex = this.nextup.length-1//添加后，新元素自然在队末
+      // }
+      // this.clearNextup()
+      // this.clearThenPlay()
+      // this.$bus.$emit('updateNowPlaying', t)
     },
     loopCurrentTrack(){
       this.loop = !this.loop
@@ -492,20 +535,26 @@ export default {
       // 打开列表，跳转到可能操作的位置
       this.showNextup = true
       this.$nextTick(()=>{
-        this.$refs.scrollableInner.scrollTop = (this.nowIndex-1)*48 // 开局跳转到当前播放曲目
-        this.renderVisible()    
+        this.$refs.scrollableInner.scrollTop = (this.nowIndex-1)*48 // 开局跳转到当前播放曲目 
       })
+      this.renderVisible()
     },
     renderVisible(){
       // 获取当前高度，计算渲染起点，设置containerOffset，计算页面大小，计算渲染终点，slice赋值给tracksWillRender
-      let now = this.$refs.scrollableInner.scrollTop
-      let start = Math.floor(now/48)
-      let pageSize = Math.ceil(this.$refs.scrollableInner.getBoundingClientRect().height / 48)
-      let end = start + pageSize
-      this.tracksWillRender = this.nextup.slice(start, end)
-      this.containerRenderOffset = start
+      this.$nextTick(()=>{
+          let now = this.$refs.scrollableInner.scrollTop
+          let start = Math.floor(now/48)
+          let pageSize = Math.ceil(this.$refs.scrollableInner.getBoundingClientRect().height / 48)
+          let end = start + pageSize
+          // let end = start + pageSize*2
+          // start -= pageSize
+          // if(start<0) 
+          //   start = 0
+          this.tracksWillRender = this.nextup.slice(start, end)
+          this.containerRenderOffset = start
+      }) 
     },
-    checkDetail(t){
+    jumpDetail(t){
       this.$router.push({name:'trackDetail', params:{tid: t.tid}})
     }
   },
@@ -970,9 +1019,7 @@ button:focus{
   transition-property: transform,opacity,visibility;
   transition-duration: .3s;
 }
-.queue__itemWrapper:hover{
-  background: #f2f2f2;
-}
+
 
 
 
@@ -982,7 +1029,10 @@ button:focus{
   display: flex;
   align-items: center;
   cursor: pointer;
-  transition: .3s;
+  transition: transform .3s;
+}
+.queue__item:hover{
+  background: #f2f2f2;
 }
 .item__dragHandle{
   width: 24px;
@@ -1085,11 +1135,14 @@ button:focus{
   align-items: center;
   justify-content: center;
 }
+.item__duration{
+  color:#999;
+}
 .remove__block{
-  width: 24px;
-  height: 24px;
+  width: 30px;
+  height: 30px;
+      line-height: 30px;
   text-align: center;
-  display: none;
 }
 
 

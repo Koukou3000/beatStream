@@ -417,7 +417,6 @@ export default {
 .rank__curtain span:nth-of-type(1){
     position: absolute;
     color: #fff;
-    z-index: 1;
     font-size: 40px;
     font-weight: bold;
 }
