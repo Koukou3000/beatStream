@@ -137,39 +137,34 @@
 
                     <div class="queue__itemsHeight" ref="itemsHeight" :style="{height: `${nextup.length*48}px`}">
                       <div class="queue__itemsContainer" :style="{transform: `translateY(${containerRenderOffset*48}px)`}">  
-                          <!-- 实际渲染列表 locate控制Y轴 wrapper控制X轴-->
-                          <div class="queue__itemLocate" v-for="(t, idx) in tracksWillRender" :key="t.tid" :style="{transform:`translateY(${idx*48}px)`}">       
-                                <div class="queue__itemWrapper" ref="items" 
-                                  :style="{background: nowIndex==idx? '#f8f8f8':'#fff'}" 
-                                  @mouseenter="highlightItem(idx)" @mouseleave="delightItem(idx)">
+                          <!-- 实际渲染列表 locate控制Y轴 wrapper控制X轴动画-->
+                          <div class="queue__itemLocate" v-for="(t,idx) in tracksWillRender" :key="t.tid" :style="{transform:`translateY(${idx*48}px)`}">       
+                                <div class="queue__itemWrapper" ref="items" @mouseover="highlightItem" @mouseout="delightItem">
                                   <!--透明度表示播放状态-->
                    
-                                  <div class="queue__item" :style="{opacity: (loop && idx!=nowIndex)||(!loop && idx < nowIndex) ? 0.5 : 1}"
-                                    @click.stop="playThis(idx)">
+                                  <div class="queue__item" @click.stop="playThis">
                                     <div class="item__dragHandle">
                                       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                                          <g fill="none" fill-rule="evenodd"  v-show="nowIndex!=idx">
+                                          <g fill="none" fill-rule="evenodd">
                                               <path fill="#CCC" d="M9 5h2v2H9V5zm4 0h2v2h-2V5zm0 8h2v2h-2v-2zm0-4h2v2h-2V9zm0 8h2v2h-2v-2zM9 9h2v2H9V9zm0 4h2v2H9v-2zm0 4h2v2H9v-2z"/>
                                           </g>
                                       </svg>
                                     </div>
-                                    <div class="item__thumbnail" @click.stop="playThis(idx)">
-                                      <div class="cirtus _play" v-show="idx!=nowIndex && focusIdx == idx"></div>
+                                    <div class="item__thumbnail" @click.stop="playThis">
                                       <TrackArtwork :imgURL="t.img_url"></TrackArtwork>
-                                      <template v-if="idx==nowIndex">
-                                        <div class="cirtus _play" v-show="(idx==nowIndex && paused)" ></div>
-                                        <div class="cirtus _pause" v-show="(idx==nowIndex && !paused)" ></div>
-                                      </template>
+                             
+                                      <!-- <div class="cirtus _play"></div> -->
+                                      <!-- <div class="cirtus _pause" ></div> -->
+                                        
+                                   
                                     </div>
                                     <div class="item__details">
-                                      <div><span class="item__meta">{{t.artist}}</span></div>
+                                      <span class="item__meta">{{t.artist}}</span>
                                       <span class="item__title" @click.stop="checkDetail(t)">{{t.title}}</span>
-                                      
-                                      
                                     </div>
                                     <div class="item__rightside">
                                       <div style="color:#999">{{t.duration}}</div>
-                                      <div class="remove__block" title="从播放列表中移除" @click.stop="nextupRemove(idx)">x</div>
+                                      <div class="remove__block" title="从播放列表中移除" @click.stop="nextupRemove">x</div>
                                     </div>
                                   </div>
                                 
@@ -231,13 +226,13 @@ export default {
       // --- 列表
       showNextup: false,       // 显示播放列表
       nextup: [],     
-      nowIndex: 0,            // 当前播放的索引值
+      nowIndex: -1,            // 当前播放的索引值
       nowPlaying: null,       // 每次play前读取，曲目信息
       focusIdx: -1,           // 光标悬浮的索引值
       tidSet: new Set(),      // 拒绝tid相同的曲目进入列表
       
       loop: false,
-      tracksWillRender: [],  // 需要被渲染的歌曲
+      tracksWillRender: [],           // 需要被渲染的歌曲
       containerRenderOffset: 5,       // 渲染列表第一个在nextup的索引值
     }
   },
@@ -276,6 +271,7 @@ export default {
 
     },
     playTrack(){   
+      if(this.nowIndex <0) return
       this.nowPlaying = this.nextup[this.nowIndex]
       if(!this.audio){
         this.audio = new Audio(this.nowPlaying.audio_url) // 播放组件只着手【当前曲目】，如果要分组件应该从这开始
@@ -436,12 +432,15 @@ export default {
       }
     },
     // 播放列表
-    highlightItem(idx){
-      console.log(idx)
-      
+    highlightItem(e){
+      let mousemove = e.clientY - this.$refs.scrollableInner.getBoundingClientRect().top + this.$refs.scrollableInner.scrollTop 
+      let hoverIdx = parseInt(mousemove / 48)
+      console.log('悬浮元素在渲染列表中的idx为',hoverIdx - this.containerRenderOffset)
+
+        
     },
-    delightItem(idx){
-      console.log(idx,'移开')
+    delightItem(){
+     
     
     },
     playThis(){
@@ -451,7 +450,7 @@ export default {
 
     nextupRemove(){
       console.log('删除')
-    
+ 
     },
     nextupAffix(){
       // 获取到传来的参数
@@ -487,8 +486,6 @@ export default {
     scrolling(){
       setTimeout(() => {
         this.renderVisible()
-        this.$refs.items[4].style.transfrom = 'translateX(100px)'
-        console.log(this.$refs.items[4].style.transfrom)
       }, 300);
     },
     checkNextup(){
@@ -973,6 +970,9 @@ button:focus{
   transition-property: transform,opacity,visibility;
   transition-duration: .3s;
 }
+.queue__itemWrapper:hover{
+  background: #f2f2f2;
+}
 
 
 
@@ -1053,6 +1053,7 @@ button:focus{
   position: absolute;
 }
 .item__meta{
+  display: block;
   color: #999;
   overflow: hidden;
   white-space: nowrap;
