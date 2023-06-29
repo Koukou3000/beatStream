@@ -79,7 +79,7 @@
         </transition>
       </div>
 
-      <!-- 底部栏 - 歌曲信息   -->
+      <!-- 底部栏右侧 - 歌曲信息   -->
       <div class="track__container">
         <div class="ctrl__left"> 
           <template v-if="nowPlaying">
@@ -116,7 +116,7 @@
 
      
 
-      <!-- 播放列表 -->
+      <!-- 底部栏右侧 - 播放列表 -->
       <transition name="loadPanel">
         <div class="panel__pos" v-if="showNextup">
           <div class="track__panel">
@@ -136,14 +136,14 @@
               <div class="queue__scrollableInner" ref="scrollableInner" @mousewheel="scrolling">
 
                     <div class="queue__itemsHeight" ref="itemsHeight" :style="{height: `${nextup.length*48}px`}">
-                      <div class="queue__itemsContainer" :style="{transform: `translateY(${renderOffset*48}px)`}">  
-              
-                          <div class="queue__itemLocate" v-for="(t, idx) in tracksWillRender" :key="t.tid" ref="items" 
-                            :style="{transform:`translateY(${idx*48}px)`}">       
-                                <div class="queue__itemWrapper" 
+                      <div class="queue__itemsContainer" :style="{transform: `translateY(${containerRenderOffset*48}px)`}">  
+                          <!-- 实际渲染列表 locate控制Y轴 wrapper控制X轴-->
+                          <div class="queue__itemLocate" v-for="(t, idx) in tracksWillRender" :key="t.tid" :style="{transform:`translateY(${idx*48}px)`}">       
+                                <div class="queue__itemWrapper" ref="items" 
                                   :style="{background: nowIndex==idx? '#f8f8f8':'#fff'}" 
                                   @mouseenter="highlightItem(idx)" @mouseleave="delightItem(idx)">
                                   <!--透明度表示播放状态-->
+                   
                                   <div class="queue__item" :style="{opacity: (loop && idx!=nowIndex)||(!loop && idx < nowIndex) ? 0.5 : 1}"
                                     @click.stop="playThis(idx)">
                                     <div class="item__dragHandle">
@@ -177,14 +177,14 @@
                             
                           </div>
 
-                          <div class="queue__footer" :style="{transform:'translateY('+ ((nextup.length*48)+13)+'px)'}" ref="itemsFooter">           
-                             audio 存在sessionStorage中 （以audio url为key，读取sessionStorage中的blob?
-                             
-                          </div>
+                      </div>
+                      <div class="queue__footer" :style="{transform:`translateY(${(nextup.length*48)+13}px)`}" ref="itemsFooter">           
+                          audio 存在sessionStorage中 （以audio url为key，读取sessionStorage中的blob?
+                          
                       </div>
                     </div>
                     
-                    <div class="scrollable__Bar" ref="scrollbar"></div>
+                    <!-- <div class="scrollable__Bar" :style="{height: scrollbarHeight, top: scrollbarTop}"></div> -->
               </div>
               
             </div>
@@ -238,7 +238,7 @@ export default {
       
       loop: false,
       tracksWillRender: [],  // 需要被渲染的歌曲
-      renderOffset: 0,       // 渲染列表第一个在nextup的索引值
+      containerRenderOffset: 5,       // 渲染列表第一个在nextup的索引值
     }
   },
   computed:{
@@ -256,8 +256,8 @@ export default {
       localStorage.setItem('nextup_list', JSON.stringify(this.nextup))
     },
     nowPlaying(newVal){
-      this.$bus.$emit('updateNowPlaying',newVal)
-    }
+      this.$bus.$emit('updateNowPlaying',newVal) // Gallery
+    },
   },
   methods:{
     // 播放暂停单曲
@@ -438,15 +438,15 @@ export default {
     // 播放列表
     highlightItem(idx){
       console.log(idx)
-    
+      
     },
     delightItem(idx){
       console.log(idx,'移开')
     
     },
     playThis(){
-      console.log('播放')
-    
+      console.log('播放，idx加上containerRenderOffset，就和直接操作nextup一样了')
+
     },
 
     nextupRemove(){
@@ -484,52 +484,29 @@ export default {
     },
 
     // 列表渲染相关
-    scrolling(e){
-      this.itemsBackgroundY += e.deltaY
-      // 获得总高度，容器高度，  容器高度 * (容器高度/总高度) = scrollbar高度
-      // 滚动是修改 backgroundPositionY，  bpy/总高度 = scrollbarTop
-      console.log(this.$refs.itemsHeight.style.height)
-
-
-
-
-
-
-
-
-
-
-
-
-
-      
-      // 负责控制itemContainer的移动，这样就不会
+    scrolling(){
+      setTimeout(() => {
+        this.renderVisible()
+        this.$refs.items[4].style.transfrom = 'translateX(100px)'
+        console.log(this.$refs.items[4].style.transfrom)
+      }, 300);
     },
     checkNextup(){
       // 打开列表，跳转到可能操作的位置
       this.showNextup = true
-    
-      // this.$refs.scrollableInner.scrollTop = (this.nowIndex-1)*48 // 开局跳转到当前播放曲目
-      // this.renderVisible()  
-      
-      // 初始化滑条
-
+      this.$nextTick(()=>{
+        this.$refs.scrollableInner.scrollTop = (this.nowIndex-1)*48 // 开局跳转到当前播放曲目
+        this.renderVisible()    
+      })
     },
     renderVisible(){
-      // 获取当前高度
-
-      // 计算本来位于该高度的item的起始索引
-
-      // 计算一页可以有多少item
-
-      // 计算渲染终点的item索引
-
-
-      // 讲这些item slice放入 tracksWillRender
-
-      // 渲染到items__container中，items__container偏移到对应位置（即tracksWillRender第一个元素）
-
-      // 当有特殊动画时，安排scrollableInner
+      // 获取当前高度，计算渲染起点，设置containerOffset，计算页面大小，计算渲染终点，slice赋值给tracksWillRender
+      let now = this.$refs.scrollableInner.scrollTop
+      let start = Math.floor(now/48)
+      let pageSize = Math.ceil(this.$refs.scrollableInner.getBoundingClientRect().height / 48)
+      let end = start + pageSize
+      this.tracksWillRender = this.nextup.slice(start, end)
+      this.containerRenderOffset = start
     },
     checkDetail(t){
       this.$router.push({name:'trackDetail', params:{tid: t.tid}})
@@ -942,6 +919,8 @@ button:focus{
   width: inherit;
   height: inherit;
   transition: .3s;
+  overflow-x: hidden;
+  overflow-y: scroll;
 }
 .queue__scrollableInner::-webkit-scrollbar{
   width: 8px;
@@ -950,7 +929,6 @@ button:focus{
 .queue__scrollableInner::-webkit-scrollbar-thumb{
   background: rgba(0,0,0,.2);
   box-shadow: 0 0 1px #fff;
-  border-radius: 7px;
 }
 .scrollable__Bar{
   position: absolute;
@@ -986,6 +964,7 @@ button:focus{
   font-weight: 100;
   position: relative;
   flex: 1;
+  height: 0;
 }
 .queue__itemWrapper{
   width: 100%;
@@ -1117,8 +1096,6 @@ button:focus{
 .queue__itemLocate{
   position: absolute;
   width: 100%;
-  transition-property: transform,opacity,visibility;
-  transition-duration: .3s;
 }
 
 /* 预加载相关 */
