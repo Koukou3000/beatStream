@@ -498,7 +498,9 @@ export default {
       if(this.tidSet.has(t.tid)){
         this.$notify.info({
           title: t.artist +' - '+t.title,
-          message: '歌曲已存在于播放列表中'
+          message: '歌曲已存在于播放列表中',
+          position: 'bottom-right',
+          offset: 50
         })
       }
       else {

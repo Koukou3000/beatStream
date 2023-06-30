@@ -6,20 +6,23 @@
             <!-- 滚动面板 -->
             <div class="track__panel" :style="{transform: `translateX(${nowX}px)`}">
                 <!-- 一首乐曲 -->
-                <div class="track__frame" v-for="(t, idx) in tracks" :key="t.tid" ref="items">
-                    <div class="track__cover" @mouseover="focusIdx=idx" @mouseout="focusIdx=-1">     
+                <div class="track__frame" v-for="(t, idx) in tracks" :key="t.tid" ref="items"  @mouseenter="focusIdx=idx" @mouseleave="focusIdx=-1">
+                    <div class="track__cover">     
                             <!-- 小于visitedIdx 在可视范围内 -->                         
                         <div class="track__" @click="pictureClick(t)" v-if="idx <= visitedIdx">
                             <TrackArtwork style="position:absolute;width:100%;height:100%;top:0;" :imgURL="t.img_url"/>
 
-                            <!-- hover && ((tid对上 && 处于暂停状态)  || id对不上)-->
-                            <div class="play__now" v-show="focusIdx==idx && ((t.tid==nowTid && paused) || t.tid!=nowTid )"
-                                @click.stop="playClick(t)"></div>
-                           <!-- hover && tid对上 && 处于播放状态-->
-                            <div class="pause__now" v-show="focusIdx==idx && t.tid==nowTid && !paused" 
-                                @click.stop="pauseClick"></div>
-
-                            <div class="play__actions" v-show="focusIdx==idx" @click.stop="addNextup(t)" >添加到Nextup</div>
+                            <!-- hover && ((tid对得上 && 处于暂停状态)  || id对不上)-->
+                            <transition-group name="trackControl">
+                                                   
+                                <div class="play__now" v-show="focusIdx==idx && ((t.tid==nowTid && paused) || t.tid!=nowTid )" :key="`${t.tid}&playBtn`"
+                                    @click.stop="playClick(t)"></div>
+                                <!-- hover && tid对得上 && 处于播放状态-->
+                                <div class="pause__now" v-show="focusIdx==idx && t.tid==nowTid && !paused" :key="`${t.tid}&pauseBtn`"
+                                    @click.stop="pauseClick"></div>
+                                <div class="play__actions" v-show="focusIdx==idx" @click.stop="addNextup(t)" :key="`${t.tid}&actionBtn`">添加到Nextup</div>
+               
+                            </transition-group>        
                             <div class="track__text text__bigger">{{t.title}}</div>
                             <div class="track__text text__smaller">{{t.artist}}</div>
                         </div>
@@ -429,6 +432,16 @@ export default {
     border-color: #ff6a1f;
 }
 
+.trackControl-enter-active{
+    animation: fade reverse .3s forwards;
+}
+.trackControl-leave-active{
+    animation: fade .3s forwards;
+}
+@keyframes fade {
+    from{opacity: 1;}
+    to{opacity: 0;}
+}
 
 
 </style>

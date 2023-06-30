@@ -182,7 +182,7 @@ export default {
       //检查表单输入
       if(this.tmp_track.title.trim().length == 0 
         || this.tmp_track.audio_url.trim().length == 0){
-        this.$notify({
+        this.$notify.error({
           title: '错误',
           message: '必填项输入为空',
           type: 'error'
@@ -192,6 +192,10 @@ export default {
         var track = this.tmp_track
         this.$store.commit('track/UPLOAD_SINGLE', track)
         this.clearForm()
+        this.$notify.success({
+          title: track.title+ ' - ' +track.artist,
+          message: '更新成功'
+        })
       }
     },
 
