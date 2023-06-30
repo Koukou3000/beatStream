@@ -70,8 +70,12 @@
         <!-- 结果 -->
         <transition name="rankStep">
             <div class="podium__" v-show="stage=='podium'">                
-                <div class="stepping__stone">
-                    <div class="poster" style="background-image: linear-gradient(135deg,#846170,#e6846e)" ref="rank2" @click="pushRoute(2)"></div>
+                <div class="stepping__stone" v-if="tracks">
+                    
+                    <div class="poster" style="margin-bottom:37%" ref="rank2" @click="pushRoute(2)">            
+                        <TrackArtwork  style="width: 100%;top: 0;bottom: 0;height: 100%;position: absolute;"/>
+                    
+                    </div>
                     <div class="rank2">
                         <div class="placeholder__crown">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 396.45 289.09"><defs></defs>
@@ -133,8 +137,9 @@
 
 <script>
 import TrackGallery from '@/components/TrackGallery.vue'
+import TrackArtwork from '@/components/TrackArtwork.vue'
 export default {
-    components:{TrackGallery},
+    components:{TrackGallery,TrackArtwork},
     data(){
         return{
             stage: '', 
@@ -292,12 +297,12 @@ export default {
                 this.showCurtain = false
                 this.stage = 'podium' //阶段2
                 // 编辑排行榜的内容
-                this.$refs.rank1.style.backgroundImage = `url(${this.tracks[0].img_url})`
-                this.$refs.rank1.innerHTML = this.tracks[0].title + ' - ' + this.tracks[0].artist
-                this.$refs.rank2.style.backgroundImage = `url(${this.tracks[1].img_url})`
-                this.$refs.rank2.innerHTML = this.tracks[1].title + ' - ' + this.tracks[1].artist
-                this.$refs.rank3.style.backgroundImage = `url(${this.tracks[2].img_url})`
-                this.$refs.rank3.innerHTML = this.tracks[2].title + ' - ' + this.tracks[2].artist  
+                // this.$refs.rank1.style.backgroundImage = `url(${this.tracks[0].img_url})`
+                // this.$refs.rank1.innerHTML = this.tracks[0].title + ' - ' + this.tracks[0].artist
+                // this.$refs.rank2.style.backgroundImage = `url(${this.tracks[1].img_url})`
+                // this.$refs.rank2.innerHTML = this.tracks[1].title + ' - ' + this.tracks[1].artist
+                // this.$refs.rank3.style.backgroundImage = `url(${this.tracks[2].img_url})`
+                // this.$refs.rank3.innerHTML = this.tracks[2].title + ' - ' + this.tracks[2].artist  
             }
             else if(e == 'crossfade'){
                 this.loading = true
@@ -693,14 +698,11 @@ svg{
     width: 80%;
     height: 0;
     padding-top: 80%;
-    margin-bottom: 10%;
-    background-size: cover;
-    background-position: 0 0;
     display: flex;
     justify-content: center;
     cursor: pointer;
     white-space: nowrap;
-
+    position: absolute;
 }
 .placeholder__crown{
     position: absolute;
@@ -708,6 +710,7 @@ svg{
     height: 50px;
     top: -285px;
     right: 31px;
+    z-index: 20;
 }
 
 
