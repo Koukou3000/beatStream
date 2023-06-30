@@ -147,7 +147,7 @@
                                   <div class="queue__item" @click.stop="playThis(idx)"
                                     :style="{background: idx==hoverIdx || idx+containerRenderOffset==nowIndex ? '#f2f2f2':'#fff',
                                             opacity: (!loop && idx+containerRenderOffset<nowIndex) || (loop&&idx+containerRenderOffset!=nowIndex)? 0.5:1}">                          
-                                    <div class="item__dragHandle" :style="{visibility: idx==hoverIdx || idx+containerRenderOffset==nowIndex ?'visible':'hidden'}">
+                                    <div class="item__dragHandle" :style="{visibility: idx==hoverIdx && idx+containerRenderOffset!=nowIndex ?'visible':'hidden'}">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                                             <g fill="none" fill-rule="evenodd">
                                                 <path fill="#CCC" d="M9 5h2v2H9V5zm4 0h2v2h-2V5zm0 8h2v2h-2v-2zm0-4h2v2h-2V9zm0 8h2v2h-2v-2zM9 9h2v2H9V9zm0 4h2v2H9v-2zm0 4h2v2H9v-2z"/>
@@ -174,13 +174,13 @@
                           </div>
                     
                       </div>
-                      <div class="queue__footer" :style="{transform:`translateY(${(nextup.length*48)+13}px)`}" ref="itemsFooter">           
+                      
+                      <div class="queue__footer" :style="{transform:`translateY(${(nextup.length*48)-1}px)`}" ref="itemsFooter">           
                           audio 存在sessionStorage中 （以audio url为key，读取sessionStorage中的blob?
-                          
+                          ENDS
                       </div>
                     </div>
-                    
-                    <!-- <div class="scrollable__Bar" :style="{height: scrollbarHeight, top: scrollbarTop}"></div> -->
+
               </div>
               
             </div>
@@ -198,7 +198,6 @@
 </template>
 
 <script>
-
 import TrackArtwork from './TrackArtwork'
 export default {
   components:{TrackArtwork},
@@ -269,12 +268,19 @@ export default {
           this.currentTimeSeconds =  this.audio.currentTime
         this.durationSeconds = this.audio.duration
         this.audio.volume = this.volumePercent/100 // 播放过程中实时调整音量
+        
+        // 播放进度条结束
         if(this.audio.currentTime == this.audio.duration){
-          this.pauseTrack()
-          this.stepNext()
+            if(this.loop){
+              this.audio.currentTime = 0 //如果循环则回到开始
+              this.audio.play()
+            }  
+            else{
+              this.pauseTrack()
+              this.stepNext() 
+            }
         }
       }
-
     },
     playTrack(){   
       if(this.nowIndex <0) return
@@ -286,6 +292,7 @@ export default {
       this.audio.volume = this.volumePercent/100 // 初次播放时调整音量
       this.audio.play() 
       this.paused=false
+      this.$bus.$emit('updateNowPlaying', this.nowPlaying)
       this.$bus.$emit('updatePlayStatus','playing')
     },
     pauseTrack(){
@@ -424,18 +431,12 @@ export default {
       this.clearThenPlay()
     },
     stepNext(){
-      if(this.loop){
-        // 循环单曲
-        this.audio.currentTime = 0
-        this.playTrack()
-      }
-      else{
-          if(this.nowIndex+1 == this.nextup.length){
-          this.nowIndex = -1
-        }  
-        this.nowIndex ++
-        this.clearThenPlay()
-      }
+      if(this.nowIndex+1 == this.nextup.length){
+      this.nowIndex = -1
+      }  
+      this.nowIndex ++
+      this.clearThenPlay()
+      
     },
     // 播放列表
     highlightItem(e){
@@ -494,8 +495,13 @@ export default {
       }
       else {
         this.tidSet.add(t.tid) // 避免之后重复添加
-        this.nextup.splice(this.nowIndex+1, 0, t)   
 
+        this.smoothAnm = true
+        this.nextup.splice(this.nowIndex+1, 0, t)   
+        this.renderVisible()
+        setTimeout(() => {
+          this.smoothAnm = false
+        }, 300);
           // 列表未打开，弹窗提示
           if(!this.showNextup){
             this.$notify.success({
@@ -503,52 +509,58 @@ export default {
               message: '已经加入至Nextup队尾'
             })
           }
-          else{ 
-            //如果在视窗内（nowIndex+1>=conatinerOffset），就需要播放插入动画，在视窗外就等待滚动后触发renderVisible()即可
-            if(this.nowIndex+1 >= this.containerRenderOffset){
-              // 1.计算插入位置
-              let target = this.nowIndex+1 - this.containerRenderOffset 
-              // 2.修改itemLocate的transition来表现列表拉开的效果，并且设置Wrapper的初始状态为translateX(-100%)
-              this.smoothAnm = true
-              this.visibleNextup.splice(target, 0, t) // 插入到可视列表
-              this.$nextTick(()=>{
-                let item = this.$refs.itemsContainer.children[target].children[0].children[0]
-                item.style.transitionDuration = '0s' // 注意要设置'0s'，'0' 不行
-                item.style.transform = 'translateX(-100%)'
-              })
-              setTimeout(() => {
-                let item = this.$refs.itemsContainer.children[target].children[0].children[0]
-                item.style.transitionDuration = '0.3s' // 注意要设置'0s'，'0' 不行
-                item.style.transform = 'translateX(0)' // 3.拉开动画(300ms)结束后，播放wrapper的右移动画     
-                this.smoothAnm = false
-              }, 300);
-            }
-            // else
-            //   console.log('无需播放，等待滚动即可')
-          }
       }
     }, 
-    clearNextup(){
-      console.log('clearNextup')
-     
+    clearNextup(e){     
+        // nowIndex<0 ，说明没有正在播放的内容，nextup全部删除
+      
+      if(this.nowIndex<0 || e == 'force'){
+          this.tidSet = new Set()
+          this.$refs.itemsHeight.style.background = '#fff' // 避免视觉残留，背景需要从骨架变成纯色
+          for(let i=0; i<this.visibleNextup.length; i++){
+            let itemWrapper = this.$refs.itemsContainer.children[i].children[0]
+            itemWrapper.style.transform = 'translateX(100%)'
+          }
+          setTimeout(() => {
+            this.visibleNextup = []       
+            this.nextup = []
+            // 结束后，再把骨架安回去
+            this.$refs.itemsHeight.style.background = 'url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII=),url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAeAAAAAwCAYAAADJnakOAAAAAXNSR0IArs4c6QAAAkhJREFUeAHt3UGKAkEAA8BRvIr/f6b4AX3BnMQYUnv10OnKQBhQ9jj8ESBAgAABAgQIECBAgAABAgQIECBAgAABAgQIECBAgAABAgQIECBAgAABAgQIECBAgAABAgQIECBAgAABAgQIECDwbwKXHwS6/+CMsyNeZx/6jAABAgQIJASuiUOdSYAAAQIE1gUM8PoT4P4ECBAgEBEwwBF2hxIgQIDAusBtHeBz/0e5wbM8v/gECBCYFPAGPFm7SxMgQIBAWsAApxtwPgECBAhMChjgydpdmgABAgTSAgY43YDzCRAgQGBSwABP1u7SBAgQIJAWMMDpBpxPgAABApMCBniydpcmQIAAgbSA3wEfh9/Rpp9C5xMgQGBQwBvwYOmuTIAAAQJ5AQOc70ACAgQIEBgUMMCDpbsyAQIECOQFDHC+AwkIECBAYFDAAA+W7soECBAgkBfwLej+/4aUf4q6E/gWfHd/0hOoFfAGXFud4AQIECDQLGCAm9uTnQABAgRqBQxwbXWCEyBAgECzgAFubk92AgQIEKgVMMC11QlOgAABAs0CBri5PdkJECBAoFbAANdWJzgBAgQINAv4HbD/htT8/MpOgACBWgFvwLXVCU6AAAECzQIGuLk92QkQIECgVsAA11YnOAECBAg0Cxjg5vZkJ0CAAIFaAQNcW53gBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAEC3xR4A/y+BSraKNVzAAAAAElFTkSuQmCC)'
+          }, 300);
+      }
+      else{
+          let tmp = this.nextup.slice()
+          tmp.splice(0,this.nowIndex)
+          tmp.splice(1)
+          this.visibleNextup = tmp
+          this.nextup = tmp
+          this.nowIndex = 0
+          let s = new Set()
+          s.add(this.nextup[this.nowIndex].tid)
+          this.tidSet = s
+      }
+ 
     },
     nextupTaken(t){  
-      console.log('播放我！',t)
-      // if(this.tidSet.has(t.tid)){
-      //   // 已经有相同的，找出这个index
-      //   for(let i=0; i<this.nextup.length; i++){
-      //     if(this.nextup[i].tid == t.tid){
-      //       this.nowIndex = i
-      //     }
-      //   }
-      // }
-      // else{
-      //   this.nextupAffix(t)
-      //   this.nowIndex = this.nextup.length-1//添加后，新元素自然在队末
-      // }
-      // this.clearNextup()
-      // this.clearThenPlay()
-      // this.$bus.$emit('updateNowPlaying', t)
+      // 已经有相同的，找出这个index 直接播放
+      if(this.tidSet.has(t.tid)){
+        for(let i=0; i<this.nextup.length; i++){
+          if(this.nextup[i].tid == t.tid){
+            this.nowIndex = i
+          }
+        }
+        this.clearThenPlay()    
+      }
+      // 没有相同的，把原列表清空，再播放当前曲目
+      else{
+        this.clearNextup('force')
+        setTimeout(() => {
+          this.nextupAffix(t)
+          this.nowIndex = 0
+          this.clearThenPlay()
+        }, 400);
+      }
+      
     },
     loopCurrentTrack(){
       this.loop = !this.loop
@@ -569,11 +581,7 @@ export default {
           let now = this.$refs.scrollableInner.scrollTop
           let start = Math.floor(now/48)
           let pageSize = Math.ceil(this.$refs.scrollableInner.getBoundingClientRect().height / 48)
-          let end = start + pageSize
-          // let end = start + pageSize*2
-          // start -= pageSize
-          // if(start<0) 
-          //   start = 0
+          let end = start + pageSize 
           this.visibleNextup = this.nextup.slice(start, end)
           this.containerRenderOffset = start
       }) 
@@ -996,7 +1004,7 @@ button:focus{
   height: inherit;
   overflow-x: hidden;
   overflow-y: scroll;
-  
+  scroll-behavior: smooth;
 }
 .queue__scrollableInner::-webkit-scrollbar{
   width: 8px;
