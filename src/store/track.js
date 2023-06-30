@@ -20,6 +20,9 @@ export default {
         },
         getAllTracks: (state)=>()=>{
             return state.trackList.slice()
+        },
+        getTenTracks:(state)=>()=>{
+            return state.trackList.slice(3,10)
         }
     },
     state:{  
@@ -33,7 +36,7 @@ export default {
                 img_url: '',
                 duration: '3:42',
                 release_time: '2018/1/26',
-                preview_start: 9, 
+                preview_start: 16, 
             },
             {
                 tid: 2,
@@ -43,7 +46,7 @@ export default {
                 img_url: '',
                 duration: '2:20',
                 release_time: '2023/6/16',
-                preview_start: 54, 
+                preview_start: 57, 
             },
             {
                 tid: 3,
@@ -90,7 +93,7 @@ export default {
                 tid: 7,
                 title: 'From Wired',
                 artist: 'Scene From Gore Girls',
-                audio_url: 'http://47.115.222.108/music/from-wired',
+                audio_url: 'http://47.115.222.108/music/from-wired.mp3',
                 img_url: '',
                 duration: '3:53',
                 release_time: '2022/10/30',

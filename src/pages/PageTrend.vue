@@ -56,7 +56,7 @@
          
             <div class="slide__cloak" ref="slideCloak" :style="{opacity: opacity}" @click="pushRoute"></div>
             <div class="carousel__progress" :style="{width: count*5+'%'}" v-show="timer"></div>
-            <div class="slide" :style="{'background-image': 'url('+slideBackground+')'}"></div>
+            <div class="slide" :style="{'background-image': slideBackground}"></div>
             
            
             <div class="error__fill">
@@ -232,10 +232,13 @@ export default {
             this.trackArtist = t.artist
             this.tid = t.tid
             if(t.imgOk){
-                this.slideBackground = t.img_url
+                this.slideBackground = 'url('+t.img_url+')'
             }
+            else{
+                this.slideBackground =  'linear-gradient(0deg, black, black)'
+            }
+
             this.audio = t.audioObj
-            // *****vuex管理锁，每次play（）前需要访问锁（不能跨页面）
             if(this.audio){
                 this.audio.volume = 0
                 this.audio.currentTime = t.preview_start
@@ -362,9 +365,8 @@ export default {
             let t = this.$store.getters['track/getTrackDetail'](tid)
             this.$bus.$emit('nextupAffix', t)
         },
-
         getsth(){
-            return this.$store.getters['track/getAllTracks']()
+            return this.$store.getters['track/getTenTracks']()
         }
     },
     filters:{
@@ -697,6 +699,8 @@ svg{
     display: flex;
     justify-content: center;
     cursor: pointer;
+    white-space: nowrap;
+
 }
 .placeholder__crown{
     position: absolute;

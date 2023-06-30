@@ -1,10 +1,11 @@
 <template>
   <div class="coverWrapper" >
     <transition name="showArtwork">
-      <div v-show="!imgLoaded" :class="'cover artwork-placeholder-'+rand" style="z-index:2"></div>
+      <div v-show="!imgLoaded && !imgError" :class="'cover artwork-placeholder-'+rand" style="z-index:1"></div>
     </transition>
     
     <div class="cover artwork" v-show="imgLoaded" :style="{'background-image': `url(${imgURL})`}"></div>
+    <div :class="'cover artwork-placeholder-'+rand" v-show="imgError"></div>
   </div>
 </template>
 
@@ -15,16 +16,29 @@ export default {
       return{
         rand: Math.floor(Math.random()*10),
         imgLoaded: false,
+        
+        imgError: false, // 超过10秒没有加载出来，就不再尝试显示图片
+        timer: null,
+
       }
     },
     mounted(){
-      if(this.imgURL){
-        let image = new Image()
+      let image = new Image()
+      if(this.imgURL){   
         image.onload = ()=>{
           this.imgLoaded = true
+          this.imgError = false
+          clearTimeout(this.timer)
+          this.timer = null
         }
         image.src = this.imgURL
       }
+      this.timer = setTimeout(() => {
+        clearTimeout(this.timer)
+          this.timer = null
+          this.imgLoaded = false
+          this.imgError = true
+      }, 10000);
     },
 
 }
