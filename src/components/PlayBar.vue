@@ -283,7 +283,15 @@ export default {
       }
     },
     playTrack(){   
-      if(this.nowIndex <0) return
+      if(this.nowIndex <0){
+        this.$notify.warning({
+          title: '未选择播放曲目',
+          message: '请检查播放列表Nextup',
+          position: 'bottom-right',
+          offset: 50
+        })
+        return
+      }
       this.nowPlaying = this.nextup[this.nowIndex]
       if(!this.audio){
         this.audio = new Audio(this.nowPlaying.audio_url) // 播放组件只着手【当前曲目】，如果要分组件应该从这开始
@@ -488,14 +496,13 @@ export default {
     },
     nextupAffix(t){
       if(this.tidSet.has(t.tid)){
-        this.$notify.warning({
+        this.$notify.info({
           title: t.artist +' - '+t.title,
-          message: '禁止添加已存在歌曲'
+          message: '歌曲已存在于播放列表中'
         })
       }
       else {
         this.tidSet.add(t.tid) // 避免之后重复添加
-
         this.smoothAnm = true
         this.nextup.splice(this.nowIndex+1, 0, t)   
         this.renderVisible()
@@ -506,7 +513,9 @@ export default {
           if(!this.showNextup){
             this.$notify.success({
               title: t.artist +' - '+t.title,
-              message: '已经加入至Nextup队尾'
+              message: '已经加入至Nextup',
+              position: 'bottom-right',
+              offset: 50
             })
           }
       }
