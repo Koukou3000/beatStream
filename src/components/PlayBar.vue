@@ -118,7 +118,7 @@
 
       <!-- 底部栏右侧 - 播放列表 -->
       <transition name="loadPanel">
-        <div class="panel__pos" v-if="showNextup">
+        <div class="panel__pos" v-show="showNextup">
           <div class="track__panel">
             <div class="panel__top">
               <div class="panel__text" @click="showNextup=false">Next up</div>
@@ -136,41 +136,43 @@
               <div class="queue__scrollableInner" ref="scrollableInner" @mousewheel="scrolling">
                     <div class="queue__itemsHeight" ref="itemsHeight" :style="{height: `${nextup.length*48}px`}">
                       <!-- 通过idx定位操作的元素 -->
-                      <div class="queue__itemsContainer" ref="itemsContainer" :style="{transform: `translateY(${containerRenderOffset*48}px)`}" >                 
-                              <div class="queue__itemLocate" v-for="(t,idx) in visibleNextup" :key="t.tid" 
-                                    :style="{transform:`translateY(${idx*48}px)`, transition: smoothAnm? '0.3s':'0s'}" >       
-                                    <!-- 实际渲染列表 locate控制Y轴 wrapper控制X轴动画-->
-                                    <div class="queue__itemWrapper" @mouseover="highlightItem" @mouseout="delightItem">
-                                      <!--透明度表示播放状态-->
-                                      <div class="queue__item" @click.stop="playThis(idx)"
-                                        :style="{background: idx==hoverIdx || idx+containerRenderOffset==nowIndex ? '#f2f2f2':'#fff',
-                                                opacity: (!loop && idx+containerRenderOffset<nowIndex) || (loop&&idx+containerRenderOffset!=nowIndex)? 0.5:1}">                          
-                                        <div class="item__dragHandle" :style="{visibility: idx==hoverIdx || idx+containerRenderOffset==nowIndex ?'visible':'hidden'}">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                                                <g fill="none" fill-rule="evenodd">
-                                                    <path fill="#CCC" d="M9 5h2v2H9V5zm4 0h2v2h-2V5zm0 8h2v2h-2v-2zm0-4h2v2h-2V9zm0 8h2v2h-2v-2zM9 9h2v2H9V9zm0 4h2v2H9v-2zm0 4h2v2H9v-2z"/>
-                                                </g>
-                                            </svg>
-                                        </div>
-
-                                        <div class="item__thumbnail" @click.stop="playThis(idx)">
-                                            <div class="cirtus _pause" v-show="idx+containerRenderOffset==nowIndex && !paused"></div>
-                                            <div class="cirtus _play" v-show="(idx+containerRenderOffset==nowIndex && paused) || (idx+containerRenderOffset!=nowIndex && idx==hoverIdx)"></div>
-                                            <TrackArtwork :imgURL="t.img_url"></TrackArtwork>
-                                        </div>
-                                        <div class="item__details">
-                                            <span class="item__meta">{{t.artist}}</span>
-                                            <span class="item__title" @click.stop="jumpDetail(t)">{{t.title}}</span>
-                                        </div>
-                                        <div class="item__rightside">
-                                            <div class="item__duration" v-if="hoverIdx!=idx || idx+containerRenderOffset==nowIndex">{{t.duration}}</div>
-                                            <div class="remove__block" v-if="hoverIdx==idx && idx+containerRenderOffset!=nowIndex" title="从播放列表中移除" @click.stop="nextupRemove(idx)">x</div>
-                                        </div>
-                                      </div>
-                                    
+                      <div class="queue__itemsContainer" ref="itemsContainer" :style="{transform: `translateY(${containerRenderOffset*48}px)`}" >      
+                       
+                              
+                          <div class="queue__itemLocate" v-for="(t,idx) in visibleNextup" :key="t.tid" 
+                                :style="{transform:`translateY(${idx*48}px)`, transition: smoothAnm? '0.3s':'0s'}" >       
+                                <!-- 实际渲染列表 locate控制Y轴 item控制X轴动画-->
+                                <div class="queue__itemWrapper" @mouseover="highlightItem" @mouseout="delightItem">
+                                  <!--透明度表示播放状态-->
+                                  <div class="queue__item" @click.stop="playThis(idx)"
+                                    :style="{background: idx==hoverIdx || idx+containerRenderOffset==nowIndex ? '#f2f2f2':'#fff',
+                                            opacity: (!loop && idx+containerRenderOffset<nowIndex) || (loop&&idx+containerRenderOffset!=nowIndex)? 0.5:1}">                          
+                                    <div class="item__dragHandle" :style="{visibility: idx==hoverIdx || idx+containerRenderOffset==nowIndex ?'visible':'hidden'}">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                            <g fill="none" fill-rule="evenodd">
+                                                <path fill="#CCC" d="M9 5h2v2H9V5zm4 0h2v2h-2V5zm0 8h2v2h-2v-2zm0-4h2v2h-2V9zm0 8h2v2h-2v-2zM9 9h2v2H9V9zm0 4h2v2H9v-2zm0 4h2v2H9v-2z"/>
+                                            </g>
+                                        </svg>
                                     </div>
-                              </div>
-                          
+
+                                    <div class="item__thumbnail" @click.stop="playThis(idx)">
+                                        <div class="cirtus _pause" v-show="idx+containerRenderOffset==nowIndex && !paused"></div>
+                                        <div class="cirtus _play" v-show="(idx+containerRenderOffset==nowIndex && paused) || (idx+containerRenderOffset!=nowIndex && idx==hoverIdx)"></div>
+                                        <TrackArtwork :imgURL="t.img_url"></TrackArtwork>
+                                    </div>
+                                    <div class="item__details">
+                                        <span class="item__meta">{{t.artist}}</span>
+                                        <span class="item__title" @click.stop="jumpDetail(t)">{{t.title}}</span>
+                                    </div>
+                                    <div class="item__rightside">
+                                        <div class="item__duration" v-if="hoverIdx!=idx || idx+containerRenderOffset==nowIndex">{{t.duration}}</div>
+                                        <div class="remove__block" v-if="hoverIdx==idx && idx+containerRenderOffset!=nowIndex" title="从播放列表中移除" @click.stop="nextupRemove(idx)">x</div>
+                                    </div>
+                                  </div>
+                                
+                                </div>
+                          </div>
+                    
                       </div>
                       <div class="queue__footer" :style="{transform:`translateY(${(nextup.length*48)+13}px)`}" ref="itemsFooter">           
                           audio 存在sessionStorage中 （以audio url为key，读取sessionStorage中的blob?
@@ -464,9 +466,10 @@ export default {
      
     },
     nextupRemove(idx){ 
+      if(this.smoothAnm) return
       // wrapper 水平动画
-      let itemWrapper = this.$refs.itemsContainer.children[idx].children[0]
-      itemWrapper.style.transform = 'translateX(100%)'
+      let item = this.$refs.itemsContainer.children[idx].children[0].children[0]
+      item.style.transform = 'translateX(100%)'
 
       // locate 垂直动画
       this.smoothAnm = true   // 允许垂直动画
@@ -491,37 +494,38 @@ export default {
       }
       else {
         this.tidSet.add(t.tid) // 避免之后重复添加
-        this.nextup.push(t) 
-        // 列表未打开，弹窗提示
-        if(!this.showNextup){
-          this.$notify.success({
-            title: t.artist +' - '+t.title,
-            message: '已经加入至Nextup队尾'
-          })
-        }
-        // 列表打开，跳至底部并播放插入动画
-        else{ 
-          let height = this.$refs.itemsHeight.getBoundingClientRect().height
-          this.$refs.scrollableInner.scrollTop = height
-         
-          // 播放右移插入动画
-          setTimeout(() => {
-            
-              this.renderVisible()
-             
+        this.nextup.splice(this.nowIndex+1, 0, t)   
+
+          // 列表未打开，弹窗提示
+          if(!this.showNextup){
+            this.$notify.success({
+              title: t.artist +' - '+t.title,
+              message: '已经加入至Nextup队尾'
+            })
+          }
+          else{ 
+            //如果在视窗内（nowIndex+1>=conatinerOffset），就需要播放插入动画，在视窗外就等待滚动后触发renderVisible()即可
+            if(this.nowIndex+1 >= this.containerRenderOffset){
+              // 1.计算插入位置
+              let target = this.nowIndex+1 - this.containerRenderOffset 
+              // 2.修改itemLocate的transition来表现列表拉开的效果，并且设置Wrapper的初始状态为translateX(-100%)
+              this.smoothAnm = true
+              this.visibleNextup.splice(target, 0, t) // 插入到可视列表
               this.$nextTick(()=>{
-                console.log()
-                 let ends = this.$refs.itemsContainer.children
-                let itemWrapper = this.$refs.itemsContainer.lastElementChild
-    
-                console.log(itemWrapper, ends)
+                let item = this.$refs.itemsContainer.children[target].children[0].children[0]
+                item.style.transitionDuration = '0s' // 注意要设置'0s'，'0' 不行
+                item.style.transform = 'translateX(-100%)'
               })
-             
-              // itemWrapper.style.transform = 'translateX(-100%)'
-            
-          }, 300);
-        
-        }
+              setTimeout(() => {
+                let item = this.$refs.itemsContainer.children[target].children[0].children[0]
+                item.style.transitionDuration = '0.3s' // 注意要设置'0s'，'0' 不行
+                item.style.transform = 'translateX(0)' // 3.拉开动画(300ms)结束后，播放wrapper的右移动画     
+                this.smoothAnm = false
+              }, 300);
+            }
+            // else
+            //   console.log('无需播放，等待滚动即可')
+          }
       }
     }, 
     clearNextup(){
@@ -554,6 +558,7 @@ export default {
     checkNextup(){
       this.showNextup = true
       this.$nextTick(()=>{
+        this.$refs.scrollableInner.addEventListener('scroll',()=>this.scrolling())
         this.$refs.scrollableInner.scrollTop = (this.nowIndex-1)*48 // 跳转到可能操作的位置
       })
       this.renderVisible()
@@ -577,7 +582,7 @@ export default {
       clearTimeout(this.renderTimer)
       this.renderTimer = setTimeout(() => {
         this.renderVisible()
-      }, 300);
+      }, 200);
     },
     jumpDetail(t){
       this.$router.push({name:'trackDetail', params:{tid: t.tid}})
@@ -989,10 +994,9 @@ button:focus{
 .queue__scrollableInner{
   width: inherit;
   height: inherit;
-  transition: .3s;
   overflow-x: hidden;
   overflow-y: scroll;
-  scroll-behavior: smooth;
+  
 }
 .queue__scrollableInner::-webkit-scrollbar{
   width: 8px;
