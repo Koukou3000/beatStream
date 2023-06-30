@@ -468,8 +468,8 @@ export default {
     nextupRemove(idx){ 
       if(this.smoothAnm) return
       // wrapper 水平动画
-      let item = this.$refs.itemsContainer.children[idx].children[0].children[0]
-      item.style.transform = 'translateX(100%)'
+      let itemWrapper = this.$refs.itemsContainer.children[idx].children[0]
+      itemWrapper.style.transform = 'translateX(100%)'
 
       // locate 垂直动画
       this.smoothAnm = true   // 允许垂直动画
