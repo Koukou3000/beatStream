@@ -135,11 +135,11 @@
             <div class="queue__scrollable">
               <div class="queue__scrollableInner" ref="scrollableInner" @mousewheel="scrolling">
                     <div class="queue__itemsHeight" ref="itemsHeight" :style="{height: `${nextup.length*48}px`}">
-                      <div class="queue__itemsContainer" :style="{transform: `translateY(${containerRenderOffset*48}px)`}" ref="itemsContainer">  
-                          <!-- 实际渲染列表 locate控制Y轴 wrapper控制X轴动画-->
-                         
-
-                              <div class="queue__itemLocate" v-for="(t,idx) in tracksWillRender" :key="t.tid" :style="{transform:`translateY(${idx*48}px)`}" >       
+                      <!-- 通过idx定位操作的元素 -->
+                      <div class="queue__itemsContainer" ref="itemsContainer" :style="{transform: `translateY(${containerRenderOffset*48}px)`}" >                 
+                              <div class="queue__itemLocate" v-for="(t,idx) in visibleNextup" :key="t.tid" 
+                                    :style="{transform:`translateY(${idx*48}px)`, transition: smoothAnm? '0.3s':'0s'}" >       
+                                    <!-- 实际渲染列表 locate控制Y轴 wrapper控制X轴动画-->
                                     <div class="queue__itemWrapper" @mouseover="highlightItem" @mouseout="delightItem">
                                       <!--透明度表示播放状态-->
                                       <div class="queue__item" @click.stop="playThis(idx)"
@@ -196,6 +196,7 @@
 </template>
 
 <script>
+
 import TrackArtwork from './TrackArtwork'
 export default {
   components:{TrackArtwork},
@@ -224,16 +225,18 @@ export default {
 
       // --- 列表
       showNextup: false,       // 显示播放列表
-      nextup: [],     
+      nextup: [],               // hearable_nextup
       nowIndex: -1,            // 当前播放的索引值
       nowPlaying: null,       // 每次play前读取，曲目信息
       focusIdx: -1,           // 光标悬浮的索引值
       tidSet: new Set(),      // 拒绝tid相同的曲目进入列表
       
       loop: false,
-      tracksWillRender: [],           // 需要被渲染的歌曲
+      visibleNextup: [],           // visible_nextup 需要被渲染 
       containerRenderOffset: 5,       // 渲染列表第一个在nextup的索引值
-      hoverIdx: -1,
+      hoverIdx: -1,                   // 悬浮的那个索引
+      smoothAnm: false,               // 删除 时的动画
+      renderTimer: null,              // 滚动结束时才渲染
     }
   },
   computed:{
@@ -253,6 +256,7 @@ export default {
     nowPlaying(newVal){
       this.$bus.$emit('updateNowPlaying',newVal) // Gallery
     },
+    
   },
   methods:{
     // 播放暂停单曲
@@ -460,18 +464,23 @@ export default {
      
     },
     nextupRemove(idx){ 
-      let target = this.$refs.itemsContainer.children[idx].children[0]
-      target.style.opacity = 0
-      setTimeout(() => {
-        let t = this.tracksWillRender.splice(idx,1)
-        
-        this.tidSet.delete(t.pop().tid)
-        this.nextup.splice(idx+this.containerRenderOffset,1)
-        if(idx+this.containerRenderOffset < this.nowIndex)
-            this.nowIndex--
-        this.renderVisible()
+      // wrapper 水平动画
+      let itemWrapper = this.$refs.itemsContainer.children[idx].children[0]
+      itemWrapper.style.transform = 'translateX(100%)'
+
+      // locate 垂直动画
+      this.smoothAnm = true   // 允许垂直动画
+      setTimeout(() => { 
+          let t = this.visibleNextup.splice(idx,1)     // 从渲染列表清除，触发transition，（渲染时会导致元素transformY变化
+          this.tidSet.delete(t.pop().tid)
+          this.nextup.splice(idx+this.containerRenderOffset,1) // 从实际播放列表清除
+          if(idx+this.containerRenderOffset < this.nowIndex)
+              this.nowIndex--
+          this.renderVisible() //削除后可能导致未渲染内容进入视口，应重新渲染
       }, 300);
-      
+      setTimeout(() => {
+          this.smoothAnm = false  //  timeout结束后，动画完成，此时如果进行滚动，不允许渲染，      
+      }, 300);
     },
     nextupAffix(t){
       if(this.tidSet.has(t.tid)){
@@ -481,23 +490,39 @@ export default {
         })
       }
       else {
-        this.tidSet.add(t.tid)
+        this.tidSet.add(t.tid) // 避免之后重复添加
         this.nextup.push(t) 
+        // 列表未打开，弹窗提示
         if(!this.showNextup){
           this.$notify.success({
-              title: t.artist +' - '+t.title,
+            title: t.artist +' - '+t.title,
             message: '已经加入至Nextup队尾'
           })
         }
-        else{
-          this.$nextTick(()=>{this.$refs.scrollableInner.scrollTop = 48*this.nextup.length})  
+        // 列表打开，跳至底部并播放插入动画
+        else{ 
+          let height = this.$refs.itemsHeight.getBoundingClientRect().height
+          this.$refs.scrollableInner.scrollTop = height
+         
+          // 播放右移插入动画
+          setTimeout(() => {
+            
+              this.renderVisible()
+             
+              this.$nextTick(()=>{
+                console.log()
+                 let ends = this.$refs.itemsContainer.children
+                let itemWrapper = this.$refs.itemsContainer.lastElementChild
+    
+                console.log(itemWrapper, ends)
+              })
+             
+              // itemWrapper.style.transform = 'translateX(-100%)'
+            
+          }, 300);
+        
         }
-        this.renderVisible()
       }
-      
-      
-      // this.nextup.push(t)
-
     }, 
     clearNextup(){
       console.log('clearNextup')
@@ -526,21 +551,15 @@ export default {
     },
 
     // 列表渲染相关
-    scrolling(){
-      setTimeout(() => {
-        this.renderVisible()
-      }, 300);
-    },
     checkNextup(){
-      // 打开列表，跳转到可能操作的位置
       this.showNextup = true
       this.$nextTick(()=>{
-        this.$refs.scrollableInner.scrollTop = (this.nowIndex-1)*48 // 开局跳转到当前播放曲目 
+        this.$refs.scrollableInner.scrollTop = (this.nowIndex-1)*48 // 跳转到可能操作的位置
       })
       this.renderVisible()
     },
     renderVisible(){
-      // 获取当前高度，计算渲染起点，设置containerOffset，计算页面大小，计算渲染终点，slice赋值给tracksWillRender
+      // 获取当前高度，计算渲染起点，设置containerOffset，计算页面大小，计算渲染终点，slice赋值给visibleNextup
       this.$nextTick(()=>{
           let now = this.$refs.scrollableInner.scrollTop
           let start = Math.floor(now/48)
@@ -550,9 +569,15 @@ export default {
           // start -= pageSize
           // if(start<0) 
           //   start = 0
-          this.tracksWillRender = this.nextup.slice(start, end)
+          this.visibleNextup = this.nextup.slice(start, end)
           this.containerRenderOffset = start
       }) 
+    },
+    scrolling(){
+      clearTimeout(this.renderTimer)
+      this.renderTimer = setTimeout(() => {
+        this.renderVisible()
+      }, 300);
     },
     jumpDetail(t){
       this.$router.push({name:'trackDetail', params:{tid: t.tid}})
@@ -967,6 +992,7 @@ button:focus{
   transition: .3s;
   overflow-x: hidden;
   overflow-y: scroll;
+  scroll-behavior: smooth;
 }
 .queue__scrollableInner::-webkit-scrollbar{
   width: 8px;
@@ -992,7 +1018,6 @@ button:focus{
   background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII=),
   url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAeAAAAAwCAYAAADJnakOAAAAAXNSR0IArs4c6QAAAkhJREFUeAHt3UGKAkEAA8BRvIr/f6b4AX3BnMQYUnv10OnKQBhQ9jj8ESBAgAABAgQIECBAgAABAgQIECBAgAABAgQIECBAgAABAgQIECBAgAABAgQIECBAgAABAgQIECBAgAABAgQIECDwbwKXHwS6/+CMsyNeZx/6jAABAgQIJASuiUOdSYAAAQIE1gUM8PoT4P4ECBAgEBEwwBF2hxIgQIDAusBtHeBz/0e5wbM8v/gECBCYFPAGPFm7SxMgQIBAWsAApxtwPgECBAhMChjgydpdmgABAgTSAgY43YDzCRAgQGBSwABP1u7SBAgQIJAWMMDpBpxPgAABApMCBniydpcmQIAAgbSA3wEfh9/Rpp9C5xMgQGBQwBvwYOmuTIAAAQJ5AQOc70ACAgQIEBgUMMCDpbsyAQIECOQFDHC+AwkIECBAYFDAAA+W7soECBAgkBfwLej+/4aUf4q6E/gWfHd/0hOoFfAGXFud4AQIECDQLGCAm9uTnQABAgRqBQxwbXWCEyBAgECzgAFubk92AgQIEKgVMMC11QlOgAABAs0CBri5PdkJECBAoFbAANdWJzgBAgQINAv4HbD/htT8/MpOgACBWgFvwLXVCU6AAAECzQIGuLk92QkQIECgVsAA11YnOAECBAg0Cxjg5vZkJ0CAAIFaAQNcW53gBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAECBAgQIECAAAEC3xR4A/y+BSraKNVzAAAAAElFTkSuQmCC);
   background-repeat: no-repeat,repeat-y;
-
 }
 .queue__footer{
   border-top:1px solid #e5e5e5;
@@ -1005,12 +1030,17 @@ button:focus{
 
 
 /* 列表内容 */
+
 .queue__itemsContainer{
   font-family: Interstate,Lucida Grande,Lucida Sans Unicode,Lucida Sans,Garuda,Verdana,Tahoma,sans-serif;
   font-weight: 100;
   position: relative;
   flex: 1;
   height: 0;
+}
+.queue__itemLocate{
+  position: absolute;
+  width: 100%;
 }
 .queue__itemWrapper{
   width: 100%;
@@ -1021,8 +1051,6 @@ button:focus{
 }
 
 
-
-
 .queue__item{
   padding: 0 24px;
   font-size: 12px;
@@ -1030,9 +1058,6 @@ button:focus{
   align-items: center;
   cursor: pointer;
   transition: transform .3s;
-}
-.queue__item:hover{
-  background: #f2f2f2;
 }
 .item__dragHandle{
   width: 24px;
@@ -1146,11 +1171,7 @@ button:focus{
 }
 
 
-/* nextup动画 */
-.queue__itemLocate{
-  position: absolute;
-  width: 100%;
-}
+
 
 /* 预加载相关 */
 .item__skeleton{
