@@ -162,7 +162,8 @@ export default {
                 }, 600);
             })
         },
-        // emit相关
+        
+        // 响应同名事件
         updateNowPlaying(t){
             this.nowPlaying = t // 接收播放曲目
         },
@@ -173,12 +174,9 @@ export default {
                 this.paused = true
         },
 
-
+        // 发起通信
         addNextup(t){
             this.$bus.$emit('nextupAffix',t) // 添加到nextup
-        },
-        pictureClick(t){
-            this.$router.push({name:'trackDetail', params:{tid: t.tid}}) // 跳转到详情页
         },
         playClick(t){
             // 当前点击曲目和之前当前播放曲目相同，开始播放
@@ -191,6 +189,17 @@ export default {
         },
         pauseClick(){
             this.$bus.$emit('pauseTrack')
+        },
+        pictureClick(t){
+            this.$router.push({
+                name:'trackDetail', 
+                params:{
+                    tid: t.tid,
+                    // 进入时刷新播放按钮 ，后期考虑用localstorage重新实现
+                    paused: this.paused, 
+                    nowPlaying: this.nowPlaying
+                }
+        }) // 跳转到详情页
         },
     },
     created(){

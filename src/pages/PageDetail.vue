@@ -4,17 +4,17 @@
             <!-- 上半部分，歌曲播放，tag -->
             <div class="listen__hero">
                 <div class="fullHero__container">
-
+                    
                     <div class="fullHero__foreground">
                         <div class="fullHero__artwork"></div>
                         <div class="fullHero__header">
-                            <div class="header__btn playbtn" v-if="paused" @click="paused=!paused"></div>
-                            <div class="header__btn pausebtn" v-else @click="paused=!paused"></div>
+                            <div class="header__btn pausebtn" v-if="!paused && nowTid==track.tid" @click="pauseClick"></div>
+                            <div class="header__btn playbtn" v-else @click="playClick"></div>
                             <div class="header__title">
                                 <div style="margin-bottom:7px">
-                                    <span class="title__songname">Fjordland</span>
+                                    <span class="title__songname">{{trackTitle}}</span>
                                 </div>
-                                <div><span class="title__artist" style="">aran</span></div>
+                                <div><span class="title__artist" style="">{{trackArtist}}</span></div>
                             </div>
                         </div>
                         <div class="fullHero__info">
@@ -23,10 +23,10 @@
                         </div>
                         <!-- 进度条 -->
                         <div class="fullHero__playerArea">
-                           当前播放的 与 当前页面（一致）  当前播放比例{{progressPercent}}
-                            <div class="waveformWrapper">
-                                <div class="waveform__shorter"></div>
-                                <div class="waveform__longer"></div>
+                            当前播放的 与 当前页面一致  当前播放比例{{progressPercent}}                      
+                            <div class="waveformWrapper" :style="{opacity: paused ? 0.5 : 1}">
+                                <!-- <div class="waveform__shorter"></div> -->
+                                <div class="waveform__longer" :style="{width: `${progressPercent}%`}"></div>
                                 <div class="waveform__under"></div>
                             </div>
                             <div class="commentWrapper"></div>
@@ -85,31 +85,80 @@
 export default {
     data(){
         return{
-            track: null, // 歌曲详情
+            // pageDetail 可能控制：进度条、播放 | 暂停
+
+            track: null, // 歌曲详情（用于页面内容加载
+            nowPlaying: null, // playbar当前播放曲目
             paused: true,
-            current: 0, // 当前播放时间
+
+
+            current: 0, // 当前播放位置
             duration: 114, // 总时长
         }
     },
     computed:{
       progressPercent(){
         return this.current*100 / this.duration
-      }  
+      },
+      trackTitle(){
+        if(!this.track) return 'unknown'
+        return this.track.title
+      },
+      trackArtist(){
+        if(!this.track) return 'unknown'
+        return this.track.artist
+      },
+      nowTid(){
+        if(!this.nowPlaying) return -1
+        return this.nowPlaying.tid
+      }
     },
-    methods:{
-        receiveProgress(now, dur){
-            this.current = now
+    methods:{      
+        playClick(){
+            // 当前点击曲目和之前当前播放曲目相同，开始播放
+            if(this.track.tid == this.nowTid){
+                this.$bus.$emit('playTrack')
+            }
+            else{
+                this.$bus.$emit('nextupTaken',this.track) // 播放当前的，其他从列表删除
+            }
+        },
+        pauseClick(){
+            this.$bus.$emit('pauseTrack')
+        },
+
+        // 响应同名事件
+        trackProgress(now, dur){
+            this.current = now  // 更新进度条
             this.duration = dur
-        }
+        },
+        updateNowPlaying(t){
+            this.nowPlaying = t // 接收播放曲目
+        },
+        updatePlayStatus(e){
+            if(e=='playing')
+                this.paused = false
+            else
+                this.paused = true
+        },
     },
     mounted(){
         this.track = this.$store.getters['track/getTrackDetail'](this.$route.params.tid) // 需要用到的内容读入track
         document.title = 'Stream "'+this.track.title+'" by '+this.track.artist 
         
-        this.$bus.$on('trackProgress',this.receiveProgress) // 接收来自playbar的进度条更新  
+        // 接收来自playbar的进更新  
+        this.$bus.$on('trackProgress',this.trackProgress) 
+        this.$bus.$on('updateNowPlaying', this.updateNowPlaying)
+        this.$bus.$on('updatePlayStatus', this.updatePlayStatus)
+
+        // 进入时需要判断当前播放曲目
+        this.paused = this.$route.params.playStatus
+        this.nowPlaying = this.$route.params.nowPlaying
     },
     beforeDestroy(){
         this.$bus.$off('trackProgress')
+        this.$bus.$off('updateNowPlaying')
+        this.$bus.$off('updatePlayStatus')
     },  
     beforeRouteUpdate(to, from, next){
          // mounted只调用一次，参数变化时也能刷新页面
@@ -278,19 +327,40 @@ export default {
     left: 30px;
     right: 390px;
 }
-.fullHero__waveform{
+.waveformWrapper{
+    position: relative;
+    width: 100%;
     height: 100px;
     margin-bottom: 30px;
 }
-.waveformWrapper{
+.waveform__under{
+    background: #fff;
     width: 100%;
-    height: 100%;
-    background: #000;
+    height: 100%;   
 }
+.waveform__shorter{
+    position: absolute;
+    background: #ff5500;
+    height: 100%;
+    width: 50%;
+}
+.waveform__longer{
+    position: absolute;
+    background: #ff550086;
+    height: 100%;
+    width: 70%;
+}
+
+
+
+/* 评论 */
 .commentWrapper{
+    position: absolute;
     width: 100%;
-    height: 30px;
-    background: #000;
+    height: 20px;
+    background: #888;
+    bottom: 30px;
+    z-index: 1;
 }
 
 

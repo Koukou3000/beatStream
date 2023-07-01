@@ -603,10 +603,18 @@ export default {
       }, 200);
     },
     jumpDetail(t){
-      this.$router.push({name:'trackDetail', params:{tid: t.tid}})
+      this.$router.push({
+        name:'trackDetail', 
+        params:{
+          tid: t.tid,
+          // 参考 TrackGallery 193: pictureClick()
+          paused: this.paused, 
+          nowPlaying: this.nowPlaying
+        }
+      })
     },
 
-    // 与xfd通信
+    // 与crossfade通信
     adjustTime(timeSec){
       // console.log('如果音频存在，跳转至对应位置 ',timeSec)
       if(this.audio){
