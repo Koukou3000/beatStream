@@ -17,8 +17,8 @@
                                                    
                                 <div class="play__now" v-show="focusIdx==idx && ((t.tid==nowTid && paused) || t.tid!=nowTid )" :key="`${t.tid}&playBtn`"
                                     @click.stop="playClick(t)"></div>
-                                <!-- hover && tid对得上 && 处于播放状态-->
-                                <div class="pause__now" v-show="focusIdx==idx && t.tid==nowTid && !paused" :key="`${t.tid}&pauseBtn`"
+                                <!--  tid对得上 && 处于播放状态-->
+                                <div class="pause__now" v-show="t.tid==nowTid && !paused" :key="`${t.tid}&pauseBtn`"
                                     @click.stop="pauseClick"></div>
                                 <div class="play__actions" v-show="focusIdx==idx" @click.stop="addNextup(t)" :key="`${t.tid}&actionBtn`">添加到Nextup</div>
                

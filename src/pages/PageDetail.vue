@@ -24,10 +24,12 @@
                         <!-- 进度条 -->
                         <div class="fullHero__playerArea">
                            当前播放的 与 当前页面（一致）  当前播放比例{{progressPercent}}
-                            <div class="fullHero__waveform"></div>
-
-
-
+                            <div class="waveformWrapper">
+                                <div class="waveform__shorter"></div>
+                                <div class="waveform__longer"></div>
+                                <div class="waveform__under"></div>
+                            </div>
+                            <div class="commentWrapper"></div>
                         </div>
                     </div>
                     <!-- canvas抽取背景颜色 -->
@@ -281,7 +283,9 @@ export default {
     margin-bottom: 30px;
 }
 .waveformWrapper{
-
+    width: 100%;
+    height: 100%;
+    background: #000;
 }
 .commentWrapper{
     width: 100%;
