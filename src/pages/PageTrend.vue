@@ -186,6 +186,7 @@ export default {
             this.loadingText = '正在读取资源...'+newVal+'/'+this.total
             if(newVal>=this.total) {
                 this.loadingText = '加载完成'
+                this.$bus.$emit('pauseTrack')
             }
             // 资源下载完，执行图片/音频的逻辑（与count的值相关
             if(newVal == this.total){
@@ -362,16 +363,19 @@ export default {
                 default:break;
             }
             
+             this.$router.push({
+                    name:'trackDetail', 
+                    params:{
+                        tid: this.tid,
+                    }
+                })
             // 放入nextup，衔接播放
-            let t = this.$store.getters['track/getTrackDetail'](this.tid)// 获取当前播放音频
-            this.$bus.$emit('nextupTaken',t)
-            this.$bus.$emit('adjustTime', this.audio.currentTime)
-            this.$router.push({
-                name:'trackDetail', 
-                params:{
-                    tid: this.tid,
-                }
-            })
+            if(this.stage == 'crossfade'){
+                let t = this.$store.getters['track/getTrackDetail'](this.tid)// 获取当前播放音频
+                this.$bus.$emit('nextupTaken',t)
+                this.$bus.$emit('adjustTime', this.audio.currentTime)
+            }
+            
         },
         nextupAffix(tid){
             let t = this.$store.getters['track/getTrackDetail'](tid)

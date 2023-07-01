@@ -220,8 +220,8 @@ export default {
       volumeBarTimer: null,       // 控制判定区与音量条动画的定时器
       openVolumeJudgeArea: false, // 计算音量控制条判定区
       showVolumeBar: false,       // 显示音量进度条
-      volume: 0.3,                // 记录静音前的音量
-      volumePercent: 30,          // 在playtrack()和updateProgressBar()中都更新到audio.volume上，同步视觉和听觉
+      volume: 0.4,                // 记录静音前的音量
+      volumePercent: 40,          // 在playtrack()和updateProgressBar()中都更新到audio.volume上，同步视觉和听觉
       changingVolume: false,      // 调节进度条，控制动画效果正常进行
 
       // --- 列表
@@ -608,7 +608,7 @@ export default {
 
     // 与xfd通信
     adjustTime(timeSec){
-      console.log('如果音频存在，跳转至对应位置 ',timeSec)
+      // console.log('如果音频存在，跳转至对应位置 ',timeSec)
       if(this.audio){
         this.audio.currentTime = timeSec
       }
@@ -669,6 +669,7 @@ body{
   color: #333;
 }
 .player{
+  z-index: 100;
   user-select: none;
   position: fixed;
   bottom: 0;
