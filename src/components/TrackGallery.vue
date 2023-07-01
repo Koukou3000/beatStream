@@ -334,7 +334,6 @@ export default {
     font-weight: bold;
     line-height: 50px;
     font-size: 16px;
-    transition: .3s;
     z-index: 10;
 }
 .play__actions:hover{
@@ -436,10 +435,10 @@ export default {
 }
 
 .trackControl-enter-active{
-    animation: fade reverse .3s forwards;
+    animation: fade reverse .1s forwards;
 }
 .trackControl-leave-active{
-    animation: fade .3s forwards;
+    animation: fade .1s forwards;
 }
 @keyframes fade {
     from{opacity: 1;}

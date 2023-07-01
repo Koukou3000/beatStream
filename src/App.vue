@@ -7,11 +7,13 @@
     
       
       <div style="color:red">
-        playlist加入localStorage;
+        
         detail页面歌词滚动;
-        pageupload中的内容形成组件; </div>
+        pageupload中的内容改成组件; </div>
       <br>
       PlayBar 
+        拖拽调整顺序
+        
         播放状态需要存到LocalStorage
         //UPDATE//多个标签页不允许同时播放 
 
