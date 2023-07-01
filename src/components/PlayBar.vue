@@ -523,9 +523,8 @@ export default {
       }
     }, 
     clearNextup(e){     
-        // nowIndex<0 ，说明没有正在播放的内容，nextup全部删除
-      
-      if(this.nowIndex<0 || e == 'force'){
+        // nextup全部删除  
+      if(this.nowIndex<0 || e == 'force'){ //  nowIndex<0 ，说明没有正在播放的内容，
           this.tidSet = new Set()
           this.$refs.itemsHeight.style.background = '#fff' // 避免视觉残留，背景需要从骨架变成纯色
           for(let i=0; i<this.visibleNextup.length; i++){
@@ -605,7 +604,16 @@ export default {
     },
     jumpDetail(t){
       this.$router.push({name:'trackDetail', params:{tid: t.tid}})
+    },
+
+    // 与xfd通信
+    adjustTime(timeSec){
+      console.log('如果音频存在，跳转至对应位置 ',timeSec)
+      if(this.audio){
+        this.audio.currentTime = timeSec
+      }
     }
+    
   },
 
   filters:{
@@ -632,23 +640,25 @@ export default {
     let arr = JSON.parse(c)
     arr.forEach(t => {      
       if(this.tidSet.has(t.tid)){
-        console.log('出现重复元素',t.tid)
+        console.log('出现重复元素 title: ', t.title)
       }
       else{
         this.nextup.push(t)
         this.tidSet.add(t.tid)
       }
     })
-    this.$bus.$on('nextupAffix', this.nextupAffix) // 添加
-    this.$bus.$on('nextupTaken', this.nextupTaken) // 替换
-    this.$bus.$on('pauseTrack', this.pauseTrack) 
+    this.$bus.$on('nextupAffix', this.nextupAffix) // 添加到队列
+    this.$bus.$on('nextupTaken', this.nextupTaken) // 替换队列并播放
+    this.$bus.$on('pauseTrack', this.pauseTrack)  
     this.$bus.$on('playTrack', this.playTrack) 
+    this.$bus.$on('adjustTime', this.adjustTime)
   },  
   beforeDestroy(){
     this.$bus.$off('nextupAffix') 
     this.$bus.$off('nextupTaken') 
     this.$bus.$off('pauseTrack')
     this.$bus.$off('playTrack')
+    this.$bus.$off('adjustTime')
   },
 }
 </script>

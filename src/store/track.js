@@ -22,7 +22,7 @@ export default {
             return state.trackList.slice()
         },
         getTenTracks:(state)=>()=>{
-            return state.trackList.slice(3,10)
+            return state.trackList.slice(3,13)
         }
     },
     state:{  

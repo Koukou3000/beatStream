@@ -354,23 +354,22 @@ export default {
           })
         },  
         pushRoute(e){      
+            // 单纯跳转
             switch(e){
                 case 1: this.tid = this.tracks[0].tid; break;
                 case 2: this.tid = this.tracks[1].tid; break;
                 case 3: this.tid = this.tracks[2].tid; break;
                 default:break;
             }
-
-            let sec = 0
-            if(this.audio){
-                sec = this.audio.currentTime
-            }
-
+            
+            // 放入nextup，衔接播放
+            let t = this.$store.getters['track/getTrackDetail'](this.tid)// 获取当前播放音频
+            this.$bus.$emit('nextupTaken',t)
+            this.$bus.$emit('adjustTime', this.audio.currentTime)
             this.$router.push({
                 name:'trackDetail', 
                 params:{
                     tid: this.tid,
-                    currentSec: sec
                 }
             })
         },
