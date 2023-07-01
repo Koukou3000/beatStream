@@ -70,13 +70,10 @@
         <!-- 结果 -->
         <transition name="rankStep">
             <div class="podium__" v-show="stage=='podium'">                
-                <div class="stepping__stone" v-if="tracks">
+                <div class="stepping__stone" v-if="tracks[1]">
                     
-                    <div class="poster" style="margin-bottom:37%" ref="rank2" @click="pushRoute(2)">            
-                        <TrackArtwork  style="width: 100%;top: 0;bottom: 0;height: 100%;position: absolute;"/>
-                    
-                    </div>
-                    <div class="rank2">
+                    <div class="poster" style="margin-bottom:37%" ref="rank2" @click="pushRoute(2)" >            
+                        <TrackArtwork reflect :imgURL="tracks[1].img_url" style="width: 100%;top: 0;bottom: 0;height: 100%;position: absolute;"/> 
                         <div class="placeholder__crown">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 396.45 289.09"><defs></defs>
                                 <path d="M86.63,289.09a33.89,33.89,0,0,1-32.44-23.75L1.58,99A34,34,0,0,1,52.31,60.11L114.81,100l55.83-84.7a34,34,0,0,1,57.09.43l53.78,84.35,62.63-40a34,34,0,0,1,50.73,38.94L342.25,265.34a33.88,33.88,0,0,1-32.43,23.75Z"/>
@@ -84,11 +81,13 @@
                                 <path d="M235.07,236.84H161.38l-1.57-1.57V218l1.57-3.14,28.22-23.51c18.82-15.68,22-22,22-31.36s-4.7-15.68-14.11-15.68c-12.54,0-15.68,6.27-15.68,15.68l-1.57,1.56H161.38L159.81,160c0-17.25,9.41-34.5,37.63-34.5,23.52,0,36.07,15.68,36.07,32.93s-7.84,26.65-26.66,42.33L188,216.45V218h47l1.57,1.57v15.68Z"/> 
                             </svg>
                         </div>
+                        {{tracks[1].title}}
                     </div>
+                    <div class="rank2"></div>
                 </div>
-                <div class="stepping__stone">
-                    <div class="poster" style="background-image: linear-gradient(135deg,#e6846e,#70929c)" ref="rank1" @click="pushRoute(1)"></div>
-                    <div class="rank1">
+                <div class="stepping__stone" v-if="tracks[0]">
+                    <div class="poster" style="margin-bottom: 51%;" ref="rank1" @click="pushRoute(1)">
+                        <TrackArtwork reflect :imgURL="tracks[0].img_url" style="width: 100%;top: 0;bottom: 0;height: 100%;position: absolute;"/> 
                         <div class="placeholder__crown">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 396.45 289.09"><defs></defs> 
                                 <path d="M86.63,289.09a33.89,33.89,0,0,1-32.44-23.75L1.58,99A34,34,0,0,1,52.31,60.11L114.81,100l55.83-84.7a34,34,0,0,1,57.09.43l53.78,84.35,62.63-40A34,34,0,0,1,394.87,99l-52.62,166.3a33.87,33.87,0,0,1-32.43,23.75Z"/>
@@ -96,11 +95,13 @@
                                 <path d="M189.41,236.84l-1.57-1.57v-80h-1.57l-12.54,12.55h-7.84l-1.57-1.57V150.6l22-21.95,3.14-1.57h18.82l1.56,1.57V235.27l-1.56,1.57Z"/>
                             </svg>
                         </div>
+                        {{tracks[0].title}}
                     </div>
+                    <div class="rank1"></div>
                 </div>
-                <div class="stepping__stone">
-                    <div class="poster" style="background-image: linear-gradient(135deg,#8e8485,#70929c)" ref="rank3" @click="pushRoute(3)"></div>
-                    <div class="rank3">
+                <div class="stepping__stone" v-if="tracks[2]">
+                    <div class="poster" style="margin-bottom: 23%;" ref="rank3" @click="pushRoute(3)">
+                        <TrackArtwork reflect :imgURL="tracks[2].img_url" style="width: 100%;top: 0;bottom: 0;height: 100%;position: absolute;"/> 
                         <div class="placeholder__crown">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 396.45 289.09"><defs></defs>
                                 <path d="M86.63,289.09A33.87,33.87,0,0,1,54.2,265.34L1.58,99A34,34,0,0,1,52.31,60.11L114.81,100l55.83-84.7a34,34,0,0,1,57.09.43l53.78,84.35,62.63-40a34,34,0,0,1,50.73,38.94L342.25,265.34a33.88,33.88,0,0,1-32.43,23.75Z"/>
@@ -108,7 +109,9 @@
                                 <path d="M195.87,238.4c-25.08,0-37.63-15.67-37.63-31.36l1.57-1.56h18.82l1.56,1.56c0,6.28,4.71,12.55,15.68,12.55,12.55,0,18.82-7.84,18.82-18.82,0-12.54-6.27-18.81-15.68-18.81-6.27,0-9.41,3.13-9.41,3.13h-7.84l-1.57-1.56V169.41l22-21.95v-1.57H164.51L163,144.33V128.65l1.56-1.57H228.8l1.57,1.57v15.68l-1.57,3.13-20.38,18.82v1.57c14.11,0,28.22,12.54,28.22,32.92S222.53,238.4,195.87,238.4Z"/>
                             </svg>
                         </div>
+                        {{tracks[2].title}}
                     </div>
+                    <div class="rank3"></div>
                     
                 </div>
             </div>
@@ -296,20 +299,13 @@ export default {
             if(e == 'podium'){
                 this.showCurtain = false
                 this.stage = 'podium' //阶段2
-                // 编辑排行榜的内容
-                // this.$refs.rank1.style.backgroundImage = `url(${this.tracks[0].img_url})`
-                // this.$refs.rank1.innerHTML = this.tracks[0].title + ' - ' + this.tracks[0].artist
-                // this.$refs.rank2.style.backgroundImage = `url(${this.tracks[1].img_url})`
-                // this.$refs.rank2.innerHTML = this.tracks[1].title + ' - ' + this.tracks[1].artist
-                // this.$refs.rank3.style.backgroundImage = `url(${this.tracks[2].img_url})`
-                // this.$refs.rank3.innerHTML = this.tracks[2].title + ' - ' + this.tracks[2].artist  
             }
             else if(e == 'crossfade'){
                 this.loading = true
                 this.total = 6 // 音频、图片资源总数
                 this.loaded = 0
 
-                let timeoutDuration = 10000 //ms
+                let timeoutDuration = 10000 // 十秒超时
                 // 预下载资源
                 this.tracks.forEach(track => {
                     let audio = new Audio()      
@@ -708,9 +704,9 @@ svg{
     position: absolute;
     width: 50px;
     height: 50px;
-    top: -285px;
-    right: 31px;
-    z-index: 20;
+    right: 0;
+    top: 0;
+    z-index: 2;
 }
 
 

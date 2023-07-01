@@ -1,17 +1,30 @@
 <template>
   <div class="coverWrapper" >
+    <!-- 反光效果 -->
+    <div class="reflection" v-if="reflect"></div>
+
+    <!-- 加载时显示的 -->
     <transition name="showArtwork">
-      <div v-show="!imgLoaded && !imgError" :class="'cover artwork-placeholder-'+rand" style="z-index:1"></div>
+      <div v-show="!imgLoaded && !imgError" :class="'cover artwork-placeholder-'+rand" style="z-index:2"></div>
     </transition>
     
+    <!-- 加载结束后显示的 -->
     <div class="cover artwork" v-show="imgLoaded" :style="{'background-image': `url(${imgURL})`}"></div>
-    <div :class="'cover artwork-placeholder-'+rand" v-show="imgError"></div>
+    <div :class="`cover artwork-placeholder-${rand+1}`" v-show="imgError"></div>
   </div>
 </template>
 
 <script>
 export default {
-    props:['imgURL'],
+    props:{
+      imgURL:{
+        type: String
+      },
+      reflect:{
+        type: Boolean,
+        default: false
+      }
+    },
     data(){
       return{
         rand: Math.floor(Math.random()*10),
@@ -23,6 +36,8 @@ export default {
       }
     },
     mounted(){
+      
+      // 设置图片超时
       let image = new Image()
       if(this.imgURL){   
         image.onload = ()=>{
@@ -45,10 +60,12 @@ export default {
 </script>
 
 <style scoped>
+
 .coverWrapper{
   width: 30px;
   height: 30px;
   position: relative;
+  overflow: hidden;
 }
 .cover{
   position: absolute;
@@ -99,5 +116,26 @@ export default {
 .artwork-placeholder-9 {
     background-image: linear-gradient(135deg,#8e8485,#846170);
 }
+.artwork-placeholder-10 {
+    background-image: linear-gradient(135deg,#8e8485,#70929c);
+}
+
+/* 反光效果 */
+.reflection{
+  position: absolute;
+  width: 40%;
+  height: 120%;
+  top: -10%;
+  background: #fff;
+  z-index: 10;
+  transform: skew(-30deg) translateX(-180%);
+  opacity: .3;
+  filter: blur(15px);
+  transition: .3s;
+}
+.coverWrapper:hover .reflection{
+  transform: skew(-30deg) translateX(100%);
+}
+
 
 </style>
