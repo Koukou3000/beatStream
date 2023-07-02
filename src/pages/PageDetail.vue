@@ -55,12 +55,7 @@
                             </div>
                             <div class="about__right">
                                 <div class="aboutTrack">
-                                    Track list <br>
-                                    Tr1.Halfway <br>
-                                    Tr2.On Your Mark <br>
-                                    Tr3.Scramble for Bubblegum <br>
-                                    Tr4.After Hours <br>
-                                    Tr5.Cult Star <br>
+                                    歌曲介绍
                                 </div>
                                 <div class="commentList">
                                     <div class="commentList__header">
@@ -73,18 +68,20 @@
                     </div>
                 </div>
                 <div class="listenLyric">
-                                                    
-                                歌词滚动入门
-                                获取歌词数据：类似网易云，歌词选用lyric格式，获取歌词数据。歌词数据是一段文本，一行对应一句歌词，每一行包含歌词文本和时间戳
-
-                                解析歌词数据：将获取到的歌词数据进行解析，将歌词文本和时间戳提取出来并保存为适合操作的数据结构，例如数组或对象。
-                                显示当前歌词：根据当前播放的时间，与歌词的时间戳进行比较，确定当前应该显示的歌词。
-                                            页面打开时就会接收到来自总线$emit 的 timeupdate，比对歌词时间和这个timeupdate，对的上就显示。
-                                                            
-                                实现歌词滚动效果：将当前歌词显示在歌词容器中，并通过设置容器的滚动位置或动画效果实现歌词的滚动。
-                                                歌词的高度都是相同的，所以先计算有多少行歌词，然后和之前的列表实现方式类似。
-								可以使用 CSS 属性如 scrollTop 或 CSS 动画来控制歌词容器的滚动效果。
+                    <div class="words__box">
+                        <div v-if="!localLRC">无歌词</div>
+                       
+                        <div class="words__container" v-else ref="wordsContainer" :style="{transform: `translateY(${50-line*34}px)`}">
+                            <span v-for="(o, idx) in localLRC" :key="o.time" :style="{color: line==idx? '#ff5500': '#000'}">
+                                {{o.words}}                   
+                            </span>
+                        </div>
+                    
+                        
+                        
+                    </div>           
                 </div>
+
             </div>
         </div>
    </div>
@@ -100,9 +97,10 @@ export default {
             nowPlaying: null, // playbar当前播放曲目
             paused: true,
 
-
             current: 0, // 当前播放位置
             duration: 114, // 总时长
+            localLRC: null, // map对象，时间key，歌词value
+            line: -1,          // 歌词的当前行数
         }
     },
     computed:{
@@ -123,6 +121,69 @@ export default {
       }
     },
     methods:{      
+        scrollLyric(){
+            // 知道一行多高，知道当前是第几行歌词对上号即可
+            for(let i=0; i<this.localLRC.length; i++){
+                // console.log('cu', this.current)
+                
+                if(this.current >= this.localLRC[i].time){
+                    if(this.current < this.localLRC[i+1].time){
+                        // console.log('time', this.localLRC[i].time)
+                        this.line = i
+                        return
+                    }
+                    
+                }
+            }
+            
+            
+        },
+
+        
+        loadLyric(){
+            //加载歌词到 localLRC
+            this.localLRC = null
+            let ans = []
+            if(!this.track.lyric) return
+            else{
+                let str = atob(this.track.lyric) // 解码后
+                let lines = str.split('\n') // 按行分隔
+                let regex = /\[(\d+:\d+.\d+)\](.*)/ // [01:14.514] *words*
+    
+                for(let i=0; i<lines.length; i++){
+                    let line = lines[i].match(regex)
+                    if(line){ // 匹配到了内容
+                        if(line.length >= 3){
+                            let time = line[1]  
+                            time = this.timeToSeconds(time) // 123.456
+                            let words = line[2]     
+                            if(words){
+                                // console.log(time, '-' ,words)
+                                ans.push({time,words})
+                            }
+                        }
+                    }
+                }
+                ans.sort((a,b)=>{a.time-b.time}) // 保证列表中的内容是按时间顺序排序的    
+            }    
+            // console.log(ans)
+            this.localLRC = ans
+        },
+        // 01:20.30 => 80.30 ，方便timeupdate对比时间戳
+        timeToSeconds(str){
+            let ans = 0
+            let reg = /(\d+):(\d+\.\d+)/
+            let a = str.match(reg)
+            
+            if(a.length >= 3){
+                let minute = a[1] // 分钟数
+                let sec = a[2]      // 秒数
+                ans = Number(minute*60) + Number(sec)
+            }
+            return ans
+        },
+
+        // 大按钮交互
         playClick(){
             // 当前点击曲目和之前当前播放曲目相同，开始播放
             if(this.track.tid == this.nowTid){
@@ -140,6 +201,9 @@ export default {
         trackProgress(now, dur){
             this.current = now  // 更新进度条
             this.duration = dur
+
+            // 更新歌词滚动
+            this.scrollLyric()
         },
         updateNowPlaying(t){
             this.nowPlaying = t // 接收播放曲目
@@ -152,7 +216,7 @@ export default {
         },
     },
     mounted(){
-        this.track = this.$store.getters['track/getTrackDetail'](this.$route.params.tid) // 需要用到的内容读入track
+        this.track = this.$store.getters['track/getTrackDetail'](this.$route.params.tid) // 需要用到的内容读入track 
         document.title = 'Stream "'+this.track.title+'" by '+this.track.artist 
         
         // 接收来自playbar的进更新  
@@ -163,6 +227,7 @@ export default {
         // 进入时需要判断当前播放曲目
         this.paused = this.$route.params.playStatus
         this.nowPlaying = this.$route.params.nowPlaying
+        this.loadLyric()  //打开时加载歌词
     },
     beforeDestroy(){
         this.$bus.$off('trackProgress')
@@ -173,6 +238,7 @@ export default {
          // mounted只调用一次，参数变化时也能刷新页面
         this.track = this.$store.getters['track/getTrackDetail'](to.params.tid) 
         document.title = 'Stream "'+this.track.title+'" by '+this.track.artist
+        this.loadLyric() // 更新歌词
         next()
     },
     
@@ -359,10 +425,7 @@ export default {
     height: 100%;
     width: 70%;
 }
-
-
-
-/* 评论 */
+/* 进度条的评论 */
 .commentWrapper{
     position: absolute;
     width: 100%;
@@ -372,7 +435,6 @@ export default {
     z-index: 1;
 }
 
-
 /* 歌曲详情 */
 .listen__wrapper{
     position: relative;
@@ -380,6 +442,7 @@ export default {
 .about__main{
     padding-top: 20px;
     margin-right: 400px;
+    min-height: 350px;
 }
 .about__rows{
     padding-right: 30px;
@@ -407,7 +470,7 @@ export default {
     margin-bottom: 10px;
 }
 
-/* 评论 */
+/* 底部评论列表 */
 .commentList{
     border-bottom: 1px solid #f2f2f2;
 }
@@ -424,7 +487,23 @@ export default {
     top: 30px;
     width: 370px;
     right: 0;
-    background: #888;
-    color: white;
 }
+.words__box{
+    width: 100%;
+    height: 300px;
+    overflow: hidden;
+    user-select: none;
+}
+.words__container{
+    width: 100%;
+    transition: .3s;
+}
+.words__container span{
+    display: block;
+    height: 34px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 </style>
