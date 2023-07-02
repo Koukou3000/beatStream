@@ -7,7 +7,6 @@
                     
                     <div class="fullHero__foreground" >
                         <div class="fullHero__artwork">
-                            
                             <TrackArtwork style="width:100%;height:100%" :imgURL="track.img_url"/>
                         </div>
                         <div class="fullHero__header">
@@ -41,28 +40,33 @@
             </div>
 
 
-            <!-- 下半评论，其他推荐，歌曲介绍 -->
+            <!-- 用户请求，歌曲信息 -->
             <div class="listen__wrapper">
                 <div class="about__main">     
                     <div class="about__rows">
 
                         <div class="about__row">
-                            撰写评论<br>
-                            like share affixNextup          |           1.14K stream   1919 like    514 share
+                            <div class="comment__rightnow">
+                                <div class="comment__inputWrapper">
+                                    <input type="text" class="comment__input" placeholder="在这评论"/>
+                                </div>
+                            </div>
+                            <div class="other__actions"></div>
                         </div>
                         <div class="about__row">
                             <div class="about__left">
-                                <div v-if="track">{{track.artist}}</div>
-                               
+                                <div class="artistFigure">
+                                    <svg t="1688305627265" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3473"
+                                     width="120" height="120"><path d="M512 74.666667C270.933333 74.666667 74.666667 270.933333 74.666667 512S270.933333 949.333333 512 949.333333 949.333333 753.066667 949.333333 512 753.066667 74.666667 512 74.666667z m0 160c70.4 0 128 57.6 128 128s-57.6 128-128 128-128-57.6-128-128 57.6-128 128-128z m236.8 507.733333c-23.466667 32-117.333333 100.266667-236.8 100.266667s-213.333333-68.266667-236.8-100.266667c-8.533333-10.666667-10.666667-21.333333-8.533333-32 29.866667-110.933333 130.133333-187.733333 245.333333-187.733333s215.466667 76.8 245.333333 187.733333c2.133333 10.666667 0 21.333333-8.533333 32z" fill="#666666" p-id="3474"></path></svg>
+                                    
+                                </div>
+                                <div class="artistName" v-if="track">{{track.artist}}</div>
                             </div>
                             <div class="about__right">
-                                <div class="aboutTrack">
-                                    歌曲介绍
-                                </div>
+                                <div class="aboutTrack">歌曲介绍（对象属性）</div>
                                 <div class="commentList">
                                     <div class="commentList__header">
-                                        <span>共计 7 条评论</span>
-                                        
+                                        <span>共计 7 条评论</span> 
                                     </div>
                                 </div>
                             </div>
@@ -70,10 +74,11 @@
                     </div>
                 </div>
 
+                <!-- 歌词 -->
                 <div class="listenLyric">
                     <div class="words__box">
-                        <div v-if="!localLRC">无歌词</div>
-                        <div class="words__container" v-else ref="wordsContainer" :style="{transform: `translateY(${-line*60}px)`}">
+                        <div style="line-height: 300px;" v-if="!localLRC">无歌词</div>
+                        <div class="words__container"  ref="wordsContainer" :style="{transform: `translateY(${-line*60}px)`}" v-else>
                             <div class="words__padding">歌词</div>
                             <span v-for="(o, idx) in localLRC" :key="o.time" :style="{color:line==idx?'#ff5500':'#000', fontWeight:line==idx?'bold':'normal'}">
                                 {{o.words}}                   
@@ -98,15 +103,15 @@ export default {
         return{
             // pageDetail 可能控制：进度条、播放 | 暂停
 
-            track: null, // 歌曲详情（用于页面内容加载
-            nowPlaying: null, // playbar当前播放曲目
+            track: null,            // 歌曲详情（用于页面内容加载
+            nowPlaying: {tid: -1}, // playbar当前播放曲目
             paused: true,
 
-            current: 0, // 当前播放位置
-            duration: 114, // 总时长
-            localLRC: null, // map对象，时间key，歌词value
-            autoScroll: true,
-            line: -1,          // 歌词的当前行数
+            current: 0,             // 当前播放位置
+            duration: 114,          // 总时长
+            localLRC: null,         // map对象，时间key，歌词value
+            autoScroll: true,   
+            line: -1,               // 歌词的当前行数
         }
     },
     computed:{
@@ -130,6 +135,7 @@ export default {
         scrollLyric(){
             // 更新歌词的当前行数
             if(!this.localLRC) return
+            if(this.nowPlaying.tid != this.track.tid) return
             for(let i=0; i<this.localLRC.length; i++){
                 if(this.current >= this.localLRC[i].time){
                     if(this.current < this.localLRC[i+1].time){
@@ -450,17 +456,44 @@ export default {
     border-right: 1px solid #f2f2f2;
 }
 .about__row{
-    margin-bottom: 20px;
     position: relative;
-
+    margin-bottom: 20px;    
+    
 }
+/* 点击在当前时间戳评论 */
+.comment__rightnow{
+    height: 40px;
+    box-sizing: border-box;
+    padding: 5px;
+    background: #f2f2f2;
+    border: 1px solid #e5e5e5;
+}
+.comment__inputWrapper{
+    position: relative;
+    font-size: 12px;
+    line-height: 16px;
+    height: 24px;
+}
+.comment__input{
+    width: 100%;
+    height: 100%;
+}
+
+
 .about__left{
     position: absolute;
     top: 0;
     left: 0;
     width: 120px;
-    background: #888;
-    color: white;
+}
+.artistFigure{
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+}
+.artistName{
+    color: #333;
+    text-align: center;
 }
 .about__right{
     padding-left: 150px;
@@ -494,9 +527,12 @@ export default {
     height: 300px;
     overflow: hidden;
     user-select: none;
+    background-image: linear-gradient(0deg,transparent ,#eee, transparent);
+    display: flex;
+    justify-content: center;
 }
 .words__container{
-    width: 100%;
+    width: 90%;
     transition: .3s;
 }
 .words__padding{
