@@ -127,6 +127,7 @@ export default {
                 duration: '2:06',
                 release_time: '2023/6/16',
                 preview_start: 0, 
+                tag: 'happy',  
             },
             {
                 tid: 11,
@@ -143,7 +144,7 @@ export default {
                 title: 'Gold Digger',
                 artist: 'Ye',
                 audio_url: 'http://47.115.222.108/music/gold-digger.mp3',
-                img_url: '',
+                img_url: 'https://y.qq.com/music/photo_new/T002R300x300M000000qJTD82P9zxO_1.jpg?max_age=2592000',
                 duration: '6:25',
                 release_time: '2023/6/16',
                 preview_start: 190, 

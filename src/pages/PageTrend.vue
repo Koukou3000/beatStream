@@ -744,7 +744,7 @@ svg{
     width: 300px;
     background: #eee;
     right: 0;
-    bottom: 0;
+    bottom: 30px;
     top: 30px;
     position: absolute;
 }

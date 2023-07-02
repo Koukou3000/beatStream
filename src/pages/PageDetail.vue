@@ -3,10 +3,13 @@
         <div class="content">
             <!-- 上半部分，歌曲播放，tag -->
             <div class="listen__hero">
-                <div class="fullHero__container">
+                <div class="fullHero__container" v-if="track">
                     
-                    <div class="fullHero__foreground">
-                        <div class="fullHero__artwork"></div>
+                    <div class="fullHero__foreground" >
+                        <div class="fullHero__artwork">
+                            
+                            <TrackArtwork style="width:100%;height:100%" :imgURL="track.img_url"/>
+                        </div>
                         <div class="fullHero__header">
                             <div class="header__btn pausebtn" v-if="!paused && nowTid==track.tid" @click="pauseClick"></div>
                             <div class="header__btn playbtn" v-else @click="playClick"></div>
@@ -19,11 +22,10 @@
                         </div>
                         <div class="fullHero__info">
                             <div class="info__release">1年前</div>
-                            <div class="info__tag"># Pop</div>
+                            <div class="info__tag" v-if="track.tag"># {{track.tag}}</div>
                         </div>
                         <!-- 进度条 -->
-                        <div class="fullHero__playerArea">
-                            当前播放的 与 当前页面一致  当前播放比例{{progressPercent}}                      
+                        <div class="fullHero__playerArea">                  
                             <div class="waveformWrapper" :style="{opacity: paused ? 0.5 : 1}">
                                 <!-- <div class="waveform__shorter"></div> -->
                                 <div class="waveform__longer" :style="{width: `${progressPercent}%`}"></div>
@@ -67,12 +69,13 @@
                         </div>
                     </div>
                 </div>
+
                 <div class="listenLyric">
                     <div class="words__box">
                         <div v-if="!localLRC">无歌词</div>
-                       
-                        <div class="words__container" v-else ref="wordsContainer" :style="{transform: `translateY(${50-line*34}px)`}">
-                            <span v-for="(o, idx) in localLRC" :key="o.time" :style="{color: line==idx? '#ff5500': '#000'}">
+                        <div class="words__container" v-else ref="wordsContainer" :style="{transform: `translateY(${-line*60}px)`}">
+                            <div class="words__padding">歌词</div>
+                            <span v-for="(o, idx) in localLRC" :key="o.time" :style="{color:line==idx?'#ff5500':'#000', fontWeight:line==idx?'bold':'normal'}">
                                 {{o.words}}                   
                             </span>
                         </div>
@@ -88,7 +91,9 @@
 </template>
 
 <script>
+import TrackArtwork from '@/components/TrackArtwork.vue'
 export default {
+    components:{TrackArtwork},
     data(){
         return{
             // pageDetail 可能控制：进度条、播放 | 暂停
@@ -100,6 +105,7 @@ export default {
             current: 0, // 当前播放位置
             duration: 114, // 总时长
             localLRC: null, // map对象，时间key，歌词value
+            autoScroll: true,
             line: -1,          // 歌词的当前行数
         }
     },
@@ -122,23 +128,17 @@ export default {
     },
     methods:{      
         scrollLyric(){
-            // 知道一行多高，知道当前是第几行歌词对上号即可
+            // 更新歌词的当前行数
+            if(!this.localLRC) return
             for(let i=0; i<this.localLRC.length; i++){
-                // console.log('cu', this.current)
-                
                 if(this.current >= this.localLRC[i].time){
                     if(this.current < this.localLRC[i+1].time){
-                        // console.log('time', this.localLRC[i].time)
                         this.line = i
                         return
-                    }
-                    
+                    } 
                 }
-            }
-            
-            
+            } 
         },
-
         
         loadLyric(){
             //加载歌词到 localLRC
@@ -290,7 +290,7 @@ export default {
     width: 340px;
     height: 340px;
     position: absolute;
-    background: #000;
+    background: #e5e5e5;
     z-index: 1;
 }
 
@@ -433,6 +433,7 @@ export default {
     background: #888;
     bottom: 30px;
     z-index: 1;
+    opacity: .3;
 }
 
 /* 歌曲详情 */
@@ -498,12 +499,32 @@ export default {
     width: 100%;
     transition: .3s;
 }
+.words__padding{
+    position: relative;
+    height: 120px;
+    line-height: 120px;
+    text-align: center;
+    font-size: 70px;
+    font-weight: bold;    
+    color: #5e5e5e;
+}
+.words__padding::before{
+    content: 'Lyric';
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #ccc;
+    font-size: 150px;
+    z-index: -1;
+}
 .words__container span{
     display: block;
-    height: 34px;
+    height: 60px;
     display: flex;
     justify-content: center;
     align-items: center;
+    font-size: 16px;
+    text-align: center;
 }
 
 </style>

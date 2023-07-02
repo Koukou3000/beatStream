@@ -1,6 +1,6 @@
 <template>
   <div>
-      搜索结果
+      {{this.$route.query.q}}的搜索结果是
   </div>
 </template>
 

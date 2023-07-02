@@ -7,22 +7,17 @@
     
       
       <div style="color:red">
-        
-        detail页面歌词滚动;
         pageupload中的内容改成组件; </div>
       <br>
       PlayBar 
-        拖拽调整顺序
-        
+        拖拽调整顺序  
         播放状态需要存到LocalStorage
         //UPDATE//多个标签页不允许同时播放 
-
       <br>
       TrackDetail
         歌词滚动
-        webAudio  频谱进度条?
-
-      音乐格式 qq netease dizzylab soundcloud
+        webAudio  波形图进度条?
+        
     </div>
     <PlayBar/>
 
