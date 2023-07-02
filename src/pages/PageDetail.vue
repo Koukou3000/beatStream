@@ -68,7 +68,7 @@
                                     歌曲介绍（对象属性）<br>
                                     《 》.........., .........「 」...，...........「 」，.......。...........「 」.....，.........、........，.......... ，........，....「 」....
                                 </div>
-
+                                <CommentList v-if="track" :collections="track.comments"/>
                                 
                             </div>
                         </div>
@@ -98,8 +98,9 @@
 
 <script>
 import TrackArtwork from '@/components/TrackArtwork.vue'
+import CommentList from '@/components/CommentList.vue'
 export default {
-    components:{TrackArtwork},
+    components:{TrackArtwork, CommentList},
     data(){
         return{
             // pageDetail 可能控制：进度条、播放 | 暂停
