@@ -518,7 +518,7 @@ svg{
     font-size: 12px!important;
     color: #fff;
     bottom: 100%;   
-    white-space: nowrap
+    white-space: nowrap;
 }
 @keyframes pump{
     from{

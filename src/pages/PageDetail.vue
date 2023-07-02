@@ -57,18 +57,19 @@
                             <div class="about__left">
                                 <div class="artistFigure">
                                     <svg t="1688305627265" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="3473"
-                                     width="120" height="120"><path d="M512 74.666667C270.933333 74.666667 74.666667 270.933333 74.666667 512S270.933333 949.333333 512 949.333333 949.333333 753.066667 949.333333 512 753.066667 74.666667 512 74.666667z m0 160c70.4 0 128 57.6 128 128s-57.6 128-128 128-128-57.6-128-128 57.6-128 128-128z m236.8 507.733333c-23.466667 32-117.333333 100.266667-236.8 100.266667s-213.333333-68.266667-236.8-100.266667c-8.533333-10.666667-10.666667-21.333333-8.533333-32 29.866667-110.933333 130.133333-187.733333 245.333333-187.733333s215.466667 76.8 245.333333 187.733333c2.133333 10.666667 0 21.333333-8.533333 32z" fill="#666666" p-id="3474"></path></svg>
+                                     width="120" height="120"><path d="M512 74.666667C270.933333 74.666667 74.666667 270.933333 74.666667 512S270.933333 949.333333 512 949.333333 949.333333 753.066667 949.333333 512 753.066667 74.666667 512 74.666667z m0 160c70.4 0 128 57.6 128 128s-57.6 128-128 128-128-57.6-128-128 57.6-128 128-128z m236.8 507.733333c-23.466667 32-117.333333 100.266667-236.8 100.266667s-213.333333-68.266667-236.8-100.266667c-8.533333-10.666667-10.666667-21.333333-8.533333-32 29.866667-110.933333 130.133333-187.733333 245.333333-187.733333s215.466667 76.8 245.333333 187.733333c2.133333 10.666667 0 21.333333-8.533333 32z"
+                                      fill="#ccc" p-id="3474"></path></svg>
                                     
                                 </div>
                                 <div class="artistName" v-if="track">{{track.artist}}</div>
                             </div>
                             <div class="about__right">
-                                <div class="aboutTrack">歌曲介绍（对象属性）</div>
-                                <div class="commentList">
-                                    <div class="commentList__header">
-                                        <span>共计 7 条评论</span> 
-                                    </div>
+                                <div class="aboutTrack">
+                                    歌曲介绍（对象属性）<br>
+                                    《 》.........., .........「 」...，...........「 」，.......。...........「 」.....，.........、........，.......... ，........，....「 」....
                                 </div>
+
+                                
                             </div>
                         </div>
                     </div>
@@ -134,8 +135,8 @@ export default {
     methods:{      
         scrollLyric(){
             // 更新歌词的当前行数
-            if(!this.localLRC) return
-            if(this.nowPlaying.tid != this.track.tid) return
+            if(!this.localLRC) return // 没有歌词不需要滚动
+            if(this.nowPlaying.tid != this.track.tid) return // 播放中tid对不上页面，不需要滚动
             for(let i=0; i<this.localLRC.length; i++){
                 if(this.current >= this.localLRC[i].time){
                     if(this.current < this.localLRC[i+1].time){
@@ -502,18 +503,10 @@ export default {
 /* 歌曲介绍 */
 .aboutTrack{
     margin-bottom: 10px;
+    word-break: break-word;
 }
 
-/* 底部评论列表 */
-.commentList{
-    border-bottom: 1px solid #f2f2f2;
-}
-.commentList__header{
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding-bottom: 7px;
-}
+
 
 /* 歌词 */
 .listenLyric{
