@@ -31,7 +31,7 @@
             加载中
         </div>
         <div v-else>
-            加载结束
+            加载结束 
         </div>
     </div>
 </template>
