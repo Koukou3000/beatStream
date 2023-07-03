@@ -68,7 +68,7 @@
                                     歌曲介绍（对象属性）<br>
                                     《 》.........., .........「 」...，...........「 」，.......。...........「 」.....，.........、........，.......... ，........，....「 」....
                                 </div>
-                                <CommentList v-if="track" :collections="track.comments"/>
+                                <CommentList v-if="track" :tid="track.tid" :key="track.tid"/>
                                 
                             </div>
                         </div>
@@ -85,9 +85,6 @@
                                 {{o.words}}                   
                             </span>
                         </div>
-                    
-                        
-                        
                     </div>           
                 </div>
 
@@ -249,9 +246,7 @@ export default {
         this.loadLyric() // 更新歌词
         next()
     },
-    
-   
-    
+ 
 }
 </script>
 
@@ -449,7 +444,7 @@ export default {
     position: relative;
 }
 .about__main{
-    padding-top: 20px;
+    padding: 20px 0;
     margin-right: 400px;
     min-height: 350px;
 }

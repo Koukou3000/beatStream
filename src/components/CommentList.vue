@@ -1,53 +1,96 @@
 <template>
-    <div class="emptyComments" v-if="!collections">
-        <div class="empty__img"></div>
-        <h3>看起来有些冷清？</h3>
-        <h4>留下评论，使它有更多被听到的机会</h4>
-    </div>
-    <div class="commentList" v-else>
-        <div class="commentList__header">
-            <span style="color:#999">共 {{collections.length}} 条评论</span> 
-            <div class="sortbtn">排序：最新发布</div>
+    <div class="commentList" ref="commentList">
+        
+        <div class="emptyComments" v-if="total==0">
+            <div class="empty__img"></div>
+            <h3>看起来有些冷清？</h3>
+            <h4>留下评论，使它有更多被听到的机会</h4>
         </div>
 
-        <ul class="commentList__body">
-            <li class="comment__itemWrapper" v-for="c in collections" :key="c.user_name">
-                <div class="comment__data">
-                    <div class="comment__userAvatar"></div>
-                    <div class="comment__content">
-                        <div>
-                            <span style="color:#999">{{c.user_name}}</span>
-                             at 
-                            <span class="jumpable__time">{{c.timestamp | minuteAndSec}}</span>
-                        </div>
-                        <div>{{c.body}}</div>
-                    </div>
-                    <div class="comment__meta">{{c.created_at | datetimeToRelate}}</div>
-                </div>
-                
-            </li>
-        </ul>
-        <div v-if="loading">
-            加载中
-        </div>
+
         <div v-else>
-            加载结束 
-        </div>
+            <div class="commentList__header">
+                <span style="color:#999">共 {{total}} 条评论</span> 
+            </div>
+            <ul class="commentList__body" v-if="list">
+                <li class="comment__itemWrapper" v-for="(c,idx) in list" :key="idx">
+                    <div class="comment__data">
+                        <div class="comment__userAvatar"></div>
+                        <div class="comment__content">
+                            <div style="font-size: 12px;">
+                                <span style="color:#999">{{c.user_name}}</span>
+                                <span style="color:#ccc"> at </span>
+                                <span class="jumpable__time">{{c.timestamp | minuteAndSec}}</span>
+                            </div>
+                            <div>{{c.body}}</div>
+                        </div>
+                        <div class="comment__meta">{{c.created_at | datetimeToRelate}}</div>
+                    </div>
+                </li>
+            </ul>
+            <div v-if="loading && total!=0" class="loading">
+                <img src="@/assets/detail/loader.gif" alt="">
+            </div>
+            <div v-if="!loading && page>=pages" class="loadend"></div>
+
+        </div>      
     </div>
 </template>
 
 <script>
 export default {
-    props:['collections'],
+    props:['tid'],
     data(){
         return{
-            sortType: 'newest', // newest, oldest, tracktime 排序的类别
             loading: false,
-            already: 0,         // 已经加载的评论数
+            total: '...',           // 总评论数
+            list: [],
+            page: 1,            // 当前页数
+            pages: 114,           // 总页数        
         }
     },
     mounted(){
-        console.log(this.collections)
+        // 加载后读取第一页
+        addEventListener('scroll',this.handleScroll)
+        this.requestData()
+    },
+    
+    methods:{
+        handleScroll(){
+            this.$nextTick(()=>{
+                if(!this.$refs.commentList) return
+                let section = this.$refs.commentList.getBoundingClientRect().bottom
+                let viewport = window.innerHeight
+                // 页面出现在视窗
+                if(section <= viewport){
+                    this.requestData()
+                }
+            })
+        },
+        requestData(){
+            if(this.total==0) return
+            if(!this.loading && this.page < this.pages){ // 如果没有在加载，就开始加载新内容
+                // 发送请求     
+                this.loading = true // 播放动画
+                let ret = this.$store.dispatch('comments/getComments',{
+                    tid:  this.tid, 
+                    page: this.page,
+                })
+                // 再对收到的数据做响应
+                setTimeout(() => {
+                    ret.then((res)=>{
+                        this.total = res.total
+                        this.pages = res.pages
+                        if(res.page == this.page){
+                            this.page++
+                        }
+                        this.list = this.list.concat(res.data) // 拼接数组
+                        this.loading = false
+                    })
+                }, 1000);
+              
+            }
+        }
     },
     filters:{
         minuteAndSec(str){
@@ -56,10 +99,24 @@ export default {
             if(sec < 10) sec = '0'+sec
             return min+":"+sec
         },
-        // 时间格式转为 x分钟前 x天前 x月前 x年前
+        // 时间格式转为 x分钟前 x小时 x天前 x月前 x年前
         datetimeToRelate(str){
-            str = '///施工中///'
-            return str
+            let comTime = new Date(str).getTime()
+            let nowTime = new Date().getTime()
+            let diff = nowTime - comTime
+            let sec = Math.floor(diff/1000)
+            let min = Math.floor(sec/60)
+            let hour = Math.floor(min/60)
+            let day = Math.floor(hour/24)
+            let month = Math.floor(day/30)
+            let year = Math.floor(month/12)
+            if(year>0) return  year+'年前'
+            else if(month>0) return month+'月前'
+            else if(day>0) return day+'天前'
+            else if(hour>0) return hour+'小时前'
+            else if(min>0) return min+'分钟前'
+            else if(sec>0) return sec+'秒前'
+            return '刚刚'
         }
     }
 }
@@ -99,36 +156,7 @@ h4{
     padding-bottom: 7px;
      border-bottom: 1px solid #f2f2f2;
 }
-.sortbtn{
-    position: relative;
-    border: 1px solid #f50;
-    cursor: pointer;
-    color: #f50;
-    text-align: left;
-    text-overflow: ellipsis;
-    padding: 5px 25px 5px 10px;
-    border-radius: 3px;
-    transition: .1s;
-}
-.sortbtn::after{
-    content: '';
-    position: absolute;
-    width: 6px;
-    height: 6px;
-    right: 11px;
-    top: 11px;
-    border-bottom: 1px solid #f50;
-    border-right: 1px solid #f50;
-    transform: rotate(45deg);
-}
-.sortbtn:hover{
-    background: #f50;
-    color: #f2f2f2;
-}
-.sortbtn:hover::after{
-    border-bottom: 1px solid #f2f2f2;
-    border-right: 1px solid #f2f2f2;
-}
+
 
 /* 评论列表 */
 ul{
@@ -156,6 +184,7 @@ li{
     display: flex;
     flex-direction: column;
     margin-right: 10px;
+    color: #333;
 }
 .jumpable__time{
     color: #999;
@@ -170,5 +199,32 @@ li{
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+    font-size: 12px;
 }
+
+.loading{
+    padding: 20px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.loadend{
+    position: relative;
+    height: 14px;
+    margin: 30px 0 0;
+    display: flex;
+    border-top: 1px solid #f2f2f2;
+    justify-content: center;
+}
+.loadend::after{
+    position: absolute;
+    content: '没有更多内容了！';
+    text-align: center;
+    top: -10px;
+    display: inline;
+    background: #fff;
+    padding: 0 10px;
+    color: #999;
+}
+
 </style>
