@@ -78,7 +78,7 @@ export default {
                 release_time: '2022-01-26 16:48:30',
                 preview_start: 0, 
                 tag: 'trance',
-                duration: '5:27',
+                duration: '5:52',
             },
             {
                 tid: 6,
@@ -122,7 +122,7 @@ export default {
                 release_time: '2023-01-26 16:48:30',
                 preview_start: 134, 
                 tag: 'progressive',
-                duration: '5:43',
+                duration: '5:26',
             },
             {
                 tid: 10,
@@ -168,7 +168,7 @@ export default {
                 release_time: '2018-01-26 16:48:30',
                 preview_start: 90, 
                 tag: 'nation',
-                duration: '3:42',
+                duration: '3:35',
             },
            
         ],

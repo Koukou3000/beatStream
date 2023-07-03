@@ -33,7 +33,7 @@
 
                             <!-- 时间轴评论 -->
                             <div class="commentWrapper" :key="track.tid" ref="commentsLine">
-                                <ul class="commentQueue" :style="{opacity: myCommentTime>=0?'0.3':'1'}">
+                                <ul class="commentQueue" :style="{opacity: readyComment?'0.3':'1'}">
                                     <li class="user__thumbnail" v-for="c in threadComments" :key="c.timestamp" @click="copyTimeReady(c.timestamp)"
                                     :style="{left: `${c.leftPadding}%`}"></li>
                                 </ul>
@@ -68,7 +68,7 @@
                         <div class="about__row">
                             <div class="comment__rightnow" @click.stop="timelineReady">                       
                                 <input type="text" class="comment__input" placeholder="在这评论" ref="commentInput" @blur="cancelReady" v-model="myCommentBody"/>        
-                                <div :class="myCommentTime>=0?'commentBtn__active':'commentBtn'" @click.stop="writeComment">评论</div>         
+                                <div :class="readyComment?'commentBtn__active':'commentBtn'" @click.stop="writeComment">评论</div>         
                             </div>
                             <div class="other__actions"></div>
                         </div>
@@ -133,13 +133,14 @@ export default {
             threadComments: null,      // 在进度条下的评论
             colm: -1,                  // 当前显示的评论索引
             
-            myCommentTime: -1,           // 当前用户评论的时间戳 （点击进度条，点击其他用户头像，点击评论框时更新），调用readyToComment()
+            readyComment: false,
+            myCommentTime: 0,           // 当前用户评论的时间戳 （点击其他用户头像，点击评论框时更新），调用readyToComment()
             myCommentBody: '',
         }
     },
     computed:{
         myCommentPaddingLeft(){
-            if(this.myCommentTime < 0) return -100  // 隐藏
+            if(!this.readyComment) return -100  // 隐藏
             let length = this.durationToSec(this.track.duration) //总时长
             return this.myCommentTime * 100 / length // 当前时间 / 总时长
         },
@@ -161,11 +162,9 @@ export default {
     },
     methods:{   
         // 评论相关
-        selectTimeReady(){
-            console.log('点击进度条时的更新')
-        },
         copyTimeReady(t){
-            if(t){
+            if(!this.readyComment){
+                this.readyComment = true
                 this.myCommentTime = t // 点击用户头像时更新
                 this.$nextTick(()=>{
                     this.$refs.commentInput.focus()
@@ -173,14 +172,53 @@ export default {
             }
         },
         timelineReady(){
-            this.myCommentTime = this.current // 点击评论框时更新
+            if(!this.readyComment){
+                this.readyComment = true
+                this.myCommentTime = this.current // 点击评论框时更新
+            }
         },
         cancelReady(){
-            this.myCommentTime = -1 // 取消显示
+            this.readyComment = false // 取消显示
         },
         writeComment(){
-            console.log(this.myCommentBody)
+            // 检查评论是否为空
+            if(this.myCommentBody.trim().length==0){
+                this.$notify.warning({
+                    title: '评论失败',
+                    message: '评论内容为空',
+                    position: 'bottom-left',
+                    offset: 50
+                })
+            }
+            else{
+                // 发送数据
+                this.$store.dispatch('comments/appendComment',{
+                    tid: this.track.tid,
+                    comment:{
+                        body: this.myCommentBody,
+                        timestamp : this.myCommentTime,
+                        create_at: this.formateTimeStamp(new Date().getTime()),
+                        user_name: 'me',
+                    }
+                }).then(res=>{
+                    if(res.code == 0){
+                        console.log('添加评论成功，刷新')
+                        this.loadComments()
+                    }
+                })
+            }
         },
+        formateTimeStamp(time){
+            let date = new Date();
+            date.setTime(time);
+            let year = date.getFullYear();
+            let month = date.getMonth() + 1 < 10 ? "0" + (date.getMonth() + 1) : date.getMonth() + 1;
+            let day = date.getDate() < 10 ? "0" + date.getDate() : date.getDate();
+            let hour = date.getHours()< 10 ? "0" + date.getHours() : date.getHours();
+            let minute = date.getMinutes()< 10 ? "0" + date.getMinutes() : date.getMinutes();
+            let second = date.getSeconds()< 10 ? "0" + date.getSeconds() : date.getSeconds();
+            return year + "-" + month + "-" + day+" "+hour+":"+minute+":"+second;
+        },     
 
         // 当滚动条划过用户头像时，显示他的评论
         showComment(){
@@ -350,7 +388,6 @@ export default {
         this.nowPlaying = this.$route.params.nowPlaying
         this.loadLyric()  //打开时加载歌词
         this.loadComments() // 加载进度条下的评论
- 
     },
 
     beforeDestroy(){
@@ -581,7 +618,6 @@ export default {
     bottom: 30px;
     z-index: 1;
     border-top: 1px solid black;
-    overflow: hidden;
 }
 .commentQueue{
     position: absolute;
@@ -784,7 +820,7 @@ export default {
 /* 歌词 */
 .listenLyric{
     position: absolute;
-    top: 30px;
+    top: 70px;
     width: 370px;
     right: 0;
 }

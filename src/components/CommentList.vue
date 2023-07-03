@@ -56,8 +56,7 @@ export default {
         // 加载后读取第一页
         addEventListener('scroll',this.handleScroll)
         this.requestData()
-    },
-    
+    },  
     methods:{
         handleScroll(){
             this.$nextTick(()=>{
