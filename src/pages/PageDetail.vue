@@ -36,7 +36,20 @@
                                 <ul class="commentQueue">
                                     <li class="user__thumbnail" v-for="c in threadComments" :key="c.timestamp" :style="{left: `${c.leftPadding}%`}"></li>
                                 </ul>
-                                <div></div>
+                                <transition name="showComment">
+                                    <div class="commentPop" v-if="colm!=-1">
+                                        <!-- 当进度条过半时，方向翻转 -->
+                                        <div :class="{'comment__locate':true, 'stickRight':threadComments[colm].timestamp >= duration/2}" 
+                                              :style="{left: `${threadComments[colm].leftPadding}%`}">
+                                            <span :class="threadComments[colm].timestamp >= duration/2 ? 'comment__usernameRight':'comment__username'">
+                                                {{threadComments[colm].user_name}}
+                                            </span>
+                                            <span class="comment__body">{{threadComments[colm].body}}</span>
+                                        </div>
+                                        
+                                    </div>
+                                </transition>
+                                
                             </div>
                         </div>
                     </div>
@@ -118,8 +131,8 @@ export default {
             autoScroll: true,   
             line: -1,               // 歌词的当前行数
 
-            threadComments: null      // 在进度条下的评论
-
+            threadComments: null,      // 在进度条下的评论
+            colm: -1,                  // 当前显示的评论索引
         }
     },
     computed:{
@@ -140,19 +153,27 @@ export default {
         }
     },
     methods:{   
+        // 当滚动条划过用户头像时，显示他的评论
         showComment(){
-            for(let i=0; i<this.threadComments.length; i++){
-                // console.log('comments',this.threadComments[i].timestamp)
-                // // if()
+            if(!this.threadComments) return // 没有评论，返回
+            if(this.nowPlaying.tid != this.track.tid) return // 播放中tid对不上页面，不需要显示
+            
+            let show = false
+            for(let i=this.threadComments.length-1; i>=0; i--){     
+                let t = this.threadComments[i].timestamp  // 获得这条乐曲的时间戳
+                //  t  <= 当前时间 < t + 3s  => 显示
+                if(t <= this.current && this.current < t+3){ 
+                    this.colm = i
+                    show = true // 有一个触发，就显示内容，如果没有人触发，就隐藏
+                }               
             }
-            // 进度条右边position一个评论box，当播放到对应位置显示时间戳相同的评论
-            // 播放到下一个评论时替换当前评论，计时1秒后隐藏box
-            // 鼠标移动到的优先级最高
+            if(!show)
+                this.colm = -1
         },
         // 加载评论
         loadComments(){
             this.threadComments = null
-            this.$store.dispatch('comments/get200Comments',{tid: this.track.tid})
+            this.$store.dispatch('comments/get200Comments',{tid: this.track.tid}) // 获得两百条评论
             .then(res=>{
                 if(res.total > 0){
                     let comments = res.data // 获得评论数据
@@ -165,7 +186,11 @@ export default {
                             let toLeft = c * 100 / trackDuration // 计算 当前时间戳 / 乐曲长度 得到的比例
                             comments[i].leftPadding = toLeft // 将评论的用户头像绘制在 left: 比例           
                         }
-                        this.threadComments = comments
+                        // 按时间戳顺序排序
+                        comments = comments.sort((a,b)=>{
+                            return  a.timestamp - b.timestamp
+                        })
+                        this.threadComments = comments // 数据调整完，更新界面
                     })
                 } 
            })      
@@ -190,13 +215,15 @@ export default {
             if(this.nowPlaying.tid != this.track.tid) return // 播放中tid对不上页面，不需要滚动
             for(let i=0; i<this.localLRC.length ; i++){
 
-                if(this.current >= this.localLRC[i].time){ // 当前时间大于某一条，并小于其后一条的时间
-                    // 避免i+1 越界
+                // 大于某一条，小于后一条  就是当前的一段歌词
+                if(this.current >= this.localLRC[i].time){ 
+                    // i+1 && 避免访问数组越界
                     if(i+1 < this.localLRC.length && this.current < this.localLRC[i+1].time){ 
                         this.line = i
                         return
                     }
-                    else if(i+1 == this.localLRC.length){ // 当这一条是最后一条的时候，那直接切换
+                    // 当这一条是最后一条的时候，那直接切换
+                    else if(i+1 == this.localLRC.length){ 
                         this.line = i
                         return
                     }
@@ -294,8 +321,7 @@ export default {
         this.nowPlaying = this.$route.params.nowPlaying
         this.loadLyric()  //打开时加载歌词
         this.loadComments() // 加载进度条下的评论
-
-        // console.log(this.track.tid)
+ 
     },
 
     beforeDestroy(){
@@ -307,11 +333,12 @@ export default {
          // mounted只调用一次，参数变化时也能刷新页面
         this.track = this.$store.getters['track/getTrackDetail'](to.params.tid) 
         document.title = 'Stream "'+this.track.title+'" by '+this.track.artist
+
         this.loadLyric() // 更新歌词
         this.loadComments() // 加载进度条下的评论
         next()
 
-        console.log(this.track.tid)
+    
     },
     filters:{
          // 时间格式转为 x分钟前 x小时 x天前 x月前 x年前
@@ -516,6 +543,7 @@ export default {
     height: 100%;
     width: 70%;
 }
+
 /* 进度条的评论 */
 .commentWrapper{
     position: absolute;
@@ -540,6 +568,85 @@ export default {
     height: 20px;
     background-image: linear-gradient(to right, #ff5500, #000);
 }
+.showComment-enter-active{
+    animation: dropdown .3s forwards;
+}
+.showComment-leave-active{
+    animation: dropdown reverse .3s forwards;
+}
+@keyframes dropdown {
+    from{
+        transform: translateY(-10px);
+        opacity: 0;
+    }
+    to{
+        opacity: 1;    
+    }
+}
+.commentPop{
+    position: absolute;
+    top: 20px;
+    width: 100%;
+    height: inherit;
+    float: right;
+}
+.comment__locate{
+    position: absolute;
+    display: flex;
+}
+/* 翻转内容 */
+.stickRight{
+    display: flex;
+    flex-direction: row-reverse;
+    transform: translateX(-100%);
+}
+.comment__username{
+    padding: 10px 0 0 10px;
+    color: #ff5500;
+    display: inline-block;
+    max-width: 100px;
+    white-space: nowrap; /* 设置单行显示 */
+    overflow: hidden;
+    text-overflow: ellipsis; /* 使用省略号隐藏超出内容 */
+}
+.comment__username::before{
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 1px;
+    display: block;
+    background-image: linear-gradient(rgba(255,85,0,.95),rgba(255,85,0,.1));
+}
+
+.comment__usernameRight{
+    padding: 10px 10px 0 10px;
+    color: #ff5500;
+}
+.comment__usernameRight::before{
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    width: 1px;
+    display: block;
+    background-image: linear-gradient(rgba(255,85,0,.95),rgba(255,85,0,.1));
+}
+
+.comment__body{
+    padding: 10px 0 0 10px;
+    color: #fff;
+    max-width: 200px;
+    white-space: nowrap; /* 设置单行显示 */
+    overflow: hidden;
+    text-overflow: ellipsis; /* 使用省略号隐藏超出内容 */
+}
+
+
+
+
 
 
 

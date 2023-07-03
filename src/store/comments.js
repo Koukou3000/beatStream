@@ -19,11 +19,12 @@ export default {
         },
         // 拉取展示在进度条下的数据
         get200Comments(context, params){
+            let ret = {total: 0}
             let idx = params.tid - 1
             let comments = context.state.commentList[idx].comments
-            if(!comments) return {total:0}
+            if(!comments) return ret
             comments = comments.slice(0, 200)
-            let ret = {
+            ret = {
                 total: comments.length,
                 data: comments
             }
@@ -47,7 +48,8 @@ export default {
                 
                     
                 ]
-            }
+            },
+            {}
         
         ]
     }

@@ -214,7 +214,7 @@ li{
 .loadend{
     position: relative;
     height: 14px;
-    margin: 30px 0 0;
+    /* margin: 30px 0 0; */
     display: flex;
     border-top: 1px solid #f2f2f2;
     justify-content: center;
