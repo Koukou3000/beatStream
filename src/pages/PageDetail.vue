@@ -24,17 +24,18 @@
                             <div class="info__tag" v-if="track.tag"># {{track.tag}}</div>
                         </div>
                         <!-- 进度条 -->
-                        <div class="fullHero__playerArea">                  
+                        <div class="fullHero__playerArea">
                             <div class="waveformWrapper" :style="{opacity: paused ? 0.5 : 1}">
                                 <!-- <div class="waveform__shorter"></div> -->
                                 <div class="waveform__longer" :style="{width: `${progressPercent}%`}"></div>
                                 <div class="waveform__under"></div>
                             </div>
 
-                            <!-- 时间轴评论 ////////////////////////////////////////////////////////////////////////////////////////////////////////////-->
+                            <!-- 时间轴评论 -->
                             <div class="commentWrapper" :key="track.tid" ref="commentsLine">
-                                <ul class="commentQueue">
-                                    <li class="user__thumbnail" v-for="c in threadComments" :key="c.timestamp" :style="{left: `${c.leftPadding}%`}"></li>
+                                <ul class="commentQueue" :style="{opacity: myCommentTime>=0?'0.3':'1'}">
+                                    <li class="user__thumbnail" v-for="c in threadComments" :key="c.timestamp" @click="copyTimeReady(c.timestamp)"
+                                    :style="{left: `${c.leftPadding}%`}"></li>
                                 </ul>
                                 <transition name="showComment">
                                     <div class="commentPop" v-if="colm!=-1">
@@ -46,15 +47,14 @@
                                             </span>
                                             <span class="comment__body">{{threadComments[colm].body}}</span>
                                         </div>
-                                        
                                     </div>
                                 </transition>
-                                
+                                <div class="my__thumbnail" :style="{left:`${myCommentPaddingLeft}%`}"></div>
                             </div>
                         </div>
                     </div>
                     <!-- canvas抽取背景颜色 -->
-                    <div class="backgroundGradient" style="background: linear-gradient(135deg, rgb(210, 198, 205) 0%, rgb(163, 166, 187) 100%)"></div>
+                    <div class="backgroundGradient" style="background: linear-gradient(135deg, rgb(33 33 33) 0%, rgb(155 155 155) 100%)"></div>
                     
                 </div>
             </div>
@@ -66,10 +66,9 @@
                     <div class="about__rows">
                         <!-- 添加一条新评论 .................................................................................................... -->
                         <div class="about__row">
-                            <div class="comment__rightnow">
-                                <div class="comment__inputWrapper">
-                                    <input type="text" class="comment__input" placeholder="在这评论"/>
-                                </div>
+                            <div class="comment__rightnow" @click.stop="timelineReady">                       
+                                <input type="text" class="comment__input" placeholder="在这评论" ref="commentInput" @blur="cancelReady" v-model="myCommentBody"/>        
+                                <div :class="myCommentTime>=0?'commentBtn__active':'commentBtn'" @click.stop="writeComment">评论</div>         
                             </div>
                             <div class="other__actions"></div>
                         </div>
@@ -133,9 +132,17 @@ export default {
 
             threadComments: null,      // 在进度条下的评论
             colm: -1,                  // 当前显示的评论索引
+            
+            myCommentTime: -1,           // 当前用户评论的时间戳 （点击进度条，点击其他用户头像，点击评论框时更新），调用readyToComment()
+            myCommentBody: '',
         }
     },
     computed:{
+        myCommentPaddingLeft(){
+            if(this.myCommentTime < 0) return -100  // 隐藏
+            let length = this.durationToSec(this.track.duration) //总时长
+            return this.myCommentTime * 100 / length // 当前时间 / 总时长
+        },
         progressPercent(){
             return this.current*100 / this.duration // 进度条进度
         },
@@ -153,6 +160,28 @@ export default {
         }
     },
     methods:{   
+        // 评论相关
+        selectTimeReady(){
+            console.log('点击进度条时的更新')
+        },
+        copyTimeReady(t){
+            if(t){
+                this.myCommentTime = t // 点击用户头像时更新
+                this.$nextTick(()=>{
+                    this.$refs.commentInput.focus()
+                })
+            }
+        },
+        timelineReady(){
+            this.myCommentTime = this.current // 点击评论框时更新
+        },
+        cancelReady(){
+            this.myCommentTime = -1 // 取消显示
+        },
+        writeComment(){
+            console.log(this.myCommentBody)
+        },
+
         // 当滚动条划过用户头像时，显示他的评论
         showComment(){
             if(!this.threadComments) return // 没有评论，返回
@@ -527,7 +556,7 @@ export default {
     margin-bottom: 30px;
 }
 .waveform__under{
-    background: #fff;
+    background: #bebebe;
     width: 100%;
     height: 100%;   
 }
@@ -552,6 +581,7 @@ export default {
     bottom: 30px;
     z-index: 1;
     border-top: 1px solid black;
+    overflow: hidden;
 }
 .commentQueue{
     position: absolute;
@@ -561,12 +591,14 @@ export default {
     top: 0;
     margin: 0;
     list-style: none;
+    transition: .3s;
 }
 .user__thumbnail{
     position: absolute;
     width: 20px;
     height: 20px;
-    background-image: linear-gradient(to right, #ff5500, #000);
+    background: #666;
+    border-left: 1px solid #f70;
 }
 .showComment-enter-active{
     animation: dropdown .3s forwards;
@@ -585,7 +617,7 @@ export default {
 }
 .commentPop{
     position: absolute;
-    top: 20px;
+    top: 15px;
     width: 100%;
     height: inherit;
     float: right;
@@ -594,7 +626,8 @@ export default {
     position: absolute;
     display: flex;
 }
-/* 翻转内容 */
+
+/* 用户名 - 评论内容 */
 .stickRight{
     display: flex;
     flex-direction: row-reverse;
@@ -619,7 +652,7 @@ export default {
     display: block;
     background-image: linear-gradient(rgba(255,85,0,.95),rgba(255,85,0,.1));
 }
-
+/* 评论内容 - 用户名 */
 .comment__usernameRight{
     padding: 10px 10px 0 10px;
     color: #ff5500;
@@ -634,7 +667,6 @@ export default {
     display: block;
     background-image: linear-gradient(rgba(255,85,0,.95),rgba(255,85,0,.1));
 }
-
 .comment__body{
     padding: 10px 0 0 10px;
     color: #fff;
@@ -643,10 +675,6 @@ export default {
     overflow: hidden;
     text-overflow: ellipsis; /* 使用省略号隐藏超出内容 */
 }
-
-
-
-
 
 
 
@@ -669,6 +697,7 @@ export default {
     margin-bottom: 20px;    
     
 }
+
 /* 点击在当前时间戳评论 */
 .comment__rightnow{
     height: 40px;
@@ -677,16 +706,52 @@ export default {
     background: #f2f2f2;
     border: 1px solid #e5e5e5;
 }
-.comment__inputWrapper{
-    position: relative;
-    font-size: 12px;
-    line-height: 16px;
-    height: 24px;
-}
 .comment__input{
     width: 100%;
-    height: 100%;
+    box-sizing: border-box;
+    border-radius: 4px;
+    height: 27px;
+    font-size: 14px;
+    padding: 0 9px;
+    font-size: 14px;
+    outline: none;
+    cursor: pointer;
+    border: 1px solid #e5e5e5;
 }
+.commentBtn{
+    position: absolute;
+    width: 50px;
+    height: 25px;
+    right: 0;
+    margin: 7px;
+    top: 0;
+    text-align: center;
+    line-height: 25px;
+    cursor: pointer;
+    background: #f2f2f2;
+}
+.commentBtn__active{
+    position: absolute;
+    width: 50px;
+    height: 25px;
+    right: 0;
+    margin: 7px;
+    top: 0;
+    text-align: center;
+    line-height: 25px;
+    cursor: pointer;
+    color: #fff;
+    background: #ff5500;
+}
+/* 用户点击评论位置显示 */
+.my__thumbnail{
+    right: 0px;
+    position: absolute;
+    height: 20px;
+    width: 20px;
+    background: white;
+}
+
 
 
 .about__left{
