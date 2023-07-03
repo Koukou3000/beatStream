@@ -432,7 +432,7 @@ export default {
 .commentWrapper{
     position: absolute;
     width: 100%;
-    height: 20px;
+    height: 30px;
     background: #888;
     bottom: 30px;
     z-index: 1;
