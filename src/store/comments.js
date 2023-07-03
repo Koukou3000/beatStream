@@ -1,9 +1,9 @@
 export default {
     namespaced: 'comments',
     actions:{
+        // 拉取需要排序的数据
         getComments(context, params){
             let idx = params.tid - 1
-            // mysql可以用 order by 排序得到数据，这里只做分页 
             let comments = context.state.commentList[idx].comments 
             if(!comments) return {total: 0}
             let pages = Math.ceil(comments.length / 5) 
@@ -16,6 +16,18 @@ export default {
                 data: onePage
             }
             return ret // 页数和数据
+        },
+        // 拉取展示在进度条下的数据
+        get200Comments(context, params){
+            let idx = params.tid - 1
+            let comments = context.state.commentList[idx].comments
+            if(!comments) return {total:0}
+            comments = comments.slice(0, 200)
+            let ret = {
+                total: comments.length,
+                data: comments
+            }
+            return ret  // 所有的评论
         }
     },
     mutations:{

@@ -1,4 +1,5 @@
 <template>
+    <!-- 按照特定排序方式获取评论 -->
     <div class="commentList" ref="commentList">
         
         <div class="emptyComments" v-if="total==0">
@@ -6,7 +7,6 @@
             <h3>看起来有些冷清？</h3>
             <h4>留下评论，使它有更多被听到的机会</h4>
         </div>
-
 
         <div v-else>
             <div class="commentList__header">
@@ -47,6 +47,9 @@ export default {
             list: [],
             page: 1,            // 当前页数
             pages: 114,           // 总页数        
+
+            //排序
+            type: 'newest', //oldest/ tracktime
         }
     },
     mounted(){

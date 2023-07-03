@@ -3,24 +3,15 @@
     <NavBar/>
     
     <div class="container">
-      <router-view></router-view>
-    
+      <keep-alive>
+        <router-view v-if="$route.meta.keepAlive"></router-view>
+      </keep-alive> 
       
-      <div style="color:red">
-        pageupload中的内容改成组件; </div>
-      <br>
-      PlayBar 
-        拖拽调整顺序  
-        播放状态需要存到LocalStorage
-        //UPDATE//多个标签页不允许同时播放 
-      <br>
-      TrackDetail
-        歌词滚动
-        webAudio  波形图进度条?
-        
+      <router-view v-if="!$route.meta.keepAlive"></router-view>
     </div>
-    <PlayBar/>
 
+
+    <PlayBar/>
 </div>
 </template>
 

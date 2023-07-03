@@ -10,13 +10,14 @@ const router = new VueRouter({
     routes:[
         {
             path:'',
-            redirect:'/trend'
+            redirect:'/trend',
         },
         {
             path:'/trend',
             component: PageTrend,
             meta:{
-                title: '发现 BeatStream 的热门趋势'
+                title: '发现 BeatStream 的热门趋势',
+                keepAlive: true
             }
         },
         {
@@ -36,8 +37,9 @@ const router = new VueRouter({
             component: PageSearch,
         },
         
-    ]
+    ],
 })
+
 
 
 export default router

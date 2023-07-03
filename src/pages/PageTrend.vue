@@ -167,7 +167,7 @@ export default {
             volume: 0,
             muted: false,
             audio: null,
-            fadeTimer: null,  //淡入淡出定时器
+            fadeTimer: null,        //淡入淡出定时器
             showNumber: false, 
             tid: 0,                 // 当前播放曲目
         }
@@ -355,15 +355,15 @@ export default {
           })
         },  
         pushRoute(e){      
-            // 单纯跳转
             switch(e){
                 case 1: this.tid = this.tracks[0].tid; break;
                 case 2: this.tid = this.tracks[1].tid; break;
                 case 3: this.tid = this.tracks[2].tid; break;
                 default:break;
             }
-            
-             this.$router.push({
+           
+            // 跳转页面
+            this.$router.push({
                     name:'trackDetail', 
                     params:{
                         tid: this.tid,
@@ -374,6 +374,14 @@ export default {
                 let t = this.$store.getters['track/getTrackDetail'](this.tid)// 获取当前播放音频
                 this.$bus.$emit('nextupTaken',t)
                 this.$bus.$emit('adjustTime', this.audio.currentTime)
+
+                // keepalive， 停止当前页面的活动
+                this.audio.pause() 
+                this.audio = null
+                this.go('podium')
+                clearInterval(this.timer)
+                this.timer = null
+                this.count = 0
             }
             
         },

@@ -20,7 +20,7 @@
                             </div>
                         </div>
                         <div class="fullHero__info">
-                            <div class="info__release">1年前</div>
+                            <div class="info__release">{{track.release_time | datetimeToRelate}}</div>
                             <div class="info__tag" v-if="track.tag"># {{track.tag}}</div>
                         </div>
                         <!-- 进度条 -->
@@ -30,7 +30,14 @@
                                 <div class="waveform__longer" :style="{width: `${progressPercent}%`}"></div>
                                 <div class="waveform__under"></div>
                             </div>
-                            <div class="commentWrapper"></div>
+
+                            <!-- 时间轴评论 ////////////////////////////////////////////////////////////////////////////////////////////////////////////-->
+                            <div class="commentWrapper" :key="track.tid" ref="commentsLine">
+                                <ul class="commentQueue">
+                                    <li class="user__thumbnail" v-for="c in threadComments" :key="c.timestamp" :style="{left: `${c.leftPadding}%`}"></li>
+                                </ul>
+                                <div></div>
+                            </div>
                         </div>
                     </div>
                     <!-- canvas抽取背景颜色 -->
@@ -44,7 +51,7 @@
             <div class="listen__wrapper">
                 <div class="about__main">     
                     <div class="about__rows">
-
+                        <!-- 添加一条新评论 .................................................................................................... -->
                         <div class="about__row">
                             <div class="comment__rightnow">
                                 <div class="comment__inputWrapper">
@@ -53,6 +60,7 @@
                             </div>
                             <div class="other__actions"></div>
                         </div>
+
                         <div class="about__row">
                             <div class="about__left">
                                 <div class="artistFigure">
@@ -69,7 +77,6 @@
                                     《 》.........., .........「 」...，...........「 」，.......。...........「 」.....，.........、........，.......... ，........，....「 」....
                                 </div>
                                 <CommentList v-if="track" :tid="track.tid" :key="track.tid"/>
-                                
                             </div>
                         </div>
                     </div>
@@ -101,7 +108,6 @@ export default {
     data(){
         return{
             // pageDetail 可能控制：进度条、播放 | 暂停
-
             track: null,            // 歌曲详情（用于页面内容加载
             nowPlaying: {tid: -1}, // playbar当前播放曲目
             paused: true,
@@ -111,40 +117,92 @@ export default {
             localLRC: null,         // map对象，时间key，歌词value
             autoScroll: true,   
             line: -1,               // 歌词的当前行数
+
+            threadComments: null      // 在进度条下的评论
+
         }
     },
     computed:{
-      progressPercent(){
-        return this.current*100 / this.duration
-      },
-      trackTitle(){
-        if(!this.track) return 'unknown'
-        return this.track.title
-      },
-      trackArtist(){
-        if(!this.track) return 'unknown'
-        return this.track.artist
-      },
-      nowTid(){
-        if(!this.nowPlaying) return -1
-        return this.nowPlaying.tid
-      }
+        progressPercent(){
+            return this.current*100 / this.duration // 进度条进度
+        },
+        trackTitle(){
+            if(!this.track) return 'unknown'
+            return this.track.title
+        },
+        trackArtist(){
+            if(!this.track) return 'unknown'
+            return this.track.artist
+        },
+        nowTid(){
+            if(!this.nowPlaying) return -1
+            return this.nowPlaying.tid
+        }
     },
-    methods:{      
+    methods:{   
+        showComment(){
+            for(let i=0; i<this.threadComments.length; i++){
+                // console.log('comments',this.threadComments[i].timestamp)
+                // // if()
+            }
+            // 进度条右边position一个评论box，当播放到对应位置显示时间戳相同的评论
+            // 播放到下一个评论时替换当前评论，计时1秒后隐藏box
+            // 鼠标移动到的优先级最高
+        },
+        // 加载评论
+        loadComments(){
+            this.threadComments = null
+            this.$store.dispatch('comments/get200Comments',{tid: this.track.tid})
+            .then(res=>{
+                if(res.total > 0){
+                    let comments = res.data // 获得评论数据
+                    // 根据时间戳放置用户小图标；
+                    this.$nextTick(()=>{
+                        let trackDuration = this.durationToSec(this.track.duration)
+                        
+                        for(let i=0; i<comments.length; i++){
+                            let c = comments[i].timestamp
+                            let toLeft = c * 100 / trackDuration // 计算 当前时间戳 / 乐曲长度 得到的比例
+                            comments[i].leftPadding = toLeft // 将评论的用户头像绘制在 left: 比例           
+                        }
+                        this.threadComments = comments
+                    })
+                } 
+           })      
+        },
+        durationToSec(str){
+            let ans = 0
+            let re = /(\d+):(\d+)/
+            let a = str.match(re)
+            // console.log(a)
+            if(a.length >= 3){          
+                let minute = a[1]
+                let sec = a[2]
+                ans = Number(minute*60) + Number(sec)
+            }
+            return ans
+        },
+
+        //歌词滚动
         scrollLyric(){
             // 更新歌词的当前行数
             if(!this.localLRC) return // 没有歌词不需要滚动
             if(this.nowPlaying.tid != this.track.tid) return // 播放中tid对不上页面，不需要滚动
-            for(let i=0; i<this.localLRC.length; i++){
-                if(this.current >= this.localLRC[i].time){
-                    if(this.current < this.localLRC[i+1].time){
+            for(let i=0; i<this.localLRC.length ; i++){
+
+                if(this.current >= this.localLRC[i].time){ // 当前时间大于某一条，并小于其后一条的时间
+                    // 避免i+1 越界
+                    if(i+1 < this.localLRC.length && this.current < this.localLRC[i+1].time){ 
                         this.line = i
                         return
-                    } 
+                    }
+                    else if(i+1 == this.localLRC.length){ // 当这一条是最后一条的时候，那直接切换
+                        this.line = i
+                        return
+                    }
                 }
             } 
-        },
-        
+        }, 
         loadLyric(){
             //加载歌词到 localLRC
             this.localLRC = null
@@ -188,7 +246,7 @@ export default {
             return ans
         },
 
-        // 大按钮交互
+        // 播放按钮
         playClick(){
             // 当前点击曲目和之前当前播放曲目相同，开始播放
             if(this.track.tid == this.nowTid){
@@ -209,6 +267,8 @@ export default {
 
             // 更新歌词滚动
             this.scrollLyric()
+            // 更新评论显示
+            this.showComment()
         },
         updateNowPlaying(t){
             this.nowPlaying = t // 接收播放曲目
@@ -224,7 +284,7 @@ export default {
         this.track = this.$store.getters['track/getTrackDetail'](this.$route.params.tid) // 需要用到的内容读入track 
         document.title = 'Stream "'+this.track.title+'" by '+this.track.artist 
         
-        // 接收来自playbar的进更新  
+        // 接收来自playbar的更新  
         this.$bus.$on('trackProgress',this.trackProgress) 
         this.$bus.$on('updateNowPlaying', this.updateNowPlaying)
         this.$bus.$on('updatePlayStatus', this.updatePlayStatus)
@@ -233,7 +293,11 @@ export default {
         this.paused = this.$route.params.playStatus
         this.nowPlaying = this.$route.params.nowPlaying
         this.loadLyric()  //打开时加载歌词
+        this.loadComments() // 加载进度条下的评论
+
+        // console.log(this.track.tid)
     },
+
     beforeDestroy(){
         this.$bus.$off('trackProgress')
         this.$bus.$off('updateNowPlaying')
@@ -244,8 +308,32 @@ export default {
         this.track = this.$store.getters['track/getTrackDetail'](to.params.tid) 
         document.title = 'Stream "'+this.track.title+'" by '+this.track.artist
         this.loadLyric() // 更新歌词
+        this.loadComments() // 加载进度条下的评论
         next()
+
+        console.log(this.track.tid)
     },
+    filters:{
+         // 时间格式转为 x分钟前 x小时 x天前 x月前 x年前
+        datetimeToRelate(str){
+            let comTime = new Date(str).getTime()
+            let nowTime = new Date().getTime()
+            let diff = nowTime - comTime
+            let sec = Math.floor(diff/1000)
+            let min = Math.floor(sec/60)
+            let hour = Math.floor(min/60)
+            let day = Math.floor(hour/24)
+            let month = Math.floor(day/30)
+            let year = Math.floor(month/12)
+            if(year>0) return  year+'年前'
+            else if(month>0) return month+'月前'
+            else if(day>0) return day+'天前'
+            else if(hour>0) return hour+'小时前'
+            else if(min>0) return min+'分钟前'
+            else if(sec>0) return sec+'秒前'
+            return '刚刚'
+        }
+    }
  
 }
 </script>
@@ -433,11 +521,28 @@ export default {
     position: absolute;
     width: 100%;
     height: 30px;
-    background: #888;
     bottom: 30px;
     z-index: 1;
-    opacity: .3;
+    border-top: 1px solid black;
 }
+.commentQueue{
+    position: absolute;
+    width: inherit;
+    height: 20px;
+    padding: 0;
+    top: 0;
+    margin: 0;
+    list-style: none;
+}
+.user__thumbnail{
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background-image: linear-gradient(to right, #ff5500, #000);
+}
+
+
+
 
 /* 歌曲详情 */
 .listen__wrapper{
