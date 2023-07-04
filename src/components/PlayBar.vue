@@ -82,14 +82,14 @@
       <!-- 底部栏右侧 - 歌曲信息   -->
       <div class="track__container">
         <div class="ctrl__left"> 
-          <template v-if="nowPlaying">
-            <router-link :to="{name:'trackDetail', params:{tid: nowPlaying.tid}}">
+          <div class="artwork__clickable" v-if="nowPlaying" @click="jumpDetail(nowPlaying)">
+            <!-- <router-link :to="{name:'trackDetail', params:{tid: nowPlaying.tid}}"> -->
               <TrackArtwork :imgURL="nowPlaying.img_url" :key="nowPlaying.tid"></TrackArtwork>
-            </router-link>
-          </template>
-          <template v-else>
+            <!-- </router-link> -->
+          </div>
+          <div v-else>
               <TrackArtwork></TrackArtwork>
-          </template>
+          </div>
           <!-- 传输 -->
           <div>
             <div class="artist">
@@ -98,7 +98,8 @@
             </div>
             <div class="track__title">
               <span v-if="nowPlaying">
-                <router-link :to="{name:'trackDetail', params:{tid: nowPlaying.tid}}">{{nowPlaying.title}}</router-link>
+                <div class="title__clickable" @click="jumpDetail(nowPlaying)">{{nowPlaying.title}}</div>
+                <!-- <router-link :to="{name:'trackDetail', params:{tid: nowPlaying.tid}}">{{nowPlaying.title}}</router-link> -->
               </span>
               <span v-else>曲名</span>
             </div>
@@ -281,6 +282,8 @@ export default {
             }
         }
       }
+      this.$bus.$emit('updateNowPlaying', this.nowPlaying)
+      this.$bus.$emit('updatePlayStatus', this.paused)
     },
     playTrack(){   
       if(this.nowIndex <0){
@@ -300,15 +303,16 @@ export default {
       this.audio.volume = this.volumePercent/100 // 初次播放时调整音量
       this.audio.play() 
       this.paused=false
+
       this.$bus.$emit('updateNowPlaying', this.nowPlaying)
-      this.$bus.$emit('updatePlayStatus','playing')
+      this.$bus.$emit('updatePlayStatus', this.paused)
     },
     pauseTrack(){
       if(this.audio){
         this.audio.pause()    
       }
       this.paused=true
-      this.$bus.$emit('updatePlayStatus','paused')
+      this.$bus.$emit('updatePlayStatus', this.paused) 
     },
     // 音量
     toggleMuted(){
@@ -607,11 +611,13 @@ export default {
         name:'trackDetail', 
         params:{
           tid: t.tid,
-          // 参考 TrackGallery 193: pictureClick()
           paused: this.paused, 
           nowPlaying: this.nowPlaying
         }
       })
+      // console.log('jumpdetail')
+      this.$bus.$emit('updateNowPlaying', this.nowPlaying)
+      this.$bus.$emit('updatePlayStatus', this.paused)
     },
 
     // 与crossfade通信
@@ -1248,4 +1254,11 @@ button:focus{
   transform: translateY(3px);
 }
 
+/* debug */
+.title__clickable{
+  cursor: pointer;
+}
+.artwork__clickable{
+  cursor: pointer;
+}
 </style>

@@ -8,9 +8,6 @@
     <!-- 导航下方白色背景 -->
     <div class="workbench__bg">
 
-
-
-
       <div class="upload__box" v-show="manualMode=='upload'">
           <div class="banner__edit" v-if="isEdit"></div>
           <div class="banner__upload" v-else></div>  
@@ -35,7 +32,7 @@
               </div>
               <div class="input__field" @click="inputFocus(2)">
                 <span>自定义标签</span>
-                <input type="text" placeholder="以'#'分割" v-model="tmp_track.tags" ref="inputTags"/>
+                <input type="text" placeholder="以';'分割" v-model="tmp_track.tag" ref="inputTags"/>
               </div>
               <div class="input__field" @click="inputFocus(3)">
                 <span>描述</span>
@@ -44,10 +41,6 @@
               <div class="input__field" @click="inputFocus(4)">
                 <span class="required__mark">音频</span>
                 <input type="" placeholder="url地址" v-model="tmp_track.audio_url" ref="inputAudioURL"/>  
-                <div v-if="tmp_track.audio_url">
-                preview片段<br>
-                ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-              </div>
               </div> 
             </div>
           </div>
@@ -63,8 +56,12 @@
         <div class="edit__header">选择编辑对象</div>
         <div class="track__container">
           
-          <div class="track" v-for="(item,index) in tracksCurrentPage" :key="item.tid" @click="modifySingle(item)">
-            <div :class="'track__img artwork__placeholder__'+index" :style="{'background-image':'url('+item.img_url+')'}"></div>
+          <div class="track" v-for="(item) in tracksCurrentPage" :key="item.tid" @click="modifySingle(item)">
+            <!-- <div :class="'track__img artwork__placeholder__'+index" :style="{'background-image':'url('+item.img_url+')'}"></div> -->
+            <div class="track__img" >
+              <TrackArtwork style="position:absolute;top:0;left:0;width:100%;height: 80%;" :imgURL="item.img_url"/>
+            </div>
+
             <div class="track__textInfo">
               <div class="track__title">{{item.title}}</div>
               <div class="track__artist">{{item.artist}}</div>
@@ -91,8 +88,9 @@
 
 <script>
 
-
+import TrackArtwork from '@/components/TrackArtwork.vue'
 export default {
+  components:{TrackArtwork},
   data(){
     return{
       manualMode: 'upload', // upload / edit
@@ -107,7 +105,7 @@ export default {
         img_url: '',
         releast_time: '',
         preview_start: 0, // 秒为单位，显示成 [分钟:秒]                
-        tags:'',
+        tag:'',
         description: ''
       },
 
@@ -137,6 +135,7 @@ export default {
     }
   },
   methods:{
+    
     switchTab(type){
       this.manualMode = type
       switch(type){

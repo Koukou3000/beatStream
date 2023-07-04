@@ -11,10 +11,10 @@
                             <!-- 小于visitedIdx 在可视范围内 -->                         
                         <div class="track__" @click="pictureClick(t)" v-if="idx <= visitedIdx">
                             <TrackArtwork style="position:absolute;width:100%;height:100%;top:0;" :imgURL="t.img_url"/>
-
-                            <!-- hover && ((tid对得上 && 处于暂停状态)  || id对不上)-->
+                            
                             <transition-group name="trackControl">
-                                                   
+                                
+                                <!-- hover && ((tid对得上 && 处于暂停状态)  || id对不上)-->
                                 <div class="play__now" v-show="focusIdx==idx && ((t.tid==nowTid && paused) || t.tid!=nowTid )" :key="`${t.tid}&playBtn`"
                                     @click.stop="playClick(t)"></div>
                                 <!--  tid对得上 && 处于播放状态-->
@@ -22,6 +22,8 @@
                                     @click.stop="pauseClick"></div>
                                 <div class="play__actions" v-show="focusIdx==idx" @click.stop="addNextup(t)" :key="`${t.tid}&actionBtn`">添加到Nextup</div>
                
+
+
                             </transition-group>        
                             <div class="track__text text__bigger">{{t.title}}</div>
                             <div class="track__text text__smaller">{{t.artist}}</div>
@@ -62,7 +64,7 @@ export default {
             moving: false,          // 避免重复的移动
 
             nowPlaying: null,      // 正在播放的曲目        
-            paused: true,
+            paused: '',
         }
     },
     props:{
@@ -92,9 +94,11 @@ export default {
     },
     computed:{
         nowTid(){
-            if(this.nowPlaying) // 返回当前播放的tid用来判断显示内容
+            if(this.nowPlaying){
+                // console.log(this.nowPlaying)
                 return this.nowPlaying.tid
-            return -1
+            }
+            return 'unknown'
         },
     },
     methods:{
@@ -164,14 +168,11 @@ export default {
         },
         
         // 响应同名事件
-        updateNowPlaying(t){
-            this.nowPlaying = t // 接收播放曲目
+        updateNowPlaying(track){
+            this.nowPlaying = track // 接收播放曲目
         },
-        updatePlayStatus(e){
-            if(e=='playing')
-                this.paused = false
-            else
-                this.paused = true
+        updatePlayStatus(stat){        
+            this.paused = stat     
         },
 
         // 发起通信

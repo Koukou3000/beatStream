@@ -21,9 +21,9 @@
                         </div>
                         <div class="fullHero__info">
                             <div class="info__release">{{track.release_time | datetimeToRelate}}</div>
-                            <div class="info__tag" v-if="track.tag"># {{track.tag}}</div>
+                            <div class="info__tag" v-if="track.tag"># {{track.tag | firstTag}}</div>
                         </div>
-                        <!-- 进度条 -->
+                        <!-- 波形图进度条 -->
                         <div class="fullHero__playerArea">
                             <div class="waveformWrapper" :style="{opacity: paused ? 0.5 : 1}">
                                 <!-- <div class="waveform__shorter"></div> -->
@@ -87,7 +87,8 @@
                             <div class="about__right">
                                 <div class="aboutTrack">
                                     歌曲介绍（对象属性）<br>
-                                    《 》.........., .........「 」...，...........「 」，.......。...........「 」.....，.........、........，.......... ，........，....「 」....
+                                    《 》.........., .........「 」..., ...........「 」，.......。...........「 」
+                                    ....., .........、........, .......... , ........, ....「 」....
                                 </div>
                                 <CommentList v-if="track" :tid="track.tid" :key="track.tid"/>
                             </div>
@@ -146,7 +147,9 @@ export default {
             return this.myCommentTime * 100 / length // 当前时间 / 总时长
         },
         progressPercent(){
-            return this.current*100 / this.duration // 进度条进度
+            if(this.nowPlaying && this.track && this.nowPlaying.tid==this.track.tid)
+                return this.current*100 / this.duration // 进度条进度
+            else return 0
         },
         trackTitle(){
             if(!this.track) return 'unknown'
@@ -376,11 +379,8 @@ export default {
         updateNowPlaying(track){
             this.nowPlaying = track // 接收播放曲目
         },
-        updatePlayStatus(e){
-            if(e=='playing')
-                this.paused = false
-            else
-                this.paused = true
+        updatePlayStatus(stat){
+            this.paused = stat
         },
         jumpToSeconds(time){
             this.playClick()
@@ -441,8 +441,14 @@ export default {
             else if(hour>0) return hour+'小时前'
             else if(min>0) return min+'分钟前'
             else if(sec>0) return sec+'秒前'
-            return '刚刚'
-        }
+            return '未知'
+        },
+        firstTag(tagStr){
+            let arr = tagStr.split(';')
+            let firstTag = arr.filter(item => item.trim().length > 0)[1]
+            if(firstTag) return firstTag
+            else return 'unknown'            
+        },
     }
  
 }
@@ -589,7 +595,7 @@ export default {
     background: #999;
     border-radius: 20px;
     font-family: sans-serif;
-    cursor: pointer;
+    /* cursor: pointer; */
 }
 .info__tag:hover{
     background: #666;

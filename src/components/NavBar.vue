@@ -67,8 +67,9 @@ export default {
     notify(str){
       this.$notify.info({
         title: str+' 并不存在',
-        message: '这个部分还没开始做。',
-        })
+        message: '只是前台项目',
+        offset: 50,
+      })
     },
     search(){
       let words = this.$refs.searchInput.value
