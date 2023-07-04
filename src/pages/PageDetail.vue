@@ -31,12 +31,13 @@
                                 <div class="waveform__under"></div>
                             </div>
 
-                            <!-- 时间轴评论 -->
+                            <!-- 时间轴评论  -->
                             <div class="commentWrapper" :key="track.tid" ref="commentsLine">
                                 <ul class="commentQueue" :style="{opacity: readyComment?'0.3':'1'}">
                                     <li class="user__thumbnail" v-for="c in threadComments" :key="c.timestamp" @click="copyTimeReady(c.timestamp)"
                                     :style="{left: `${c.leftPadding}%`}"></li>
                                 </ul>
+                                <!-- 鼠标上移显示commentPop................................................................................................ -->
                                 <transition name="showComment">
                                     <div class="commentPop" v-if="colm!=-1">
                                         <!-- 当进度条过半时，方向翻转 -->
@@ -64,7 +65,7 @@
             <div class="listen__wrapper">
                 <div class="about__main">     
                     <div class="about__rows">
-                        <!-- 添加一条新评论 .................................................................................................... -->
+
                         <div class="about__row">
                             <div class="comment__rightnow" @click.stop="timelineReady">                       
                                 <input type="text" class="comment__input" placeholder="在这评论" ref="commentInput" @blur="cancelReady" v-model="myCommentBody"/>        
@@ -190,20 +191,28 @@ export default {
                     offset: 50
                 })
             }
+             // 发送数据
             else{
-                // 发送数据
                 this.$store.dispatch('comments/appendComment',{
                     tid: this.track.tid,
                     comment:{
                         body: this.myCommentBody,
-                        timestamp : this.myCommentTime,
-                        create_at: this.formateTimeStamp(new Date().getTime()),
-                        user_name: 'me',
+                        timestamp : this.myCommentTime+0.001,
+                        created_at: this.formateTimeStamp(new Date().getTime()),
+                        user_name: '我',
                     }
                 }).then(res=>{
+                    // vuex的数据已经发生更新，此时再获取数据
                     if(res.code == 0){
-                        console.log('添加评论成功，刷新')
+                        this.$notify.success({
+                            title: '添加评论成功',
+                            message: '刷新评论列表...', 
+                            position: 'bottom-left',
+                            offset: 50
+                        })
+                        this.$bus.$emit('initCommentList')
                         this.loadComments()
+                        this.myCommentBody = ''
                     }
                 })
             }
@@ -237,7 +246,7 @@ export default {
             if(!show)
                 this.colm = -1
         },
-        // 加载评论
+        // 加载进度条评论
         loadComments(){
             this.threadComments = null
             this.$store.dispatch('comments/get200Comments',{tid: this.track.tid}) // 获得两百条评论

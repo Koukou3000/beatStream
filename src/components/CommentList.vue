@@ -20,7 +20,8 @@
                 </div>
             </div>
             <ul class="commentList__body" v-if="list">
-                <li class="comment__itemWrapper" v-for="(c,idx) in list" :key="idx">
+                <!-- {{list}} -->
+                <li class="comment__itemWrapper" v-for="(c) in list" :key="c.timestamp+c.user_name">
                     <div class="comment__data">
                         <div class="comment__userAvatar"></div>
                         <div class="comment__content">
@@ -31,6 +32,7 @@
                             </div>
                             <div>{{c.body}}</div>
                         </div>
+                        <!-- <div class="comment__meta">{{c.created_at}}</div> -->
                         <div class="comment__meta">{{c.created_at | datetimeToRelate}}</div>
                     </div>
                 </li>
@@ -71,11 +73,6 @@ export default {
             return '未选择'
         }
     },
-    mounted(){
-        // 加载后读取第一页
-        addEventListener('scroll',this.handleScroll)
-        this.requestData()
-    },  
     methods:{
         // 修改列表排序规则
         showSelect(){
@@ -87,14 +84,17 @@ export default {
         hideSelect(){
             this.showPanel = false 
         },
-        changeSortType(type){
-            // 刷新列表
+        changeSortType(type){  
+            this.sortType = type
+            this.initCommentList()           
+        },
+        // 刷新列表
+        initCommentList(){
             if(!this.loading){
                 this.list = []
                 this.page = 1
                 this.pages = 114
                 this.total = '...'
-                this.sortType = type
                 this.requestData()
             }
         },
@@ -143,7 +143,7 @@ export default {
     filters:{
         minuteAndSec(str){
             let min = Math.floor(str/60)
-            let sec = str % 60
+            let sec = Math.floor(str % 60)
             if(sec < 10) sec = '0'+sec
             return min+":"+sec
         },
@@ -164,8 +164,17 @@ export default {
             else if(hour>0) return hour+'小时前'
             else if(min>0) return min+'分钟前'
             else if(sec>0) return sec+'秒前'
-            return '刚刚'
+            return '时间错误'
         }
+    },
+    mounted(){
+        // 加载后读取第一页
+        addEventListener('scroll',this.handleScroll)
+        this.requestData()
+        this.$bus.$on('initCommentList', this.initCommentList)
+    },  
+    beforeDestroy(){
+        this.$bus.$off('initCommentList')
     }
 }
 </script>
