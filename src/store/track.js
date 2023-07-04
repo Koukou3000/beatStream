@@ -46,7 +46,7 @@ export default {
                 img_url: '',
                 release_time: '2022-07-26 16:48:30',
                 preview_start: 57, 
-                duration: '2:18',
+                duration: '2:58',
                 tag: 'guitar;post rock',
             },
             {
@@ -58,7 +58,7 @@ export default {
                 release_time: '2018-01-26 16:48:30',
                 preview_start: 65,
                 tag: 'nation;new age', 
-                duration: '3:42',
+                duration: '3:41',
             },
             {
                 tid: 4,
@@ -69,7 +69,7 @@ export default {
                 release_time: '2019-01-26 16:48:30',
                 preview_start: 190, 
                 tag: 'Trance;eletro;nhato',
-                duration: '6:25',
+                duration: '6:23',
             },
            
             {
@@ -92,7 +92,7 @@ export default {
                 release_time: '2017-01-26 16:48:30',
                 preview_start: 0, 
                 tag: 'wild;eletro',
-                duration: '2:52',
+                duration: '4:03',
             },
             {
                 tid: 7,
@@ -103,7 +103,7 @@ export default {
                 release_time: '2021-01-26 16:48:30',
                 preview_start: 0, 
                 tag: 'instrument;emotional',
-                duration: '3:53',
+                duration: '2:57',
             },
             {
                 tid: 8,
@@ -114,7 +114,7 @@ export default {
                 release_time: '2021-01-26 16:48:30',
                 preview_start: 166, 
                 tag: 'techcore;vocal;sample',
-                duration: '5:11',
+                duration: '5:09',
             },
             {
                 tid: 9,
@@ -136,7 +136,7 @@ export default {
                 release_time: '2021-01-26 16:48:30',
                 preview_start: 0, 
                 tag: 'happy;eletro',  
-                duration: '2:06',
+                duration: '3:22',
             },
             {
                 tid: 11,
@@ -147,7 +147,7 @@ export default {
                 release_time: '2021-01-26 16:48:30',
                 preview_start: 0, 
                 tag: 'hardcore;happy',
-                duration: '4:29',
+                duration: '3:41',
             },
           
             {

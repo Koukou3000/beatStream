@@ -1,3 +1,5 @@
+console.log('建议使用Chrome浏览器浏览')
+
 import Vue from 'vue'
 import App from './App.vue'
 

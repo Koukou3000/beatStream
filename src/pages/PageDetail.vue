@@ -71,7 +71,7 @@
                                 <input type="text" class="comment__input" placeholder="在这评论" ref="commentInput" @blur="cancelReady" v-model="myCommentBody"/>        
                                 <div :class="readyComment?'commentBtn__active':'commentBtn'" @click.stop="writeComment">评论</div>         
                             </div>
-                            <div class="other__actions">其他操作</div>
+                            <!-- <div class="other__actions">其他操作</div> -->
                         </div>
 
                         <div class="about__row">
@@ -391,17 +391,16 @@ export default {
         this.track = this.$store.getters['track/getTrackDetail'](this.$route.params.tid) // 需要用到的内容读入track 
         document.title = 'Stream "'+this.track.title+'" by '+this.track.artist 
         
-        // 接收来自playbar的更新  
-        this.$bus.$on('trackProgress',this.trackProgress) 
-        this.$bus.$on('updateNowPlaying', this.updateNowPlaying)
-        this.$bus.$on('updatePlayStatus', this.updatePlayStatus)
-
-        // 进入时需要判断当前播放曲目
+        // 来自 $route.push，进入时判断当前播放状态的参数
         this.paused = this.$route.params.playStatus
         this.nowPlaying = this.$route.params.nowPlaying
         this.loadLyric()  //打开时加载歌词
         this.loadComments() // 加载进度条下的评论
 
+        // 接收来自playbar的更新  
+        this.$bus.$on('trackProgress',this.trackProgress) 
+        this.$bus.$on('updateNowPlaying', this.updateNowPlaying)
+        this.$bus.$on('updatePlayStatus', this.updatePlayStatus)
         // 接收来自commentList的更新
         this.$bus.$on('jumpToSeconds', this.jumpToSeconds)
     },

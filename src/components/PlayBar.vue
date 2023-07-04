@@ -177,8 +177,7 @@
                       </div>
                       
                       <div class="queue__footer" :style="{transform:`translateY(${(nextup.length*48)-1}px)`}" ref="itemsFooter">           
-                          audio 存在sessionStorage中 （以audio url为key，读取sessionStorage中的blob?
-                          ENDS
+                        建议使用Chrome浏览器
                       </div>
                     </div>
 
@@ -255,22 +254,20 @@ export default {
     nextup(){
       localStorage.setItem('nextup_list', JSON.stringify(this.nextup))
     },
-    nowPlaying(newVal){
-      this.$bus.$emit('updateNowPlaying',newVal) // Gallery
-    },
 
-    // 与其他组件同步音乐播放状态
+    // 与其他组件同步音乐播放状态 ...Gallery、Detail
     $route(){
       // console.log(this.$route)
       this.$bus.$emit('updateNowPlaying', this.nowPlaying)
       this.$bus.$emit('updatePlayStatus', this.paused)
     },
+    nowPlaying(newVal){
+      this.$bus.$emit('updateNowPlaying',newVal)
+    },
     paused(){
       this.$bus.$emit('updatePlayStatus', this.paused)
     },
-    // nowPlaying(){
-    //   this.$bus.$emit('updateNowPlaying', this.nowPlaying)
-    // }
+
 
   },
   methods:{
@@ -312,9 +309,13 @@ export default {
         this.audio.addEventListener('timeupdate', this.updateProgressBar)
       }
       this.audio.volume = this.volumePercent/100 // 初次播放时调整音量
-      this.audio.play() 
-      this.paused=false
-
+      let a = this.audio.play() 
+      if(a !== undefined){
+        a.then(()=>{
+           this.paused=false
+        })
+        .catch(err=> console.log(err))
+      }
       // this.$bus.$emit('updateNowPlaying', this.nowPlaying)
       // this.$bus.$emit('updatePlayStatus', this.paused)
     },

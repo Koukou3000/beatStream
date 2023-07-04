@@ -137,6 +137,7 @@
                     
                     <div class="section">
                         <TrackGallery :tracks="getsth()" title="推荐单曲"/>
+                        <!-- <TrackGallery :tracks="getsthLyric()" title="评论丰富"/> -->
                     </div>
                    
                 </div>  
