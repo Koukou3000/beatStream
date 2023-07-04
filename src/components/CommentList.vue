@@ -7,10 +7,17 @@
             <h3>看起来有些冷清？</h3>
             <h4>留下评论，使它有更多被听到的机会</h4>
         </div>
-
         <div v-else>
             <div class="commentList__header">
                 <span style="color:#999">共 {{total}} 条评论</span> 
+                <div class="selectWrapper">
+                    <button class="sortBtn" @click="showSelect" @blur="hideSelect">排序：{{sortTypeShown}}</button>
+                    <ul v-show="showPanel" class="sort__panel">
+                        <li :class="{selected: sortType=='newest'}" @mousedown="changeSortType('newest')">最新</li>
+                        <li :class="{selected: sortType=='oldest'}" @mousedown="changeSortType('oldest')">最早</li>
+                        <li :class="{selected: sortType=='tracktime'}" @mousedown="changeSortType('tracktime')">时间轴</li>
+                    </ul>
+                </div>
             </div>
             <ul class="commentList__body" v-if="list">
                 <li class="comment__itemWrapper" v-for="(c,idx) in list" :key="idx">
@@ -20,7 +27,7 @@
                             <div style="font-size: 12px;">
                                 <span style="color:#999">{{c.user_name}}</span>
                                 <span style="color:#ccc"> at </span>
-                                <span class="jumpable__time">{{c.timestamp | minuteAndSec}}</span>
+                                <span class="jumpable__time" @click="singalJump(c)">{{c.timestamp | minuteAndSec}}</span>
                             </div>
                             <div>{{c.body}}</div>
                         </div>
@@ -42,14 +49,26 @@ export default {
     props:['tid'],
     data(){
         return{
-            loading: false,
+            loading: false,         // 是否在加载评论
             total: '...',           // 总评论数
-            list: [],
-            page: 1,            // 当前页数
-            pages: 114,           // 总页数        
+            list: [],           
+            page: 1,                // 当前页数
+            pages: 114,             // 总页数        
 
-            //排序
-            type: 'newest', //oldest/ tracktime
+            //排序用
+            sortType: 'newest',     // 顺序、倒序、乐曲时间
+            showPanel: false,   // 评论类型 选择面板
+        }
+    },
+    computed:{
+        sortTypeShown(){
+            switch(this.sortType){
+                case 'newest': return '最新';
+                case 'oldest': return '最早';
+                case 'tracktime': return '时间轴';
+                default : break;
+            }
+            return '未选择'
         }
     },
     mounted(){
@@ -58,6 +77,32 @@ export default {
         this.requestData()
     },  
     methods:{
+        // 修改列表排序规则
+        showSelect(){
+            if(this.showPanel) 
+                this.showPanel = false
+            else
+                this.showPanel = true
+        },
+        hideSelect(){
+            this.showPanel = false 
+        },
+        changeSortType(type){
+            // 刷新列表
+            if(!this.loading){
+                this.list = []
+                this.page = 1
+                this.pages = 114
+                this.total = '...'
+                this.sortType = type
+                this.requestData()
+            }
+        },
+
+        //  发送跳转至某一秒的信号
+        singalJump(comment){
+            this.$bus.$emit('jumpToSeconds', comment.timestamp)
+        },
         handleScroll(){
             this.$nextTick(()=>{
                 if(!this.$refs.commentList) return
@@ -69,7 +114,7 @@ export default {
                 }
             })
         },
-        requestData(){
+        requestData(){        
             if(this.total==0) return
             if(!this.loading && this.page < this.pages){ // 如果没有在加载，就开始加载新内容
                 // 发送请求     
@@ -77,6 +122,7 @@ export default {
                 let ret = this.$store.dispatch('comments/getComments',{
                     tid:  this.tid, 
                     page: this.page,
+                    sortType: this.sortType
                 })
                 // 再对收到的数据做响应
                 setTimeout(() => {
@@ -160,7 +206,7 @@ h4{
 }
 
 
-/* 评论列表 */
+/* 评论样式 */
 ul{
     margin: 0;
     padding: 0;
@@ -191,6 +237,7 @@ li{
 .jumpable__time{
     color: #999;
     cursor: pointer;
+    text-decoration: underline;
 }
 .jumpable__time:hover{
     color: #333;
@@ -204,6 +251,7 @@ li{
     font-size: 12px;
 }
 
+/* 加载中，加载结束提示 */
 .loading{
     padding: 20px 0;
     display: flex;
@@ -227,6 +275,65 @@ li{
     background: #fff;
     padding: 0 10px;
     color: #999;
+}
+
+
+/* 评论类型控制 */
+.sortBtn{
+    border: 1px solid #f50;
+    cursor: pointer;
+    color: #f50;
+    text-align: left;
+    text-overflow: ellipsis;
+    border-radius: 4px;
+    padding: 5px 25px 5px 10px;  
+    transition: .1s;
+    position: relative;
+    background: #fff;
+}
+.sortBtn::after{
+    position: absolute;
+    content: '';
+    width: 5px;
+    height: 5px;
+    border-right: 1px solid #f50;
+    border-bottom: 1px solid #f50;
+    right: 10px;
+    top: 10px;
+    transform: rotate(45deg);
+}
+.sortBtn:hover{
+    color: #f2f2f2;
+    background: #f50;
+}
+.sortBtn:hover::after{
+    border-color: #f2f2f2;
+}
+.sortBtn:focus{
+    outline: none;
+    box-shadow: 0 0 0 4px #e5e5e5;
+}
+.selectWrapper{
+    position: relative;
+}
+.sort__panel{
+    position: absolute;
+    left: 0;
+    background: #fff;
+    padding: 10px 0;
+    box-shadow: 0 1px 8px rgba(0,0,0,.2);
+}
+.sort__panel li{
+    display: block;
+    cursor: pointer;
+    padding: 0 15px;
+    line-height: 28px;
+}
+.sort__panel li:hover{
+    color: #ff5500;
+}
+.selected{
+    color: #ff5500;
 }
 
 </style>

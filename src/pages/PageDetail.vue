@@ -70,7 +70,7 @@
                                 <input type="text" class="comment__input" placeholder="在这评论" ref="commentInput" @blur="cancelReady" v-model="myCommentBody"/>        
                                 <div :class="readyComment?'commentBtn__active':'commentBtn'" @click.stop="writeComment">评论</div>         
                             </div>
-                            <div class="other__actions"></div>
+                            <div class="other__actions">其他操作</div>
                         </div>
 
                         <div class="about__row">
@@ -161,7 +161,7 @@ export default {
         }
     },
     methods:{   
-        // 评论相关
+        // 评论相关 ，可以回复的状态称为 Ready
         copyTimeReady(t){
             if(!this.readyComment){
                 this.readyComment = true
@@ -364,14 +364,18 @@ export default {
             // 更新评论显示
             this.showComment()
         },
-        updateNowPlaying(t){
-            this.nowPlaying = t // 接收播放曲目
+        updateNowPlaying(track){
+            this.nowPlaying = track // 接收播放曲目
         },
         updatePlayStatus(e){
             if(e=='playing')
                 this.paused = false
             else
                 this.paused = true
+        },
+        jumpToSeconds(time){
+            this.playClick()
+            this.$bus.$emit('adjustTime', time)
         },
     },
     mounted(){
@@ -388,12 +392,16 @@ export default {
         this.nowPlaying = this.$route.params.nowPlaying
         this.loadLyric()  //打开时加载歌词
         this.loadComments() // 加载进度条下的评论
+
+        // 接收来自commentList的更新
+        this.$bus.$on('jumpToSeconds', this.jumpToSeconds)
     },
 
     beforeDestroy(){
         this.$bus.$off('trackProgress')
         this.$bus.$off('updateNowPlaying')
         this.$bus.$off('updatePlayStatus')
+        this.$bus.$off('jumpToSeconds')
     },  
     beforeRouteUpdate(to, from, next){
          // mounted只调用一次，参数变化时也能刷新页面
