@@ -315,7 +315,9 @@ export default {
             let ans = []
             if(!this.track.lyric) return
             else{
+                console.log(this.track.lyric)
                 let str = atob(this.track.lyric) // 解码后
+                console.log(str)
                 let lines = str.split('\n') // 按行分隔
                 let regex = /\[(\d+:\d+.\d+)\](.*)/ // [01:14.514] *words*
     

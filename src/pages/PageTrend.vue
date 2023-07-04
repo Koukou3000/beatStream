@@ -137,6 +137,7 @@
                     
                     <div class="section">
                         <TrackGallery :tracks="getsth()" title="推荐单曲"/>
+                        <TrackGallery :tracks="getsth()" title="有歌词"/>
                         <!-- <TrackGallery :tracks="getsthLyric()" title="评论丰富"/> -->
                     </div>
                    
@@ -399,7 +400,7 @@ export default {
             this.$bus.$emit('nextupAffix', t)
         },
         getsth(){
-            return this.$store.getters['track/getTenTracks']()
+            return this.$store.getters['track/getTwelveTracks']()
         }
     },
     filters:{

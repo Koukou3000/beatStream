@@ -235,6 +235,8 @@ export default {
 <style scoped>
 .gallery{
     position: relative;
+    border-bottom: 1px solid #f2f2f2;
+    margin-bottom: 30px;
 }
 .title{
     margin-bottom: 24px;
