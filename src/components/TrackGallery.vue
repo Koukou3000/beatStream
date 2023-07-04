@@ -8,12 +8,17 @@
                 <!-- 一首乐曲 -->
                 <div class="track__frame" v-for="(t, idx) in tracks" :key="t.tid" ref="items"  @mouseenter="focusIdx=idx" @mouseleave="focusIdx=-1">
                     <div class="track__cover">     
+                                                   
+                                <!-- focusIdx{{focusIdx}}
+                                idx{{idx}}
+                                track tid{{t.tid}}
+                                nowTId{{nowTid}}
+                                paused{{paused}} -->
                             <!-- 小于visitedIdx 在可视范围内 -->                         
                         <div class="track__" @click="pictureClick(t)" v-if="idx <= visitedIdx">
                             <TrackArtwork style="position:absolute;width:100%;height:100%;top:0;" :imgURL="t.img_url"/>
-                            
                             <transition-group name="trackControl">
-                                
+
                                 <!-- hover && ((tid对得上 && 处于暂停状态)  || id对不上)-->
                                 <div class="play__now" v-show="focusIdx==idx && ((t.tid==nowTid && paused) || t.tid!=nowTid )" :key="`${t.tid}&playBtn`"
                                     @click.stop="playClick(t)"></div>
@@ -63,7 +68,7 @@ export default {
             visitedIdx: 4,          // 允许加载的索引值
             moving: false,          // 避免重复的移动
 
-            nowPlaying: null,      // 正在播放的曲目        
+            nowPlaying: null,       // 正在播放的曲目        
             paused: '',
         }
     },
@@ -86,7 +91,7 @@ export default {
                 if(p == 1){
                     this.hasBackward = false
                 } 
-                this.checkVisible() 
+                this.checkVisible()  // 页面变化时，判断哪些图片需要加载
 
             },
             immediate: true
@@ -95,7 +100,6 @@ export default {
     computed:{
         nowTid(){
             if(this.nowPlaying){
-                // console.log(this.nowPlaying)
                 return this.nowPlaying.tid
             }
             return 'unknown'
@@ -192,6 +196,7 @@ export default {
             this.$bus.$emit('pauseTrack')
         },
         pictureClick(t){
+            // 跳转到详情页
             this.$router.push({
                 name:'trackDetail', 
                 params:{
@@ -200,7 +205,7 @@ export default {
                     paused: this.paused, 
                     nowPlaying: this.nowPlaying
                 }
-        }) // 跳转到详情页
+            }) 
         },
     },
     created(){
@@ -221,7 +226,8 @@ export default {
     beforeDestroy(){
         this.$bus.$off('updateNowPlaying')
         this.$bus.$on('updatePlayStatus')
-    }
+    },
+
 
 }
 </script>

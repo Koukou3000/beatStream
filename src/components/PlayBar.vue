@@ -258,7 +258,20 @@ export default {
     nowPlaying(newVal){
       this.$bus.$emit('updateNowPlaying',newVal) // Gallery
     },
-    
+
+    // 与其他组件同步音乐播放状态
+    $route(){
+      // console.log(this.$route)
+      this.$bus.$emit('updateNowPlaying', this.nowPlaying)
+      this.$bus.$emit('updatePlayStatus', this.paused)
+    },
+    paused(){
+      this.$bus.$emit('updatePlayStatus', this.paused)
+    },
+    // nowPlaying(){
+    //   this.$bus.$emit('updateNowPlaying', this.nowPlaying)
+    // }
+
   },
   methods:{
     // 播放暂停单曲
@@ -282,8 +295,6 @@ export default {
             }
         }
       }
-      this.$bus.$emit('updateNowPlaying', this.nowPlaying)
-      this.$bus.$emit('updatePlayStatus', this.paused)
     },
     playTrack(){   
       if(this.nowIndex <0){
@@ -304,15 +315,15 @@ export default {
       this.audio.play() 
       this.paused=false
 
-      this.$bus.$emit('updateNowPlaying', this.nowPlaying)
-      this.$bus.$emit('updatePlayStatus', this.paused)
+      // this.$bus.$emit('updateNowPlaying', this.nowPlaying)
+      // this.$bus.$emit('updatePlayStatus', this.paused)
     },
     pauseTrack(){
       if(this.audio){
         this.audio.pause()    
       }
       this.paused=true
-      this.$bus.$emit('updatePlayStatus', this.paused) 
+      // this.$bus.$emit('updatePlayStatus', this.paused) 
     },
     // 音量
     toggleMuted(){
@@ -615,7 +626,7 @@ export default {
           nowPlaying: this.nowPlaying
         }
       })
-      // console.log('jumpdetail')
+      // 应当在每次路由切换
       this.$bus.$emit('updateNowPlaying', this.nowPlaying)
       this.$bus.$emit('updatePlayStatus', this.paused)
     },
