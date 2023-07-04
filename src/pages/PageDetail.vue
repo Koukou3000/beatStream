@@ -315,9 +315,8 @@ export default {
             let ans = []
             if(!this.track.lyric) return
             else{
-                console.log(this.track.lyric)
-                let str = atob(this.track.lyric) // 解码后
-                console.log(str)
+                // let str = atob(this.track.lyric) // 解码后
+                let str = this.decodeBase64(this.track.lyric)
                 let lines = str.split('\n') // 按行分隔
                 let regex = /\[(\d+:\d+.\d+)\](.*)/ // [01:14.514] *words*
     
@@ -339,6 +338,18 @@ export default {
             }    
             // console.log(ans)
             this.localLRC = ans
+        },
+        decodeBase64(base64_str){
+            let binaryString = atob(base64_str);
+            let bytes = new Uint8Array(binaryString.length);
+            for (let i = 0; i < binaryString.length; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+            }
+
+            // 将 Uint8Array 转换为文本
+            let decoder = new TextDecoder('utf-8');
+            let decodedString = decoder.decode(bytes);
+            return decodedString
         },
         // 01:20.30 => 80.30 ，方便timeupdate对比时间戳
         timeToSeconds(str){
