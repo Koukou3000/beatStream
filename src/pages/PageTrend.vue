@@ -258,10 +258,17 @@ export default {
             }
 
             this.audio = t.audioObj
-            if(this.audio){
+            // console.log(this.audio)
+            // console.log(t)
+            if(t.audioOk && this.audio){
                 this.audio.volume = 0
-                this.audio.currentTime = t.preview_start
-                this.audio.play()
+                this.audio.currentTime = t.preview_start           
+               try{
+                    this.audio.play()
+               }
+               catch(err){
+                    console.log(err)
+               }
             }
 
             this.timer = setInterval(() => {
