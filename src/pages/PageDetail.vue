@@ -39,16 +39,19 @@
                                 </ul>
                                 <!-- 鼠标上移显示commentPop................................................................................................ -->
                                 <transition name="showComment">
+
                                     <div class="commentPop" v-if="colm!=-1">
                                         <!-- 当进度条过半时，方向翻转 -->
                                         <div :class="{'comment__locate':true, 'stickRight':threadComments[colm].timestamp >= duration/2}" 
                                               :style="{left: `${threadComments[colm].leftPadding}%`}">
+
                                             <span :class="threadComments[colm].timestamp >= duration/2 ? 'comment__usernameRight':'comment__username'">
                                                 {{threadComments[colm].user_name}}
                                             </span>
                                             <span class="comment__body">{{threadComments[colm].body}}</span>
                                         </div>
                                     </div>
+
                                 </transition>
                                 <div class="my__thumbnail" :style="{left:`${myCommentPaddingLeft}%`}"></div>
                             </div>
@@ -237,17 +240,22 @@ export default {
             if(!this.threadComments) return // 没有评论，返回
             if(this.nowPlaying.tid != this.track.tid) return // 播放中tid对不上页面，不需要显示
             
-            let show = false
-            for(let i=this.threadComments.length-1; i>=0; i--){     
-                let t = this.threadComments[i].timestamp  // 获得这条乐曲的时间戳
-                //  t  <= 当前时间 < t + 3s  => 显示
-                if(t <= this.current && this.current < t+3){ 
-                    this.colm = i
-                    show = true // 有一个触发，就显示内容，如果没有人触发，就隐藏
-                }               
-            }
-            if(!show)
-                this.colm = -1
+            let show = false // 是否显示
+            let min = Infinity // 距离进度条最近的评论是？
+            let ans = -1
+            for(let i=0; i<this.threadComments.length; i++){     
+                let t = this.threadComments[i].timestamp
+                let now = Math.abs(t - this.current)
+                // 距离进度条最近，并且 t <= cur
+                if(now < min && t <= this.current && this.current < t+3){
+                    min = now  // 暂时记录最小值
+                    ans = i     // 记录显示的元素
+                    show = true
+                }
+
+            }// end for
+            if(!show) this.colm = -1
+            else this.colm = ans
         },
         // 加载进度条评论
         loadComments(){
@@ -372,7 +380,8 @@ export default {
                 this.$bus.$emit('playTrack')
             }
             else{
-                this.$bus.$emit('nextupTaken',this.track) // 播放当前的，其他从列表删除
+                this.current = 0// 重置进度条 current
+                this.$bus.$emit('nextupTaken',this.track) // 播放当前的
             }
         },
         pauseClick(){
@@ -673,10 +682,10 @@ export default {
     border-left: 1px solid #f70;
 }
 .showComment-enter-active{
-    animation: dropdown .3s forwards;
+    animation: dropdown .3s;
 }
 .showComment-leave-active{
-    animation: dropdown reverse .3s forwards;
+    animation: dropdown reverse .3s;
 }
 @keyframes dropdown {
     from{
@@ -697,6 +706,7 @@ export default {
 .comment__locate{
     position: absolute;
     display: flex;
+    transition: .1s;
 }
 
 /* 用户名 - 评论内容 */
@@ -728,6 +738,11 @@ export default {
 .comment__usernameRight{
     padding: 10px 10px 0 10px;
     color: #ff5500;
+    display: inline-block;
+    max-width: 100px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 .comment__usernameRight::before{
     content: "";
@@ -742,10 +757,10 @@ export default {
 .comment__body{
     padding: 10px 0 0 10px;
     color: #fff;
-    max-width: 200px;
     white-space: nowrap; /* 设置单行显示 */
     overflow: hidden;
     text-overflow: ellipsis; /* 使用省略号隐藏超出内容 */
+    max-width: 400px;
 }
 
 
