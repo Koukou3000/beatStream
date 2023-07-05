@@ -56,7 +56,7 @@ export default {
                 tid: 3,
                 title: 'Be Fine',
                 artist: 'Soba',
-                audio_url: 'http://47.115.222.108/music/be-fine(soba-remix).mp3',
+                audio_url: 'http://47.115.222.108/music/be-fine-soba-remix.mp3',
                 img_url: 'http://47.115.222.108/pic/artworks-000638209432-mgb3fw-t500x500.jpg',
                 release_time: '2020-05-26 16:48:30',
                 preview_start: 37, 
