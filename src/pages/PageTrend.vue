@@ -137,7 +137,7 @@
                     
                     <div class="section">
                         <TrackGallery :tracks="getsth()" title="推荐单曲"/>
-                        <TrackGallery :tracks="getsth()" title="有歌词"/>
+                        <TrackGallery :tracks="gethSthHasLyric()" title="有歌词"/>
                         <!-- <TrackGallery :tracks="getsthLyric()" title="评论丰富"/> -->
                     </div>
                    
@@ -401,6 +401,9 @@ export default {
         },
         getsth(){
             return this.$store.getters['track/getTwelveTracks']()
+        },
+        gethSthHasLyric(){
+            return this.$store.getters['track/getTracksWithLyrics']()    
         }
     },
     filters:{

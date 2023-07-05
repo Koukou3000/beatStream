@@ -458,7 +458,7 @@ export default {
         },
         firstTag(tagStr){
             let arr = tagStr.split(';')
-            let firstTag = arr.filter(item => item.trim().length > 0)[1]
+            let firstTag = arr.filter(item => item.trim().length > 0)[0]
             if(firstTag) return firstTag
             else return 'unknown'            
         },

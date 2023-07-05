@@ -89,17 +89,17 @@ export default {
     },
     state:{
         commentList:[
-            {},{},{},{},{},{},{},{},{},{},{},
-            {
-                //12
+            {},{},{},{},{},
+            {},{},{},{},{},
+            {},{},{},{},{},
+            {},{},{},
+            { 
                 comments: [
                     {body:'GOAT', created_at:'2023-07-02 22:17:00', timestamp: 186, user_name:'QuisYolo'},
                     {body:'That diggs on mee', created_at:'2023-07-03 13:17:00', timestamp: 13, user_name:'Isaac'},
                     {body:'OH YEAH GOLD DIGGER', created_at:'2023-07-04 12:17:00', timestamp: 8, user_name:'love my baby'},
                     {body:'simp', created_at:'2023-07-02 02:17:00', timestamp: 77, user_name:'Canes 2019'}, 
-                ]
-            },
-            {},{},{},{},{},{},{},{},{},
+                ]},{},{},
         
         ]
     }

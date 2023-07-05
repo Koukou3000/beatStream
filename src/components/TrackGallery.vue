@@ -79,6 +79,7 @@ export default {
     watch:{
         page:{
             handler(p){
+                // console.log('handle page. page=',this.page,' pages=',this.pages)
                 if(p > 1){
                     this.hasBackward = true
                 }
@@ -92,7 +93,6 @@ export default {
                     this.hasBackward = false
                 } 
                 this.checkVisible()  // 页面变化时，判断哪些图片需要加载
-
             },
             immediate: true
         },
@@ -150,8 +150,7 @@ export default {
             setTimeout(() => {
                 this.moving = false
             }, 600);
-        },
-        
+        },     
         checkVisible(){
             this.$nextTick(()=>{
                 let window_left = this.$refs.viewport.getBoundingClientRect().left
@@ -208,20 +207,15 @@ export default {
             }) 
         },
     },
-    created(){
-        // 初始化页数 i = 3.5   =>   pages = 3+1  
-        let i = this.tracks.length / 4
-        if(i%1!=0){
-            i = parseInt(i)+1   //
-        } 
-        this.pages = i 
-    },
     mounted(){
         this.$nextTick(()=>{
             this.checkVisible()
         })
         this.$bus.$on('updateNowPlaying',this.updateNowPlaying)
-        this.$bus.$on('updatePlayStatus',this.updatePlayStatus)
+        this.$bus.$on('updatePlayStatus',this.updatePlayStatus)         
+        this.pages = Math.ceil(this.tracks.length / 4) 
+        // page == 1
+        if(this.page == this.pages) this.hasForward = false
     },
     beforeDestroy(){
         this.$bus.$off('updateNowPlaying')
