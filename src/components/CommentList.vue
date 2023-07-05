@@ -242,6 +242,8 @@ li{
     flex-direction: column;
     margin-right: 10px;
     color: #333;
+    word-wrap: break-word;
+    overflow-wrap: anywhere;
 }
 .jumpable__time{
     color: #999;
