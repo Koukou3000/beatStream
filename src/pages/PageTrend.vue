@@ -389,16 +389,21 @@ export default {
             // 放入nextup，衔接播放
             if(this.stage == 'crossfade'){
                 let t = this.$store.getters['track/getTrackDetail'](this.tid)// 获取当前播放音频
-                this.$bus.$emit('nextupTaken',t)
-                this.$bus.$emit('adjustTime', this.audio.currentTime)
 
-                // keepalive， 停止当前页面的活动
-                this.audio.pause() 
-                this.audio = null
+                this.$bus.$emit('nextupTaken',t)
+                let jumpTo = this.audio.currentTime + 0.4   
+                setTimeout(() => {
+                    this.$bus.$emit('adjustTime', jumpTo)                  
+                }, 400);   
+                
+
+                // 停止当前页面的活动
                 this.go('podium')
                 clearInterval(this.timer)
                 this.timer = null
                 this.count = 0
+                this.audio.pause() 
+                this.audio = null
             }
             
         },

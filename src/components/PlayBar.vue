@@ -636,7 +636,7 @@ export default {
     adjustTime(timeSec){
       // console.log('如果音频存在，跳转至对应位置 ',timeSec)
       if(this.audio){
-        this.audio.currentTime = timeSec
+        this.audio.currentTime = timeSec 
       }
     }
     
